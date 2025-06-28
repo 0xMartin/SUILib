@@ -18,7 +18,7 @@ CUSTOM_BTN_STYLE = {
     "background_color": (255, 120, 120),
     "font_name": "Verdana",
     "font_size": 32,
-    "font_bold": False
+    "font_bold": True
 }
 
 
