@@ -1,5 +1,5 @@
 # SUILib
-_A simple lightweight UI library for Pygame_
+_✨ A simple lightweight UI library for Pygame ✨_
 
 ![PyPI - License](https://img.shields.io/pypi/l/suilib?style=flat-square)
 ![Python Version](https://img.shields.io/pypi/pyversions/suilib?style=flat-square)
@@ -11,7 +11,7 @@ Switch between light and dark themes, or define your own look!
 
 ---
 
-## Installation 🚀
+## 🚀 Installation
 
 **Prepare virtual environment:**
 ```sh
@@ -31,7 +31,7 @@ pip install -e .
 
 ---
 
-## Features & Elements ✨
+## ✨ Features & Elements
 
 **Main Components**
 - ` Application `  ` View `  ` StyleManager `
@@ -55,7 +55,7 @@ pip install -e .
 
 ---
 
-## Preview
+## 🔍 Preview
 
 > Light theme  
 <img src="./doc/img1.png" width="48%"> <img src="./doc/img2.png" width="48%">
