@@ -36,4 +36,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 https://github.com/0xMartin/SimpleApp-Pygame-framework
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.2"

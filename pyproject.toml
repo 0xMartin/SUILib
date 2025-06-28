@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SUILib"
-version = "0.1.0"
+version = "0.1.2"
 description = "Simple UI Library for Pygame applications"
 authors = [
     { name = "Martin Krcma", email = "martin.krcma1@gmail.com" }
@@ -26,4 +26,10 @@ classifiers = [
 
 [tool.setuptools]
 include-package-data = true
-packages = ["SUILib"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["SUILib*"]
+
+[tool.setuptools.package-data]
+"SUILib" = ["assets/*", "config/*"]
