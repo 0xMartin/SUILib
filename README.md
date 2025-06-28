@@ -67,8 +67,8 @@ pip install -e .
 
 ## Documentation 📚
 
-Documentation coming soon!  
-[Read the full documentation here.](#) <!-- TODO: Add actual link -->
+Documentation is available in the docs folder or here on GitHub.
+[SUILib Documentation](https://0xmartin.github.io/SUILib/)
 
 ---
 
