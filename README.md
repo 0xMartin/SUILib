@@ -51,7 +51,7 @@ Documentation is available in the docs folder or here on GitHub.
 
 **Install from PyPI (recommended):**
 ```sh
-pip install suilib
+pip install SUILib
 ```
 
 **_Optional: Prepare a virtual environment first (recommended):_**

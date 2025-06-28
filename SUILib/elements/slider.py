@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
+import math
 from ..utils import *
 from ..colors import *
 from ..guielement import *
@@ -98,7 +99,7 @@ class Slider(GUIElement):
         """
         self.max = val
 
-    def setOnValueChange(self, callback):
+    def setOnValueChanged(self, callback):
         """
         Set the callback function to be called when the slider value changes.
 

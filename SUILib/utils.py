@@ -36,13 +36,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 import pygame
 import os.path
 import json
-import math
-import copy
-import string
 import threading
 import numpy as np
 from time import time
-
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg

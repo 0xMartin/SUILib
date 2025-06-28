@@ -166,7 +166,7 @@ class ComboBox(GUIElement, Container):
         if self.callback is not None:
             self.callback(self.selected_item)
 
-    def setValueChangeEvt(self, callback):
+    def setValueChangedEvt(self, callback):
         """
         Set the callback function to be called when the selected value changes.
 

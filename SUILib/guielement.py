@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 import pygame
 from typing import final
 import abc
-
+import inspect
 
 class GUIElement(metaclass=abc.ABCMeta):
     """
@@ -92,6 +92,15 @@ class GUIElement(metaclass=abc.ABCMeta):
         sm = view.getApp().getStyleManager()
         if style is None:
             self.style = sm.getStyleWithName(self.__class__.__name__)
+            if not self.style:
+                # Fallback to check all base 
+                for base in inspect.getmro(self.__class__)[1:]:
+                    if base is object:
+                        continue
+                    style = sm.getStyleWithName(base.__name__)
+                    if style:
+                        self.style = style
+                        break
         else:
             self.style = style
 
