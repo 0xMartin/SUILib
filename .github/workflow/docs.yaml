@@ -25,6 +25,7 @@ jobs:
       - name: Build documentation with pdoc
         run: |
           pdoc SUILib --html --output-dir docs --force
+          touch docs/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
