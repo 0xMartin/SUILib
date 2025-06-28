@@ -33,11 +33,14 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from .utils import *
 
-
 class StyleManager:
     """
     Provides style for each GUI element. Loading and preserves all application styles.
     """
+
+    __modele_path = os.path.dirname(os.path.abspath(__file__))
+    DARK_THEME_CONFIG = os.path.join(__modele_path, "config/styles_dark.json")
+    LIGHT_THEME_CONFIG = os.path.join(__modele_path, "config/styles_light.json")
 
     def __init__(self, styles_path):
         """

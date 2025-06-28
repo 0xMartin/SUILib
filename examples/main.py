@@ -1,7 +1,7 @@
 import random
 import pygame
 
-from SUILib import Application, View, AbsoluteLayout, RelativeLayout, overrides
+from SUILib import Application, View, AbsoluteLayout, RelativeLayout, StyleManager, overrides
 from SUILib.elements import *
 
 VIEW1_ID = 1
@@ -116,9 +116,9 @@ class View1(View):
 
     def changeTheme(self, dark):
         if dark:
-            self.getApp().reloadStyleSheet("SUILib/config/styles_dark.json")
+            self.getApp().reloadStyleSheet(StyleManager.DARK_THEME_CONFIG)
         else:
-            self.getApp().reloadStyleSheet("SUILib/config/styles_light.json")
+            self.getApp().reloadStyleSheet(StyleManager.LIGHT_THEME_CONFIG)
         self.getApp().reloadElementStyles()
 
 

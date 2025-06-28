@@ -35,10 +35,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 https://github.com/0xMartin/SimpleApp-Pygame-framework
 """
 
-import pygame
-import abc
-import threading
-
 from .application import Application, Layout, View
 from .colors import colorChange, colorAdd, colorInvert, createColor
 from .utils import overrides, inRect, generateSignal, loadImage, drawGraph, loadConfig, getDisplayWidth, getDisplayHeight, runTaskAsync

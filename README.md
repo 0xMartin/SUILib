@@ -58,10 +58,10 @@ pip install -e .
 ## 🔍 Preview
 
 > Light theme  
-<img src="./doc/img1.png" width="48%"> <img src="./doc/img2.png" width="48%">
+<img src="./preview/img1.png" width="48%"> <img src="./preview/img2.png" width="48%">
 
 > Dark theme  
-<img src="./doc/img3.png" width="48%">
+<img src="./preview/img3.png" width="48%">
 
 ---
 

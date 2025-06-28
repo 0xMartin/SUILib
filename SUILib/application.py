@@ -69,10 +69,10 @@ class Application:
         module_path = os.path.dirname(os.path.abspath(__file__))
         if dark:
             self.stylemanager = StyleManager(
-                os.path.join(module_path, "config/styles_dark.json"))
+                os.path.join(module_path, StyleManager.DARK_THEME_CONFIG))
         else:
             self.stylemanager = StyleManager(
-                os.path.join(module_path, "config/styles_light.json"))
+                os.path.join(module_path, StyleManager.LIGHT_THEME_CONFIG))
         self.setFillColor(WHITE)
         for v in views:
             if isinstance(v, View):
@@ -173,7 +173,10 @@ class Application:
             img = loadImage(os.path.join(module_path, "./assets/icon.png"))
         if img is not None:
             pygame.display.set_icon(img)
-        self.screen = pygame.display.set_mode((width, height))
+        self.screen = pygame.display.set_mode(
+            (width, height), 
+            pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.SRCALPHA | pygame.RESIZABLE, 
+            vsync=1)
         self.inited = True
 
     def run(self, start_view=None) -> bool:
