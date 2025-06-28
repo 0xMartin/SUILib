@@ -1,5 +1,5 @@
 # SUILib
-_✨ A simple lightweight UI library for Pygame ✨_
+_✨ A simple lightweight UI library for Pygame ✨✨_
 
 ![PyPI - License](https://img.shields.io/pypi/l/suilib?style=flat-square)
 ![Python Version](https://img.shields.io/pypi/pyversions/suilib?style=flat-square)
@@ -67,8 +67,8 @@ pip install -e .
 
 ## Documentation 📚
 
-Documentation coming soon!  
-[Read the full documentation here.](#) <!-- TODO: Add actual link -->
+Documentation is available in the docs folder or here on GitHub.
+[SUILib Documentation](https://0xmartin.github.io/SUILib/)
 
 ---
 

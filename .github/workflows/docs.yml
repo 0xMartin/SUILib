@@ -1,3 +1,5 @@
+name: Build pdoc documentation
+
 on:
   push:
     branches:
@@ -24,10 +26,13 @@ jobs:
 
       - name: Build documentation with pdoc
         run: |
-          pdoc SUILib --html --output-dir docs --force
+          pdoc SUILib --output-dir docs --docformat google
+          touch docs/.nojekyll
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/SUILib
+      - name: Commit and push docs
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add docs
+          git commit -m "Auto-update docs [skip ci]" || echo "No changes to commit"
+          git push
