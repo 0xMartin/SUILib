@@ -1,5 +1,5 @@
 # SUILib
-_✨ A simple lightweight UI library for Pygame ✨_
+_✨ A simple lightweight UI library for Pygame ✨✨_
 
 ![PyPI - License](https://img.shields.io/pypi/l/suilib?style=flat-square)
 ![Python Version](https://img.shields.io/pypi/pyversions/suilib?style=flat-square)
