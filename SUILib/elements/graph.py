@@ -1,5 +1,5 @@
 """
-Simple library for multiple views game aplication with pygame
+Graph UI element for SUILib
 
 File:       graph.py
 Date:       09.02.2022
@@ -36,17 +36,29 @@ from ..utils import *
 from ..colors import *
 from ..guielement import *
 
-
 class Graph(GUIElement):
+    """
+    Represents a data visualization widget for displaying various types of graphs (line, bar, pie, scatter, dot) using Matplotlib and Pygame.
+
+    The Graph element renders a matplotlib figure into a Pygame surface, allowing dynamic graph content
+    inside SUILib views. The user supplies a figure builder function which draws the graph using matplotlib.
+
+    Attributes:
+        graph (pygame.Surface): The rendered graph as a Pygame surface.
+        fig_builder (callable): The user-supplied function for building the matplotlib figure.
+    """
+
     def __init__(self, view, style: dict, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
         """
-        Create Graph element
-        Parameters:
-            view -> View where is element
-            width -> Width of Graph
-            height -> Height of Graph
-            x -> X position
-            y -> Y position
+        Initialize a new Graph instance.
+
+        Args:
+            view: The parent View instance where this graph is placed.
+            style (dict): Dictionary describing the style for this graph.
+            width (int, optional): Width of the graph in pixels. Defaults to 0.
+            height (int, optional): Height of the graph in pixels. Defaults to 0.
+            x (int, optional): X coordinate of the graph. Defaults to 0.
+            y (int, optional): Y coordinate of the graph. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style)
         self.graph = None
@@ -54,24 +66,42 @@ class Graph(GUIElement):
 
     def setFigureBuilderFunc(self, func):
         """
-        Set figure builder function
-        Parameters:
-            func -> builder function -> def __name__(fig) : fig - matplotlib.figure from graph
-                * in builder function using matplotlib make your own graph
+        Set the function responsible for building the matplotlib figure.
+
+        Args:
+            func (callable): Builder function with signature `def builder(fig): ...`
+                - The function receives a matplotlib.figure.Figure instance and
+                  should draw the desired graph on it.
         """
         self.fig_builder = func
 
     @overrides(GUIElement)
     def setWidth(self, width):
+        """
+        Set the width of the graph and refresh the rendered figure.
+
+        Args:
+            width (int): New width in pixels.
+        """
         super().setWidth(width)
         self.refreshGraph()
 
     @overrides(GUIElement)
     def setHeight(self, height):
+        """
+        Set the height of the graph and refresh the rendered figure.
+
+        Args:
+            height (int): New height in pixels.
+        """
         super().setHeight(height)
         self.refreshGraph()
 
     def refreshGraph(self):
+        """
+        Redraw and re-render the matplotlib figure to the Pygame surface.
+        Called automatically when the size of the graph changes or the builder function is set.
+        """
         if self.fig_builder is not None and super().getWidth() > 50 and super().getHeight() > 50:
             fig = pylab.figure(
                 figsize=[self.getWidth()/100, self.getHeight()/100], dpi=100)
@@ -84,58 +114,88 @@ class Graph(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        """
+        Render the graph onto the given Pygame surface.
+
+        Args:
+            view: The parent View instance.
+            screen (pygame.Surface): The surface to render the graph onto.
+        """
         if self.graph is not None:
-            screen.blit(pygame.transform.scale(self.graph, (super().getWidth(
-            ), super().getHeight())), (super().getX(), super().getY()))
+            screen.blit(
+                pygame.transform.scale(self.graph, (super().getWidth(), super().getHeight())),
+                (super().getX(), super().getY())
+            )
 
     @overrides(GUIElement)
     def processEvent(self, view, event):
+        """
+        Handle Pygame events for the graph.
+
+        Args:
+            view: The parent View instance.
+            event (pygame.event.Event): The event to process.
+        """
         pass
 
     @overrides(GUIElement)
     def update(self, view):
+        """
+        Update logic for the graph.
+
+        Args:
+            view: The parent View instance.
+        """
         pass
 
     @staticmethod
     def builderFunc_lineGraph(fig, x_label, y_label, values, legend=None):
         """
-        Builder function for Graph: Plot line graph
-        Parameters:
-            x_label -> Label for X axis
-            y_label -> Label for Y axis
-            values -> List with collections for each line of graph [[0, ...], ...]
-            legend -> Legend of graph: List of strings ['str', ...]
-        Example: 
-        Graph.builderFunc_lineGraph(
-            f,
-            "X axis",
-            "Y axis",
-            [[1, 2, 3, 4], [2, 4, 10, 8], [3, 7, 17, 12]],
-            ['A', 'B', 'C']
-        )
+        Builder function for Graph: Plot line graph.
+
+        Args:
+            fig: The matplotlib Figure object to plot on.
+            x_label (str): Label for X axis.
+            y_label (str): Label for Y axis.
+            values (list): List of lists, each representing Y values of a line.
+            legend (list, optional): List of legend strings.
+
+        Example:
+            Graph.builderFunc_lineGraph(
+                f,
+                "X axis",
+                "Y axis",
+                [[1, 2, 3, 4], [2, 4, 10, 8], [3, 7, 17, 12]],
+                ['A', 'B', 'C']
+            )
         """
         ax = fig.gca()
         for i, line in enumerate(values):
-            line, = ax.plot(line)
-            if i < len(legend):
-                line.set_label(legend[i])
+            line_plot, = ax.plot(line)
+            if legend and i < len(legend):
+                line_plot.set_label(legend[i])
                 ax.legend()
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
 
     @staticmethod
-    def builderFunc_pieGraph(fig: matplotlib.figure, labels: list, values: list, explode: list = None):
+    def builderFunc_pieGraph(fig, labels, values, explode=None):
         """
-        Builder function for Graph: Plot pie graph
-        Parameters:
-            labels -> Labels for parts of pie graph (list of strings) ['str', ...]
-            values -> Values for parts of pie graph (list of numbers) [1, ...]
-            explode -> Offsets from center of pie graph for each part (list of numbers) [0.1, ...]
+        Builder function for Graph: Plot pie graph.
+
+        Args:
+            fig: The matplotlib Figure object to plot on.
+            labels (list): Labels for the pie sections.
+            values (list): Values for each section.
+            explode (list, optional): Offsets for each section.
+
         Example:
-        Graph.builderFunc_pieGraph(
-            f,
-            ['A', 'B', 'C', 'D'],
-            [1, 2, 3, 5],
-            (0, 0.2, 0, 0)
-        )
+            Graph.builderFunc_pieGraph(
+                f,
+                ['A', 'B', 'C', 'D'],
+                [1, 2, 3, 5],
+                (0, 0.2, 0, 0)
+            )
         """
         ax = fig.gca()
         ax.pie(values, explode=explode, labels=labels, autopct='%1.1f%%',
@@ -143,69 +203,77 @@ class Graph(GUIElement):
         ax.axis('equal')
 
     @staticmethod
-    def builderFunc_dotGraph(fig: matplotlib.figure, x_label: str, y_label: str, values: list, legend: list = None):
+    def builderFunc_dotGraph(fig, x_label, y_label, values, legend=None):
         """
-        Builder function for Graph: Dot graph
-        Parameters:
-            x_label -> Label for X axis
-            y_label -> Label for Y axis
-            values -> List with collections for each line of graph [[0, ...], ...]
-            legend -> Legend of graph: List of strings ['str', ...]
-        Example: 
-        Graph.builderFunc_dotGraph(
-            f,
-            "X axis",
-            "Y axis",
-            [[1, 2, 3, 4], [2, 4, 10, 8], [3, 7, 17, 12]],
-            ['A', 'B', 'C']
-        )
+        Builder function for Graph: Dot graph.
+
+        Args:
+            fig: The matplotlib Figure object to plot on.
+            x_label (str): Label for X axis.
+            y_label (str): Label for Y axis.
+            values (list): List of lists, each representing Y values of a line.
+            legend (list, optional): List of legend strings.
+
+        Example:
+            Graph.builderFunc_dotGraph(
+                f,
+                "X axis",
+                "Y axis",
+                [[1, 2, 3, 4], [2, 4, 10, 8], [3, 7, 17, 12]],
+                ['A', 'B', 'C']
+            )
         """
         ax = fig.gca()
         for i, line in enumerate(values):
-            line, = ax.plot(line, '.')
-            if i < len(legend):
-                line.set_label(legend[i])
+            line_plot, = ax.plot(line, '.')
+            if legend and i < len(legend):
+                line_plot.set_label(legend[i])
                 ax.legend()
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
 
     @staticmethod
-    def builderFunc_barGraph(fig: matplotlib.figure, labels: list, values: list):
+    def builderFunc_barGraph(fig, labels, values):
         """
-        Builder function for Graph: Bar graph
-        Parameters:
-            labels -> Labels for bars ['str', ...]
-            values -> Values for each bar [1, ...]
-        Example: 
-        Graph.builderFunc_barGraph(
-            f,
-            ['A', 'B', 'C', 'D'],
-            [2, 4, 10, 8]
-        )
+        Builder function for Graph: Bar graph.
+
+        Args:
+            fig: The matplotlib Figure object to plot on.
+            labels (list): Labels for bars.
+            values (list): Values for each bar.
+
+        Example:
+            Graph.builderFunc_barGraph(
+                f,
+                ['A', 'B', 'C', 'D'],
+                [2, 4, 10, 8]
+            )
         """
         ax = fig.gca()
         ax.bar(labels, values, width=1, edgecolor="white", linewidth=0.7)
 
     @staticmethod
-    def builderFunc_scatterGraph(fig: matplotlib.figure, values: list, xlim: tuple, ylim: tuple):
+    def builderFunc_scatterGraph(fig, values, xlim, ylim):
         """
-        Builder function for Graph: Bar graph
-        Parameters:
-            values -> List with values for each point [(1, 2), ...]
-            xlim -> Limit for x axis
-            ylim -> Limit for y axis
-        Example: 
-        Graph.builderFunc_barGraph(
-            f,
-            [(1, 2), (4, 5), (4, 7), (6, 1), (4, 3)],
-            (0, 8),
-            (0, 8)
-        )
+        Builder function for Graph: Scatter graph.
+
+        Args:
+            fig: The matplotlib Figure object to plot on.
+            values (list): List of (x, y) tuples for each point.
+            xlim (tuple): (min, max) for x axis.
+            ylim (tuple): (min, max) for y axis.
+
+        Example:
+            Graph.builderFunc_scatterGraph(
+                f,
+                [(1, 2), (4, 5), (4, 7), (6, 1), (4, 3)],
+                (0, 8),
+                (0, 8)
+            )
         """
         ax = fig.gca()
-        x = []
-        y = []
-        for pt in values:
-            x.append(pt[0])
-            y.append(pt[1])
+        x = [pt[0] for pt in values]
+        y = [pt[1] for pt in values]
         sizes = np.random.uniform(15, 80, len(x))
         colors = np.random.uniform(15, 80, len(x))
         ax.scatter(x, y, s=sizes, c=colors, vmin=0, vmax=100)

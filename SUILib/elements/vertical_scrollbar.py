@@ -1,14 +1,14 @@
 """
-Simple library for multiple views game aplication with pygame
+VerticalScrollbar UI element for SUILib
 
 File:       vertical_scrollbar.py
 Date:       09.02.2022
 
 Github:     https://github.com/0xMartin
 Email:      martin.krcma1@gmail.com
- 
+
 Copyright (C) 2022 Martin Krcma
- 
+
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without
@@ -17,10 +17,10 @@ copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following
 conditions:
- 
+
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
- 
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -38,17 +38,32 @@ from ..guielement import *
 
 
 class VerticalScrollbar(GUIElement):
+    """
+    Represents a vertical scrollbar UI element for SUILib applications.
+
+    The VerticalScrollbar allows users to scroll through a content area by dragging
+    the scroller handle. It supports custom styles, event callbacks, and integrates
+    with the View layout system.
+
+    Attributes:
+        scroller_pos (float): Current vertical position of the scroller handle.
+        scroller_size (int): Height of the scroller handle in pixels.
+        callback (callable): Function to call when the scroller is moved.
+    """
+
     def __init__(self, view, style: dict, scroller_size: int, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
         """
-        Create VerticalScrollbar
-        Parameters:
-            view -> View where is element
-            style -> more about style for this element in config/styles.json
-            scroller_size -> Scroller height
-            width -> Width of VerticalScrollbar
-            height -> Height of VerticalScrollbar
-            x -> X position
-            y -> Y position
+        Initialize a new VerticalScrollbar.
+
+        Args:
+            view: The parent View instance where this scrollbar is placed.
+            style (dict): Dictionary containing style attributes for the scrollbar.
+                See config/styles.json for details.
+            scroller_size (int): Height of the scroller handle in pixels.
+            width (int, optional): Width of the scrollbar in pixels. Defaults to 0.
+            height (int, optional): Height of the scrollbar in pixels. Defaults to 0.
+            x (int, optional): X coordinate of the scrollbar. Defaults to 0.
+            y (int, optional): Y coordinate of the scrollbar. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZENS)
         self.callback = None
@@ -57,26 +72,34 @@ class VerticalScrollbar(GUIElement):
 
     def setScrollerSize(self, size: int):
         """
-        Set size of scroller
-        Parameters:
-            size -> Height in pixels
+        Set the size of the scroller handle.
+
+        Args:
+            size (int): New height of the scroller handle in pixels.
         """
         self.scroller_size = max(size, super().getWidth())
 
     def setOnScrollEvt(self, callback):
         """
-        Set on scroll event callback
-        Parameters:
-            callback -> callback function
+        Set a callback to be called when the scrollbar is scrolled.
+
+        Args:
+            callback (callable): Function to be called with the new position (0.0 - 1.0).
         """
         self.callback = callback
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        # background
-        pygame.draw.rect(screen, super().getStyle()[
-                         "background_color"], super().getViewRect())
-        # scroller
+        """
+        Render the scrollbar background, handle, and outline.
+
+        Args:
+            view: The parent View instance.
+            screen (pygame.Surface): The surface to render the scrollbar onto.
+        """
+        # Background
+        pygame.draw.rect(screen, super().getStyle()["background_color"], super().getViewRect())
+        # Scroller handle
         pygame.draw.rect(
             screen,
             super().getStyle()["foreground_color"],
@@ -88,12 +111,18 @@ class VerticalScrollbar(GUIElement):
             ),
             border_radius=6
         )
-        # outline
-        pygame.draw.rect(screen, super().getStyle()[
-                         "outline_color"], super().getViewRect(), 2)
+        # Outline
+        pygame.draw.rect(screen, super().getStyle()["outline_color"], super().getViewRect(), 2)
 
     @overrides(GUIElement)
     def processEvent(self, view, event):
+        """
+        Handle Pygame events for scrollbar interaction (dragging the handle).
+
+        Args:
+            view: The parent View instance.
+            event (pygame.event.Event): The event to process.
+        """
         if self.scroller_size >= super().getHeight():
             return
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -105,14 +134,18 @@ class VerticalScrollbar(GUIElement):
             super().unSelect()
         elif event.type == pygame.MOUSEMOTION:
             if super().isSelected():
-                self.scroller_pos = self.def_scroller_pos + \
-                    (event.pos[1] - self.drag_start)
+                self.scroller_pos = self.def_scroller_pos + (event.pos[1] - self.drag_start)
                 self.scroller_pos = min(
                     max(0, self.scroller_pos), super().getHeight() - self.scroller_size)
                 if self.callback is not None:
-                    self.callback(self.scroller_pos /
-                                  (super().getHeight() - self.scroller_size))
+                    self.callback(self.scroller_pos / (super().getHeight() - self.scroller_size))
 
     @overrides(GUIElement)
     def update(self, view):
+        """
+        Update logic for the vertical scrollbar.
+
+        Args:
+            view: The parent View instance.
+        """
         pass
