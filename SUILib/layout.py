@@ -1,11 +1,13 @@
 """
-Simple library for multiple views game aplication with pygame
+layout.py - Layout managers for SUILib GUI framework
 
-File:       layout.py
-Date:       09.02.2022
+This module provides layout manager classes for arranging GUI elements within a View.
+It includes AbsoluteLayout for pixel/percentage-based positioning and sizing,
+and RelativeLayout for stacking elements relative to a parent in horizontal or vertical fashion.
 
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
+Author: Martin Krcma <martin.krcma1@gmail.com>
+Github: https://github.com/0xMartin
+Date: 09.02.2022
 
 Copyright (C) 2022 Martin Krcma
 
@@ -33,41 +35,47 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from .utils import *
 from .colors import *
-from .guielement import *
-from .application import *
+from .application import Layout   
 
+# **************************************************************************************************************
+# layout managers
+# **************************************************************************************************************
 
 class AbsoluteLayout(Layout):
     """
-    It is possible to set absolute position or size of each GUI element. Values can be
-    set in % or px. If the value is set in %, it is then recalculated to px (in overrided
-    method Layout.updateLayout). So it is possible to set the element to be constantly 
-    in a certain position or to have a certain size.
-    Examples:
-        Position only:
-            al = AbsoluteLayout(self)
-            label = Label(self, None, "Label 1", True)
-            al.addElement(label, ['50%', '5%'])
-        All attributes:
-            canvas = Canvas(self, None)
-            al.addElement(canvas, ['3%', '15%', '45%', '40%'])
-        Pixel value:
-            btn = Button(self, custom_btn_style, "Go to view 2")
-            al.addElement(btn, ['25%', '60%', '50%', '40'])
+    Layout manager for absolute positioning and sizing of GUI elements.
+
+    Allows setting element positions and sizes in pixels or percentages
+    (e.g., "50%", "120"). Percentage values are recalculated to pixels
+    on layout update, enabling responsive or fixed layouts.
+
+    Example usage:
+        al = AbsoluteLayout(self)
+        label = Label(self, None, "Label 1", True)
+        al.addElement(label, ['50%', '5%'])  # Centered horizontally, near top
+
+    Attributes:
+        Inherited from Layout.
     """
 
     def __init__(self, view):
         """
-        Create Absolute Layout
-        addElement(el, propt) -> propt : {x, y, width, height}
-        (x, y, ...) value type: number in px ('50', '4', ...) or % ('20%', '5%', ...)
-        Parameters:
-            view -> View for which the layout manager will register
+        Initialize AbsoluteLayout for a given View.
+
+        Args:
+            view (View): View instance for which the layout manager is registered.
         """
         super().__init__(view)
 
     @overrides(Layout)
     def updateLayout(self, width, height):
+        """
+        Update positions and sizes of all managed GUI elements.
+
+        Args:
+            width (int): Width of the view/screen.
+            height (int): Height of the view/screen.
+        """
         for el in super().getLayoutElements():
             gui_el = el["element"]
             propts = el["propt"]
@@ -93,35 +101,41 @@ class AbsoluteLayout(Layout):
 
 class RelativeLayout(Layout):
     """
-    For this layout manager are there two types of elements (parent and child).
-    The layout manager does not affect the element that is defined as the "parent".
-    All elements defined as "child" start stacking behind the parent element in
-    a defined axis (horizontal or vertical).
-    Examples:
-        al = AbsoluteLayout(self)
-        rl = RelativeLayout(self, True)
-        checkbox1 = CheckBox(self, None, "Check box 1", True, 20)
-        al.addElement(checkbox1, ['10%', '75%'])
-        rl.addElement(checkbox1, "parent")
-        checkbox2 = CheckBox(self, None, "Check box 2", True, 20)
-        rl.addElement(checkbox2, "child")
-        checkbox3 = CheckBox(self, None, "Check box 3", True, 20)
-        rl.addElement(checkbox3, "child")
+    Layout manager for arranging elements relative to a parent.
+
+    Elements are marked as "parent" or "child". The parent remains in its
+    position, while child elements are stacked horizontally or vertically
+    starting from the parent.
+
+    Example usage:
+        rl = RelativeLayout(self, horizontal=True)
+        rl.addElement(parent_widget, "parent")
+        rl.addElement(child_widget, "child")
+
+    Attributes:
+        horizontal (bool): If True, stack horizontally; else vertically.
     """
 
     def __init__(self, view, horizontal):
         """
-        Create Relative Layout
-        addElement(el, propt) -> "parent" (his position does not change), "child" (his position depends on the parent)
-        Parameters:
-            view -> View for which the layout manager will register
-            horizontal -> True=elements will stacking in horizontal axis   
+        Initialize RelativeLayout for a given View.
+
+        Args:
+            view (View): View instance for which the layout manager is registered.
+            horizontal (bool): If True, stack children horizontally; else vertically.
         """
         super().__init__(view)
         self.horizontal = horizontal
 
     @overrides(Layout)
     def updateLayout(self, width, height):
+        """
+        Update positions of parent/child elements according to stacking direction.
+
+        Args:
+            width (int): Width of the view/screen.
+            height (int): Height of the view/screen.
+        """
         cnt = len(super().getLayoutElements())
         if cnt == 0:
             return

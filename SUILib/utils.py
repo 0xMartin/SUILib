@@ -1,11 +1,13 @@
 """
-Simple library for multiple views game aplication with pygame
+Utility functions for SUILib framework
 
-File:       utils.py
-Date:       08.02.2022
+This module provides miscellaneous utility functions and helpers for the SUILib
+multi-view game application framework, including geometry, image loading, config
+parsing, async execution, and matplotlib graph rendering for pygame integration.
 
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
+Author: Martin Krcma <martin.krcma1@gmail.com>
+Github: https://github.com/0xMartin
+Date: 08.02.2022
 
 Copyright (C) 2022 Martin Krcma
 
@@ -32,7 +34,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
-
 import os.path
 import json
 import math
@@ -47,8 +48,19 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
 import pylab
 
-
 def overrides(interface_class):
+    """
+    Decorator to indicate that a method overrides a method in a superclass.
+
+    Args:
+        interface_class (type): The base class to check against.
+
+    Returns:
+        function: The decorated method.
+
+    Raises:
+        AssertionError: If the method name does not exist in the base class.
+    """
     def overrider(method):
         assert(method.__name__ in dir(interface_class))
         return method
@@ -57,11 +69,15 @@ def overrides(interface_class):
 
 def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
     """
-    Check if x, y is in rect
-    Parameters:
-        x -> X position
-        y -> Y position
-        rect -> rectangle {left, top, width, height}
+    Check if the point (x, y) is within a given pygame.Rect.
+
+    Args:
+        x (int): X coordinate.
+        y (int): Y coordinate.
+        rect (pygame.Rect): Rectangle to check against.
+
+    Returns:
+        bool: True if the point is inside the rectangle, False otherwise.
     """
     if x >= rect.left and y >= rect.top and x <= rect.left + rect.width and y <= rect.top + rect.height:
         return True
@@ -71,18 +87,26 @@ def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
 
 def generateSignal(ms_periode: int) -> bool:
     """
-    Genereta pariodic signal -> (ms_periode) True -> (ms_periode) False -> ...
-    Parameters:
-        ms_periode -> Half periode of signal in ms
+    Generate a periodic boolean signal: (ms_periode) True -> (ms_periode) False -> ...
+
+    Args:
+        ms_periode (int): Half-period of the signal in milliseconds.
+
+    Returns:
+        bool: Alternates True/False every ms_periode.
     """
     return round((time() * 1000) / ms_periode) % 2 == 0
 
 
 def loadImage(img_path: str) -> pygame.Surface:
     """
-    Load image from File system
-    Parameters:
-        img_path -> Path of image
+    Load an image from the filesystem as a pygame Surface.
+
+    Args:
+        img_path (str): Path to the image file.
+
+    Returns:
+        pygame.Surface: Loaded image, or None if file not found.
     """
     if os.path.isfile(img_path):
         return pygame.image.load(img_path)
@@ -91,14 +115,15 @@ def loadImage(img_path: str) -> pygame.Surface:
 
 def drawGraph(fig: matplotlib.figure, dark: bool = False):
     """
-    Draw graph and print it to the image
-    Parameters:
-        width -> Width of graph
-        height -> Height of graph
-        fig -> Data of graph
-        dark -> True = dark mode
-    """
+    Render a matplotlib figure to a pygame Surface.
 
+    Args:
+        fig (matplotlib.figure.Figure): The matplotlib figure to render.
+        dark (bool): True for dark mode, False for default (light).
+
+    Returns:
+        pygame.Surface: The rendered graph as a pygame Surface.
+    """
     matplotlib.use("Agg")
     if dark == "dark":
         plt.style.use('dark_background')
@@ -116,9 +141,13 @@ def drawGraph(fig: matplotlib.figure, dark: bool = False):
 
 def loadConfig(path: str) -> str:
     """
-    Load config
-    Parameters:
-        path -> path to the file
+    Load a JSON config file.
+
+    Args:
+        path (str): Path to the file.
+
+    Returns:
+        dict: Parsed JSON as dictionary, or None if file not found.
     """
     if not os.path.isfile(path):
         return None
@@ -130,16 +159,28 @@ def loadConfig(path: str) -> str:
 
 def getDisplayWidth() -> int:
     """
-    Get width of display
+    Get width of the current pygame display surface.
+
+    Returns:
+        int: Width in pixels.
     """
     return pygame.display.get_surface().get_size().get_width()
 
 def getDisplayHeight() -> int:
     """
-    Get height of display
+    Get height of the current pygame display surface.
+
+    Returns:
+        int: Height in pixels.
     """
     return pygame.display.get_surface().get_size().get_height()
 
 def runTaskAsync(task):
+    """
+    Run a function asynchronously in a new thread.
+
+    Args:
+        task (function): Function to be run in a separate thread, expected to accept a single argument.
+    """
     task = threading.Thread(target=task, args=(1,))
     task.start()

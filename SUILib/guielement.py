@@ -1,14 +1,17 @@
 """
-Simple library for multiple views game aplication with pygame
+Base classes for GUI elements in SUILib
 
-File:       gui.py
-Date:       08.02.2022
+This module defines the core abstract base classes for GUI elements and containers
+used in the SUILib framework. It provides the foundational interface and functionality
+for all graphical elements (buttons, panels, sliders, etc.) in a multi-view
+pygame-based application.
 
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
- 
+Author: Martin Krcma <martin.krcma1@gmail.com>
+Github: https://github.com/0xMartin
+Date: 08.02.2022
+
 Copyright (C) 2022 Martin Krcma
- 
+
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without
@@ -17,10 +20,10 @@ copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following
 conditions:
- 
+
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
- 
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -38,12 +41,28 @@ import abc
 
 class GUIElement(metaclass=abc.ABCMeta):
     """
-    Base class for GUI elements
+    Abstract base class for all GUI elements in SUILib.
+
+    Provides position, size, style, visibility, selection state, and required
+    abstract interface for rendering, event processing, and updates.
+
+    Attributes:
+        view: Reference to parent View.
+        x (int): X position.
+        y (int): Y position.
+        width (int): Width of the element.
+        height (int): Height of the element.
+        style (dict): Style dictionary.
+        selected_cursor: Pygame cursor type shown when this element is selected.
+        visible (bool): Visibility of the element.
+        selected (bool): Selection state.
+        rect (pygame.Rect): Rectangle representing the element's position and size.
     """
 
     def __init__(
         self,
-        view, x: int,
+        view,
+        x: int,
         y: int,
         width: int,
         height: int,
@@ -51,14 +70,16 @@ class GUIElement(metaclass=abc.ABCMeta):
         selected_cursor=pygame.SYSTEM_CURSOR_HAND
     ):
         """
-        Create GUIElement
-        Parameters:
-            x -> X position of Element
-            y -> Y position of Element
-            width -> Width of Element
-            height -> Height of Element
-            style -> Style of Element
-            selected_cursor -> The type of cursor that appears when this element is selected
+        Initialize a new GUIElement.
+
+        Args:
+            view: Parent View where the element is placed.
+            x (int): X position.
+            y (int): Y position.
+            width (int): Width in pixels.
+            height (int): Height in pixels.
+            style (dict): Style dictionary. If None, will be resolved by class name.
+            selected_cursor: Pygame cursor type to show when element is selected.
         """
         self.view = view
         self.x = x
@@ -79,98 +100,102 @@ class GUIElement(metaclass=abc.ABCMeta):
 
     def setVisibility(self, visible: bool):
         """
-        Set visibility of element
-        Parameters:
-            visible -> True/False
+        Set visibility of this element.
+
+        Args:
+            visible (bool): True to make element visible, False to hide.
         """
         self.visible = visible
 
     def isVisible(self) -> bool:
         """
-        Check if element is visible
+        Check visibility of this element.
+
+        Returns:
+            bool: True if visible, False otherwise.
         """
         return self.visible
 
     def setSelectCursor(self, cursor):
         """
-        Set cursor type when this element is selected
-        Parameters:
-            cursor -> Type of cursor that appears when this element is selected
+        Set the cursor type to use when this element is selected.
+
+        Args:
+            cursor: Pygame cursor type constant.
         """
         self.selected_cursor = cursor
 
     @final
     def getSelectCursor(self):
         """
-        Return cursor type when this element is selected
+        Get the cursor type to use when this element is selected.
+
+        Returns:
+            int: Pygame cursor type constant.
         """
         return self.selected_cursor
 
     @final
     def getView(self):
         """
-        Get view to which the element belongs
+        Get reference to the parent View.
+
+        Returns:
+            View: The parent view object.
         """
         return self.view
 
     @final
     def getX(self) -> int:
-        """
-        Get x position of this element
-        """
+        """Get X position of this element."""
         return self.x
 
     @final
     def getY(self) -> int:
-        """
-        Get y position of this element
-        """
+        """Get Y position of this element."""
         return self.y
 
     @final
     def getWidth(self) -> int:
-        """
-        Get width of this element
-        """
+        """Get width of this element."""
         return self.width
 
     @final
     def getHeight(self) -> int:
-        """
-        Get height of this element
-        """
+        """Get height of this element."""
         return self.height
 
     @final
     def getStyle(self) -> dict:
-        """
-        Get style of this element
-        """
+        """Get style dictionary of this element."""
         return self.style
 
     def setX(self, x: int):
         """
-        Set x position of this element
-        Parameters:
-            x -> New X position
+        Set the X position of this element.
+
+        Args:
+            x (int): New X position.
         """
         self.x = x
         self.updateViewRect()
 
     def setY(self, y: int):
         """
-        Set y position of this element
-        Parameters:
-            y -> New Y position
+        Set the Y position of this element.
+
+        Args:
+            y (int): New Y position.
         """
         self.y = y
         self.updateViewRect()
 
     def setWidth(self, width: int):
         """
-        Set width of this element
-        Parameters:
-            width -> New width
+        Set the width of this element.
+
+        Args:
+            width (int): New width in pixels.
         """
         if width >= 0:
             self.width = width
@@ -178,9 +203,10 @@ class GUIElement(metaclass=abc.ABCMeta):
 
     def setHeight(self, height: int):
         """
-        Set height of this element
-        Parameters:
-            height -> New height
+        Set the height of this element.
+
+        Args:
+            height (int): New height in pixels.
         """
         if height >= 0:
             self.height = height
@@ -188,80 +214,98 @@ class GUIElement(metaclass=abc.ABCMeta):
 
     def setStyle(self, style: dict):
         """
-        Set style of this element
-        Parameters:
-            style -> New style of element
+        Set the style dictionary for this element.
+
+        Args:
+            style (dict): New style.
         """
         self.style = style
 
     def updateViewRect(self):
         """
-        Update view rect of this element
+        Update the pygame.Rect representing this element's area.
         """
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     @final
     def getViewRect(self) -> pygame.Rect:
         """
-        Get view rect of this element
+        Get the pygame.Rect representing the element's area.
+
+        Returns:
+            pygame.Rect: The rectangle for drawing and hit-testing.
         """
         return self.rect
 
     @final
     def select(self):
-        """
-        Select this element
-        """
+        """Mark this element as selected."""
         self.selected = True
 
     @final
     def unSelect(self):
-        """
-        Unselect this element
-        """
+        """Mark this element as unselected."""
         self.selected = False
 
     @final
     def isSelected(self) -> bool:
         """
-        Check if element is selected
+        Check if this element is currently selected.
+
+        Returns:
+            bool: True if selected, False otherwise.
         """
         return self.selected
 
     @abc.abstractmethod
     def draw(self, view, screen: pygame.Surface):
         """
-        Draw element on screen
-        Parameters:
-            view -> View which is rendering this element
-            screen -> Screen where element is rendered 
+        Draw the element on the pygame surface.
+
+        Args:
+            view: The parent View calling the draw method.
+            screen (pygame.Surface): The surface to draw on.
         """
         pass
 
     @abc.abstractmethod
     def processEvent(self, view, event):
         """
-        Process event from view
-        Parameters:
-            view -> View which is sending event
-            event -> Pygame event
+        Process a pygame event sent from the parent view.
+
+        Args:
+            view: The parent View sending the event.
+            event: The pygame event object.
         """
         pass
 
     @abc.abstractmethod
     def update(self, view):
         """
-        Update element
-        Parameters:
-            view -> View which is updating this element
+        Update the element's state.
+
+        Args:
+            view: The parent View updating this element.
         """
         pass
 
 
 class Container(metaclass=abc.ABCMeta):
+    """
+    Abstract base class for a container of GUI elements.
+
+    Any class inheriting from Container must implement getChilds().
+
+    Methods:
+        getChilds(): Returns a list of child GUI elements.
+    """
+
     @abc.abstractmethod
     def getChilds(self) -> list:
         """
-        Get child elements of Container object
+        Get child GUI elements of the container.
+
+        Returns:
+            list: List of contained child elements.
         """
         pass

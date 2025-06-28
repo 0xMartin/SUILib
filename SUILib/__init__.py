@@ -35,17 +35,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 https://github.com/0xMartin/SimpleApp-Pygame-framework
 """
 
-from .application import Application, Layout, View
-from .colors import colorChange, colorAdd, colorInvert, createColor
-from .utils import overrides, inRect, generateSignal, loadImage, drawGraph, loadConfig, getDisplayWidth, getDisplayHeight, runTaskAsync
+from .application import Application, View, Layout
+from .guielement import GUIElement, Container
 from .stylemanager import StyleManager
 from .layout import RelativeLayout, AbsoluteLayout
+from .colors import colorChange, colorAdd, colorInvert, createColor
+from .utils import overrides, inRect, generateSignal, loadImage, drawGraph, loadConfig, getDisplayWidth, getDisplayHeight, runTaskAsync
 from .graphics import Vertex, Edge, Wireframe
 
 __all__ = [
     "Application",
     "Layout",
     "View",
+
+    "GUIElement",
+    "Container",
 
     "colorChange",
     "colorAdd",
