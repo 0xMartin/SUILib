@@ -1,8 +1,9 @@
 """
-Simple library for multiple views game aplication with pygame
+A simple lightweight UI library for Pygame
 
-File:       __init__.py
-Date:       08.02.2022
+SUILib is a simple, flexible UI library for Pygame.
+Easily build interactive applications or games with multiple views, rich UI elements, and customizable stylesheets.
+Switch between light and dark themes, or define your own look!
 
 Github:     https://github.com/0xMartin
 Email:      martin.krcma1@gmail.com
@@ -35,43 +36,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 https://github.com/0xMartin/SimpleApp-Pygame-framework
 """
 
-from .application import Application, View, Layout
-from .guielement import GUIElement, Container
-from .stylemanager import StyleManager
-from .layout import RelativeLayout, AbsoluteLayout
-from .colors import colorChange, colorAdd, colorInvert, createColor
-from .utils import overrides, inRect, generateSignal, loadImage, drawGraph, loadConfig, getDisplayWidth, getDisplayHeight, runTaskAsync
-from .graphics import Vertex, Edge, Wireframe
-
-__all__ = [
-    "Application",
-    "Layout",
-    "View",
-
-    "GUIElement",
-    "Container",
-
-    "colorChange",
-    "colorAdd",
-    "colorInvert",
-    "createColor",
-
-    "overrides",
-    "inRect",
-    "generateSignal",
-    "loadImage",
-    "drawGraph",
-    "loadConfig",
-    "getDisplayWidth",
-    "getDisplayHeight",
-    "runTaskAsync",
-
-    "StyleManager",
-
-    "RelativeLayout",
-    "AbsoluteLayout",
-
-    "Vertex",
-    "Edge",
-    "Wireframe"
-]
+__version__ = "0.1.0"

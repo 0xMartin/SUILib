@@ -1,5 +1,5 @@
 """
-layout.py - Layout managers for SUILib GUI framework
+Layout managers for SUILib GUI framework
 
 This module provides layout manager classes for arranging GUI elements within a View.
 It includes AbsoluteLayout for pixel/percentage-based positioning and sizing,

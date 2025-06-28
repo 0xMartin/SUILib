@@ -1,13 +1,12 @@
 import random
 import pygame
+import os
 
-from SUILib import (
-    Application, View, AbsoluteLayout, RelativeLayout, StyleManager, overrides
-)
-from SUILib.elements import (
-    Label, ToggleButton, Canvas, Table, Button, CheckBox, Slider,
-    Panel, RadioButtonGroup, RadioButton, Image, Graph, TabPanel, Tab, TextInput
-)
+from SUILib.application import Application, View
+from SUILib.layout import AbsoluteLayout, RelativeLayout
+from SUILib.stylemanager import StyleManager
+from SUILib.utils import overrides
+from SUILib.elements import *
 
 VIEW1_ID = 1
 VIEW2_ID = 2
@@ -135,7 +134,8 @@ class View2(View):
         panel1.addElement(rb2, ['40%', '5%'])
         panel1.addElement(rb3, ['65%', '5%'])
 
-        image = Image(self, "test_img_1.jpg")
+        module_path = os.path.dirname(os.path.abspath(__file__))
+        image = Image(self, os.path.join(module_path, "./test_img_1.jpg"))
         panel1.addElement(image, ['5%', '20%', '45%', '75%'])
 
         graph = Graph(self, None)
