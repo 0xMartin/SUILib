@@ -14,13 +14,6 @@ class Canvas(GUIElement):
     statically or dynamically. It supports mouse interaction for controlling the drawing
     offset (useful for panning or other transformations), and allows the user to define a
     paint callback for custom content rendering.
-
-    Attributes:
-        callback (callable): Paint callback function for custom drawing.
-        control (bool): Whether mouse control (panning) is enabled.
-        mouse_sensitivity (float): Adjusts the responsiveness of mouse movement.
-        offset (list): Current drawing offset [x, y].
-        font (pygame.font.Font): Font used for any text rendering inside the canvas.
     """
 
     def __init__(self, view, style: dict, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -37,11 +30,11 @@ class Canvas(GUIElement):
             y (int, optional): Y coordinate of the canvas. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEALL)
-        self.callbacks = []
-        self.control = False
-        self.mouse_sensitivity = 2.0
-        self.offset = [0, 0]
-        self.font = pygame.font.SysFont(
+        self._callbacks = []
+        self._control = False
+        self._mouse_sensitivity = 2.0
+        self._offset = [0, 0]
+        self._font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
             bold=super().get_style()["font_bold"]
@@ -54,7 +47,7 @@ class Canvas(GUIElement):
         When enabled, mouse drag events within the canvas area can be used to modify
         the drawing offset (e.g., for panning or rotating the content).
         """
-        self.control = True
+        self._control = True
 
     def disable_mouse_control(self):
         """
@@ -62,7 +55,7 @@ class Canvas(GUIElement):
 
         When disabled, mouse events will not affect the drawing offset or transformations.
         """
-        self.control = False
+        self._control = False
 
     def set_mouse_sensitivity(self, mouse_sensitivity: float):
         """
@@ -71,7 +64,7 @@ class Canvas(GUIElement):
         Args:
             mouse_sensitivity (float): Multiplier for how much the offset changes per pixel moved.
         """
-        self.mouse_sensitivity = mouse_sensitivity
+        self._mouse_sensitivity = mouse_sensitivity
 
     def get_mouse_sensitivity(self) -> float:
         """
@@ -80,7 +73,7 @@ class Canvas(GUIElement):
         Returns:
             float: The mouse sensitivity multiplier.
         """
-        return self.mouse_sensitivity
+        return self._mouse_sensitivity
 
     def set_offset(self, offset: list):
         """
@@ -89,7 +82,7 @@ class Canvas(GUIElement):
         Args:
             offset (list): List of two values [x, y] representing the offset.
         """
-        self.offset = offset
+        self._offset = offset
 
     def get_offset(self) -> list:
         """
@@ -98,7 +91,7 @@ class Canvas(GUIElement):
         Returns:
             list: The current offset [x, y].
         """
-        return self.offset
+        return self._offset
 
     def add_paint_evt(self, callback):
         """
@@ -110,7 +103,7 @@ class Canvas(GUIElement):
         Args:
             callback (callable): Function to be called for custom drawing.
         """
-        self.callbacks.append(callback)
+        self._callbacks.append(callback)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -127,8 +120,8 @@ class Canvas(GUIElement):
             )
         )
         # Call the paint callbacks if set
-        for callback in self.callbacks:
-            callback(surface, self.offset)
+        for callback in self._callbacks:
+            callback(surface, self._offset)
 
         # Draw canvas outline
         pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2)
@@ -136,13 +129,13 @@ class Canvas(GUIElement):
     @overrides(GUIElement)
     def process_event(self, view, event):
         super().process_event(view, event)
-        if self.control:
+        if self._control:
             if event.type == pygame.MOUSEMOTION:
                 if super().get_view_rect().collidepoint(event.pos):
                     if self.is_focused():
                         if self.mouse_motion:
                             self.last_pos = event.pos
                         else:
-                            self.offset[0] += (event.pos[0] - self.last_pos[0]) * self.mouse_sensitivity
-                            self.offset[1] += (event.pos[1] - self.last_pos[1]) * self.mouse_sensitivity
+                            self._offset[0] += (event.pos[0] - self.last_pos[0]) * self._mouse_sensitivity
+                            self._offset[1] += (event.pos[1] - self.last_pos[1]) * self._mouse_sensitivity
                         self.mouse_motion = not self.mouse_motion

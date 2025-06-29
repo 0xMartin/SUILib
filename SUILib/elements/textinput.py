@@ -16,12 +16,6 @@ class TextInput(GUIElement):
 
     The TextInput allows users to enter or edit a string, supports caret navigation,
     optional input filtering via regex, and triggers a callback when the text is changed/committed.
-
-    Attributes:
-        text (str): The current text content.
-        caret_position (int): The caret position within the text.
-        filter_pattern (re.Pattern): Optional compiled regex for input validation.
-        font (pygame.font.Font): Font object used for rendering the text.
     """
 
     def __init__(self, view, style: dict, text: str, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -39,10 +33,10 @@ class TextInput(GUIElement):
             y (int, optional): Y coordinate of the input. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_IBEAM)
-        self.filter_pattern = None
-        self.text = text
-        self.caret_position = len(text)
-        self.font = pygame.font.SysFont(
+        self._filter_pattern = None
+        self._text = text
+        self._caret_position = len(text)
+        self._font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
             bold=super().get_style()["font_bold"]
@@ -55,8 +49,8 @@ class TextInput(GUIElement):
         Args:
             text (str): New text string for this input.
         """
-        self.text = text
-        self.caret_position = len(text)
+        self._text = text
+        self._caret_position = len(text)
 
     def get_text(self):
         """
@@ -65,7 +59,7 @@ class TextInput(GUIElement):
         Returns:
             str: The text in the input.
         """
-        return self.text
+        return self._text
 
     def set_filter_pattern(self, pattern: str):
         """
@@ -74,7 +68,7 @@ class TextInput(GUIElement):
         Args:
             pattern (str): Regex pattern as a string.
         """
-        self.filter_pattern = re.compile(pattern)
+        self._filter_pattern = re.compile(pattern)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -90,14 +84,14 @@ class TextInput(GUIElement):
         surface = screen.subsurface(super().get_view_rect())
         text_offset = 0
         caret_offset = 0
-        if len(self.text) != 0:
-            text_surface = self.font.render(
-                self.text,
+        if len(self._text) != 0:
+            text_surface = self._font.render(
+                self._text,
                 1,
                 super().get_style()["foreground_color"]
             )
             # calculate caret offset
-            caret_offset = self.font.size(self.text[0: self.caret_position])[0]
+            caret_offset = self._font.size(self._text[0: self._caret_position])[0]
             # offset for text
             text_offset = max(caret_offset + 20 - super().get_width(), 0)
             if not super().is_focused():
@@ -123,7 +117,7 @@ class TextInput(GUIElement):
             if super().get_view_rect().collidepoint(event.pos):
                 super().focus()
                 # Move caret to end on focus
-                self.caret_position = len(self.text)
+                self._caret_position = len(self._text)
             else:
                 self.unselect_text_input()
         elif event.type == pygame.KEYDOWN:
@@ -131,21 +125,21 @@ class TextInput(GUIElement):
                 if event.key == pygame.K_RETURN:
                     self.unselect_text_input()
                 elif event.key == pygame.K_BACKSPACE:
-                    i = self.caret_position
-                    if i > 0 and len(self.text) > 0:
+                    i = self._caret_position
+                    if i > 0 and len(self._text) > 0:
                         # Remove char before caret
-                        self.text = self.text[:i-1] + self.text[i:]
-                        self.caret_position = max(0, self.caret_position - 1)
+                        self._text = self._text[:i-1] + self._text[i:]
+                        self._caret_position = max(0, self._caret_position - 1)
                 elif event.key == pygame.K_LEFT:
-                    self.caret_position = max(0, self.caret_position - 1)
+                    self._caret_position = max(0, self._caret_position - 1)
                 elif event.key == pygame.K_RIGHT:
-                    self.caret_position = min(len(self.text), self.caret_position + 1)
+                    self._caret_position = min(len(self._text), self._caret_position + 1)
                 else:
                     # Insert new char at caret
                     if hasattr(event, "unicode") and event.unicode in string.printable and event.unicode != '':
-                        i = self.caret_position
-                        self.text = self.text[:i] + event.unicode + self.text[i:]
-                        self.caret_position += 1
+                        i = self._caret_position
+                        self._text = self._text[:i] + event.unicode + self._text[i:]
+                        self._caret_position += 1
 
     def unselect_text_input(self):
         """
@@ -153,9 +147,9 @@ class TextInput(GUIElement):
         """
         if super().is_focused():
             # text filter
-            if self.filter_pattern is not None:
-                if not self.filter_pattern.match(self.text):
+            if self._filter_pattern is not None:
+                if not self._filter_pattern.match(self._text):
                     # clear text if invalid
-                    self.text = ""
-            super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.text)
+                    self._text = ""
+            super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self._text)
         super().un_focus()

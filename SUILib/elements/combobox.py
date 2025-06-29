@@ -19,13 +19,6 @@ class ComboBox(GUIElement, Container):
     It combines a display area showing the current selection and a button that toggles
     the visibility of a popup panel containing all available options. ComboBox supports
     customizable styles, value change callbacks, and integrates with the View layout system.
-
-    Attributes:
-        values (list): List of selectable string options.
-        selected_item (str): Currently selected value.
-        button (Button): The dropdown toggle button.
-        listpanel (ListPanel): The popup panel displaying selectable options.
-        font (pygame.font.Font): Font used for rendering the selected value.
     """
 
     def __init__(self, view, style: dict, values: list, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -42,27 +35,27 @@ class ComboBox(GUIElement, Container):
             x (int, optional): X coordinate of the ComboBox. Defaults to 0.
             y (int, optional): Y coordinate of the ComboBox. Defaults to 0.
         """
-        self.button = None
-        self.listpanel = None
+        self._button = None
+        self._listpanel = None
         super().__init__(view, x, y, width, height, style)
-        self.values = values
-        self.selected_item = values[0]
+        self._values = values
+        self._selected_item = values[0]
         # Popup panel for options
-        self.listpanel = ListPanel(
+        self._listpanel = ListPanel(
             view, super().get_style()["listpanel"], values)
-        self.listpanel.set_visibility(False)
-        self.listpanel.add_event_callback(
+        self._listpanel.set_visibility(False)
+        self._listpanel.add_event_callback(
             SUIEvents.EVENT_ON_CHANGE,
             lambda p: self.set_selected_item(p)
         )
         # Dropdown toggle button
-        self.button = Button(view, super().get_style()["button"], "↓")
-        self.button.add_event_callback(
+        self._button = Button(view, super().get_style()["button"], "↓")
+        self._button.add_event_callback(
             SUIEvents.EVENT_ON_CLICK,
-            lambda x: self.set_popup_panel_visibility(not self.listpanel.is_visible())
+            lambda x: self.set_popup_panel_visibility(not self._listpanel.is_visible())
         )
         # Font for rendering selected value
-        self.font = pygame.font.SysFont(
+        self._font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
             bold=super().get_style()["font_bold"]
@@ -72,15 +65,15 @@ class ComboBox(GUIElement, Container):
     @overrides(GUIElement)
     def update_view_rect(self):
         super().update_view_rect()
-        if self.button is not None:
-            self.button.set_width(super().get_height())
-            self.button.set_height(super().get_height())
-            self.button.set_x(super().get_x() + super().get_width() - self.button.get_width())
-            self.button.set_y(super().get_y())
-        if self.listpanel is not None:
-            self.listpanel.set_width(super().get_width())
-            self.listpanel.set_x(super().get_x())
-            self.listpanel.set_y(super().get_y() + super().get_height())
+        if self._button is not None:
+            self._button.set_width(super().get_height())
+            self._button.set_height(super().get_height())
+            self._button.set_x(super().get_x() + super().get_width() - self._button.get_width())
+            self._button.set_y(super().get_y())
+        if self._listpanel is not None:
+            self._listpanel.set_width(super().get_width())
+            self._listpanel.set_x(super().get_x())
+            self._listpanel.set_y(super().get_y() + super().get_height())
 
     def set_popup_panel_visibility(self, visibility):
         """
@@ -89,12 +82,12 @@ class ComboBox(GUIElement, Container):
         Args:
             visibility (bool): True to show the panel, False to hide it.
         """
-        self.listpanel.set_visibility(visibility)
-        if self.listpanel.is_visible():
+        self._listpanel.set_visibility(visibility)
+        if self._listpanel.is_visible():
             # self.get_view().set_filter_process_only(self)
-            self.button.set_text("↑")
+            self._button.set_text("↑")
         else:
-            self.button.set_text("↓")
+            self._button.set_text("↓")
             # self.get_view().clear_filter()
 
     def set_values(self, values: list):
@@ -104,7 +97,7 @@ class ComboBox(GUIElement, Container):
         Args:
             values (list): The new list of selectable options.
         """
-        self.values = values
+        self._values = values
 
     def get_values(self) -> list:
         """
@@ -113,7 +106,7 @@ class ComboBox(GUIElement, Container):
         Returns:
             list: The current list of selectable options.
         """
-        return self.values
+        return self._values
 
     def get_selected_item(self) -> str:
         """
@@ -122,7 +115,7 @@ class ComboBox(GUIElement, Container):
         Returns:
             str: The currently selected option.
         """
-        return self.selected_item
+        return self._selected_item
 
     def set_selected_item(self, item_name: str):
         """
@@ -131,7 +124,7 @@ class ComboBox(GUIElement, Container):
         Args:
             item_name (str): The value to select.
         """
-        self.selected_item = item_name
+        self._selected_item = item_name
         self.set_popup_panel_visibility(False)
         super().trigger_event(SUIEvents.EVENT_ON_CHANGE, item_name)
 
@@ -141,10 +134,10 @@ class ComboBox(GUIElement, Container):
         pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=10)
 
         # Draw selected value text
-        if len(self.values[0]) != 0:
+        if len(self._values[0]) != 0:
             screen.set_clip(super().get_view_rect())
-            text = self.font.render(
-                str(self.selected_item),
+            text = self._font.render(
+                str(self._selected_item),
                 1,
                 super().get_style()["foreground_color"]
             )
@@ -159,24 +152,24 @@ class ComboBox(GUIElement, Container):
         # Draw ComboBox outline
         pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=10)
         # Draw dropdown button
-        self.button.draw(view, screen)
+        self._button.draw(view, screen)
         # Draw popup panel if visible (on top)
-        if self.listpanel.is_visible():
-            self.listpanel.draw(view, screen)
+        if self._listpanel.is_visible():
+            self._listpanel.draw(view, screen)
 
     @overrides(GUIElement)
     def process_event(self, view, event):
         super().process_event(view, event)
         
-        if self.listpanel.is_visible():
+        if self._listpanel.is_visible():
             # Process event in listpanel
-            self.listpanel.process_event(view, event)
+            self._listpanel.process_event(view, event)
         
         if not super().is_focused() and event.type == pygame.MOUSEBUTTONDOWN:
             self.set_popup_panel_visibility(False)
 
-        self.button.process_event(view, event)
+        self._button.process_event(view, event)
 
     @overrides(Container)
     def get_childs(self):
-        return [self.button, self.listpanel]
+        return [self._button, self._listpanel]

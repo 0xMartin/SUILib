@@ -15,9 +15,6 @@ class Panel(GUIElement, Layout, Container):
     The Panel serves as a flexible container for layout of multiple child elements. It supports
     custom layout managers, background and outline rendering, and event delegation to contained elements.
     Panels are typically used to organize groups of controls or visual content within an interface.
-
-    Attributes:
-        layoutmanager (Layout): The layout manager controlling arrangement of child elements.
     """
 
     def __init__(self, view, style: dict, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -35,7 +32,7 @@ class Panel(GUIElement, Layout, Container):
         """
         GUIElement.__init__(self, view, x, y, width, height, style)
         Layout.__init__(self, view)
-        self.layoutmanager = None
+        self._layoutmanager = None
 
     def set_layout_manager(self, layoutmanager: Layout):
         """
@@ -44,8 +41,8 @@ class Panel(GUIElement, Layout, Container):
         Args:
             layoutmanager (Layout): The layout manager instance.
         """
-        self.layoutmanager = layoutmanager
-        self.get_view().unregister_layout_manager(self.layoutmanager)
+        self._layoutmanager = layoutmanager
+        self.get_view().unregister_layout_manager(self._layoutmanager)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -98,9 +95,9 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(Layout)
     def update_layout(self, width, height):
-        if self.layoutmanager is not None:
-            self.layoutmanager.set_elements(self.get_layout_elements())
-            self.layoutmanager.update_layout(
+        if self._layoutmanager is not None:
+            self._layoutmanager.set_elements(self.get_layout_elements())
+            self._layoutmanager.update_layout(
                 self.get_width() - 10, self.get_height() - 10
             )
 

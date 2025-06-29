@@ -14,9 +14,6 @@ class Image(GUIElement):
     The Image element displays a bitmap loaded from a file path, scaled to fit its assigned area.
     It supports dynamic image changes, integrates with the View layout system, and can be used
     for static icons, previews, or general-purpose image display within the UI.
-
-    Attributes:
-        image (pygame.Surface): The currently loaded image surface.
     """
 
     def __init__(self, view, image_path: str, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -32,7 +29,7 @@ class Image(GUIElement):
             y (int, optional): Y coordinate of the image. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, None)
-        self.image = load_image(image_path)
+        self._image = load_image(image_path)
 
     def set_image(self, image_path: str):
         """
@@ -41,7 +38,7 @@ class Image(GUIElement):
         Args:
             image_path (str): The file path to the new image.
         """
-        self.image = load_image(image_path)
+        self._image = load_image(image_path)
 
     def get_image(self) -> pygame.Surface:
         """
@@ -50,12 +47,12 @@ class Image(GUIElement):
         Returns:
             pygame.Surface: The current image surface, or None if not loaded.
         """
-        return self.image
+        return self._image
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        if self.image is not None:
+        if self._image is not None:
             screen.blit(
-                pygame.transform.scale(self.image, (super().get_width(), super().get_height())),
+                pygame.transform.scale(self._image, (super().get_width(), super().get_height())),
                 (super().get_x(), super().get_y())
             )

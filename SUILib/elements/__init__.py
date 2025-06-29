@@ -1,8 +1,5 @@
 """
-Simple library for multiple views game aplication with pygame
-
-File:       __init__.py
-Date:       08.02.2022
+Package containing all UI elements of SUILib.
 
 Github:     https://github.com/0xMartin
 Email:      martin.krcma1@gmail.com

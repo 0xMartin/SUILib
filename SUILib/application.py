@@ -7,7 +7,9 @@ window handling, and scheduling of repaint and rendering logic.
 
 Classes:
     Application: Main class managing the application window, views, rendering, and events.
+
     View: Abstract base class for a content page shown in the application window.
+    
     Layout: Abstract base class for layout managers that arrange GUI elements in a view.
 """
 
@@ -27,15 +29,8 @@ REPAINT_EVENT = pygame.USEREVENT + 1
 class Application:
     """
     Main SUILib application class managing views, window, styles and event loop.
-
-    Attributes:
-        views (list): List of View objects managed by the application.
-        visible_view (View): Currently visible View.
-        inited (bool): True if the application window is initialized.
-        running (bool): True if the event loop is running.
-        stylemanager (StyleManager): Style manager instance.
-        fill_color (tuple): Default background color for views.
-        draw_queue (list): Queue for deferred draw callbacks.
+    This class initializes the application window, manages multiple views,
+    handles events, and provides methods for rendering and updating the GUI.
     """
 
     def __init__(self, views, dark=False):
@@ -49,11 +44,11 @@ class Application:
         self._periodic_repaint_enabled = False  
         self._periodic_repaint_fps = 60  
         self._needs_repaint = True 
-        self.views = []
-        self.draw_queue = []
-        self.visible_view = None
-        self.inited = False
-        self.running = False
+        self._views = []
+        self._draw_queue = []
+        self._visible_view = None
+        self._inited = False
+        self._running = False
         module_path = os.path.dirname(os.path.abspath(__file__))
         if dark:
             self.stylemanager = StyleManager(
@@ -65,7 +60,7 @@ class Application:
         for v in views:
             if isinstance(v, View):
                 v.set_application(self)
-                self.views.append(v)
+                self._views.append(v)
 
     def set_fill_color(self, color: tuple):
         """
@@ -88,9 +83,9 @@ class Application:
         """
         if(isinstance(view, View)):
             view.set_application(self)
-            self.views.append(view)
+            self._views.append(view)
             # call create event (only if app is running)
-            if self.inited:
+            if self._inited:
                 view.createEvt_base(self.screen.get_width(),
                                     self.screen.get_height())
             return True
@@ -121,7 +116,7 @@ class Application:
         """
         fill_color = self.stylemanager.get_style_with_name("default")[
             "fill_color"]
-        for view in self.views:
+        for view in self._views:
             view.set_fill_color(fill_color)
             view.reload_element_style()
 
@@ -136,7 +131,7 @@ class Application:
             bool: True on success, False if not a valid View.
         """
         if(isinstance(view, View)):
-            self.views.remove(view)
+            self._views.remove(view)
             return True
         else:
             return False
@@ -180,7 +175,7 @@ class Application:
             (width, height), 
             pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.SRCALPHA | pygame.RESIZABLE, 
             vsync=1)
-        self.inited = True
+        self._inited = True
 
     def run(self, start_view=None) -> bool:
         """
@@ -192,13 +187,13 @@ class Application:
         Returns:
             bool: True if the loop exited normally, False if not initialized.
         """
-        if not self.inited:
+        if not self._inited:
             return False
 
-        self.running = True
+        self._running = True
 
         # call start event for each view
-        for view in self.views:
+        for view in self._views:
             view.create_evt_base(self.screen.get_width(), self.screen.get_height())
 
         if start_view is not None:
@@ -208,25 +203,25 @@ class Application:
         if self._periodic_repaint_enabled:
             pygame.time.set_timer(REPAINT_EVENT, int(1000 / self._periodic_repaint_fps))
 
-        while self.running:
+        while self._running:
             event = pygame.event.wait()
 
             if event.type == pygame.QUIT:
-                self.running = False
+                self._running = False
             elif event.type == REPAINT_EVENT:
                 self._needs_repaint = True
             else:
-                if self.visible_view is not None:
-                    self.visible_view.process_evt(event)
-                    self.visible_view.update()
+                if self._visible_view is not None:
+                    self._visible_view.process_evt(event)
+                    self._visible_view.update()
                 self._needs_repaint = True  # repaint after every event
 
-            if self._needs_repaint and self.visible_view is not None:
-                if self.visible_view.get_fill_color() is None:
+            if self._needs_repaint and self._visible_view is not None:
+                if self._visible_view.get_fill_color() is None:
                     self.screen.fill(self.fill_color)
                 else:
-                    self.screen.fill(self.visible_view.get_fill_color())
-                self.visible_view.render(self.screen)
+                    self.screen.fill(self._visible_view.get_fill_color())
+                self._visible_view.render(self.screen)
                 pygame.display.flip()
                 self._needs_repaint = False  # repaint done
 
@@ -238,12 +233,12 @@ class Application:
         Request an immediate repaint of the active view.
         """
         self._needs_repaint = True
-        if self.visible_view is not None:
-            if self.visible_view.get_fill_color() is None:
+        if self._visible_view is not None:
+            if self._visible_view.get_fill_color() is None:
                 self.screen.fill(self.fill_color)
             else:
-                self.screen.fill(self.visible_view.get_fill_color())
-            self.visible_view.render(self.screen)
+                self.screen.fill(self._visible_view.get_fill_color())
+            self._visible_view.render(self.screen)
             pygame.display.flip()
             self._needs_repaint = False
 
@@ -272,10 +267,10 @@ class Application:
         Side Effects:
             Calls close_evt on all views and clears the views list.
         """
-        self.running = False
-        for view in self.views:
+        self._running = False
+        for view in self._views:
             view.close_evt()
-        self.views = []
+        self._views = []
 
     def show_view(self, view) -> bool:
         """
@@ -287,19 +282,19 @@ class Application:
         Returns:
             bool: True on success, False otherwise.
         """
-        if not self.running:
+        if not self._running:
             return False
 
-        if view in self.views:
+        if view in self._views:
             # hide current visible view
-            if self.visible_view is not None:
-                self.visible_view.set_visibility(False)
-                self.visible_view.hide_evt()
+            if self._visible_view is not None:
+                self._visible_view.set_visibility(False)
+                self._visible_view.hide_evt()
             # show new view
             view.set_visibility(True)
             view.open_evt_base(self.screen.get_width(),
                               self.screen.get_height())
-            self.visible_view = view
+            self._visible_view = view
             # change window title
             if len(view.name) == 0:
                 pygame.display.set_caption(self.name)
@@ -319,7 +314,7 @@ class Application:
         Returns:
             bool: True on success, False otherwise.
         """
-        for view in self.views:
+        for view in self._views:
             if view.name == name:
                 return self.show_view(view)
 
@@ -333,7 +328,7 @@ class Application:
         Returns:
             bool: True on success, False otherwise.
         """
-        for view in self.views:
+        for view in self._views:
             if view.ID == id:
                 return self.show_view(view)
 
@@ -345,7 +340,7 @@ class Application:
             z_index (int): Z-INDEX; higher values will be drawn above lower ones.
             draw_callback (callable): Function to call for drawing (signature: draw(self, view, screen)).
         """
-        self.draw_queue.append({"Z-INDEX": z_index, "CALLBACK": draw_callback})
+        self._draw_queue.append({"Z-INDEX": z_index, "CALLBACK": draw_callback})
 
 # **************************************************************************************************************
 # Base View 

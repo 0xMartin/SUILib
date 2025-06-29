@@ -16,10 +16,6 @@ class ToggleButton(GUIElement):
 
     The ToggleButton acts as an ON/OFF switch with an optional label. It supports
     custom styles, click callbacks, and integrates with the View layout system.
-
-    Attributes:
-        label (Label): The label displayed next to the toggle button.
-        status (bool): The ON/OFF state of the toggle.
     """
 
     def __init__(self, view, style: dict, text: str, status: bool = False, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -38,8 +34,8 @@ class ToggleButton(GUIElement):
             y (int, optional): Y coordinate of the toggle. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style)
-        self.label = Label(view, super().get_style()["label"], text, False, True)
-        self.status = status
+        self._label = Label(view, super().get_style()["label"], text, False, True)
+        self._status = status
 
     def set_text(self, text: str):
         """
@@ -48,8 +44,8 @@ class ToggleButton(GUIElement):
         Args:
             text (str): New text for the label.
         """
-        if self.label is not None:
-            self.label.set_text(text)
+        if self._label is not None:
+            self._label.set_text(text)
 
     def get_status(self) -> bool:
         """
@@ -58,7 +54,7 @@ class ToggleButton(GUIElement):
         Returns:
             bool: True if ON, False if OFF.
         """
-        return self.status
+        return self._status
 
     def get_label(self) -> Label:
         """
@@ -67,12 +63,12 @@ class ToggleButton(GUIElement):
         Returns:
             Label: The label instance.
         """
-        return self.label
+        return self._label
 
     @overrides(GUIElement)
     def draw(self, view, screen):
         # Background and outline
-        if self.status:
+        if self._status:
             bg_color = color_change(super().get_style()["foreground_color"], 0.8)
         else:
             bg_color = super().get_style()["background_color"]
@@ -90,7 +86,7 @@ class ToggleButton(GUIElement):
             border_radius=int(super().get_height() / 2)
         )
         # Toggle switch handle
-        if self.status:
+        if self._status:
             pos = super().get_width() - super().get_height() / 2
             pygame.draw.circle(
                 screen,
@@ -106,15 +102,15 @@ class ToggleButton(GUIElement):
                 super().get_height() / 2
             )
         # Label
-        if self.label is not None:
-            self.label.set_x(super().get_x() + super().get_width() + 5)
-            self.label.set_y(super().get_y() + super().get_height() / 2)
-            self.label.draw(view, screen)
+        if self._label is not None:
+            self._label.set_x(super().get_x() + super().get_width() + 5)
+            self._label.set_y(super().get_y() + super().get_height() / 2)
+            self._label.draw(view, screen)
 
     @overrides(GUIElement)
     def process_event(self, view, event):
         super().process_event(view, event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if super().get_view_rect().collidepoint(event.pos):
-                self.status = not self.status
-                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.status)
+                self._status = not self._status
+                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self._status)

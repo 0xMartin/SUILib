@@ -13,10 +13,6 @@ class HorizontalScrollbar(GUIElement):
 
     The HorizontalScrollbar allows users to select or scroll through a range horizontally.
     It supports custom styles, drag interaction, and a callback for scroll events.
-
-    Attributes:
-        scroller_pos (int): Current X position (in pixels) of the scroller.
-        scroller_size (int): Width of the draggable scroller in pixels.
     """
 
     def __init__(self, view, style: dict, scroller_size: int, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -34,8 +30,8 @@ class HorizontalScrollbar(GUIElement):
             y (int, optional): Y coordinate of the scrollbar. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEWE)
-        self.scroller_pos = 0
-        self.scroller_size = scroller_size
+        self._scroller_pos = 0
+        self._scroller_size = scroller_size
         self._start_scroller_pos = 0
         self._drag_start = 0
 
@@ -46,7 +42,7 @@ class HorizontalScrollbar(GUIElement):
         Args:
             size (int): New width of the scroller in pixels.
         """
-        self.scroller_size = max(size, super().get_height())
+        self._scroller_size = max(size, super().get_height())
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -57,9 +53,9 @@ class HorizontalScrollbar(GUIElement):
             screen,
             super().get_style()["foreground_color"],
             pygame.Rect(
-                super().get_x() + self.scroller_pos,
+                super().get_x() + self._scroller_pos,
                 super().get_y(),
-                self.scroller_size,
+                self._scroller_size,
                 super().get_height()
             ),
             border_radius=6
@@ -70,20 +66,20 @@ class HorizontalScrollbar(GUIElement):
     @overrides(GUIElement)
     def process_event(self, view, event):
         super().process_event(view, event)
-        if self.scroller_size >= super().get_width():
+        if self._scroller_size >= super().get_width():
             return
         if not super().is_focused():
             return
         
         if event.type == pygame.MOUSEBUTTONDOWN:
-            self._start_scroller_pos = self.scroller_pos
+            self._start_scroller_pos = self._scroller_pos
             self._drag_start = event.pos[0]
         elif event.type == pygame.MOUSEBUTTONUP:
             super().un_focus()
             super().trigger_event(SUIEvents.EVENT_ON_BLUR)
         elif event.type == pygame.MOUSEMOTION:
             # Calculate relative position
-            self.scroller_pos = self._start_scroller_pos + (event.pos[0] - self._drag_start)
-            self.scroller_pos = min(max(0, self.scroller_pos), super().get_width() - self.scroller_size)
-            self.relative_pos = self.scroller_pos / (super().get_width() - self.scroller_size)
+            self._scroller_pos = self._start_scroller_pos + (event.pos[0] - self._drag_start)
+            self._scroller_pos = min(max(0, self._scroller_pos), super().get_width() - self._scroller_size)
+            self.relative_pos = self._scroller_pos / (super().get_width() - self._scroller_size)
             super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.relative_pos)

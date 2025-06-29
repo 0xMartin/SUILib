@@ -16,10 +16,6 @@ class CheckBox(GUIElement):
     The CheckBox allows users to toggle a boolean state (checked/unchecked) and displays
     an associated label. It supports custom styles, click event callbacks, and integrates
     seamlessly within the View layout system.
-
-    Attributes:
-        label (Label): The label displayed next to the checkbox.
-        checked (bool): Indicates whether the checkbox is checked.
     """
 
     def __init__(self, view, style: dict, text: str, checked: bool, size: int = 20, x: int = 0, y: int = 0):
@@ -37,8 +33,9 @@ class CheckBox(GUIElement):
             y (int, optional): Y coordinate of the checkbox. Defaults to 0.
         """
         super().__init__(view, x, y, size, size, style)
-        self.label = Label(view, super().get_style()["label"], text, False, True, x, y)
-        self.checked = checked
+        self._label = Label(view, super().get_style()["label"], text, x, y)
+        self._label.set_anchor_y("50%")
+        self._checked = checked
 
     def set_text(self, text: str):
         """
@@ -47,8 +44,8 @@ class CheckBox(GUIElement):
         Args:
             text (str): New label text.
         """
-        if self.label is not None:
-            self.label.set_text(text)
+        if self._label is not None:
+            self._label.set_text(text)
 
     def get_label(self) -> Label:
         """
@@ -57,7 +54,7 @@ class CheckBox(GUIElement):
         Returns:
             Label: The label instance.
         """
-        return self.label
+        return self._label
 
     def set_checked(self, checked: bool):
         """
@@ -66,7 +63,7 @@ class CheckBox(GUIElement):
         Args:
             checked (bool): True if the checkbox should be checked, False otherwise.
         """
-        self.checked = checked
+        self._checked = checked
 
     def is_checked(self) -> bool:
         """
@@ -75,15 +72,15 @@ class CheckBox(GUIElement):
         Returns:
             bool: True if checked, False otherwise.
         """
-        return self.checked
+        return self._checked
 
     @overrides(GUIElement)
     def draw(self, view, screen):
         # Position and draw the label
-        if self.label is not None:
-            self.label.set_x(super().get_x() + super().get_width() + 5)
-            self.label.set_y(super().get_y() + super().get_height() / 2)
-            self.label.draw(view, screen)
+        if self._label is not None:
+            self._label.set_x(super().get_x() + super().get_width() + 5)
+            self._label.set_y(super().get_y() + super().get_height() / 2)
+            self._label.draw(view, screen)
         # Draw checkbox background
         if super().is_hovered():
             c = super().get_style()["background_color"]
@@ -109,7 +106,7 @@ class CheckBox(GUIElement):
             border_radius=5
         )
         # Draw checkmark if checked
-        if self.checked:
+        if self._checked:
             pts = [
                 (super().get_x() + super().get_width() * 0.2, super().get_y() + super().get_width() * 0.5),
                 (super().get_x() + super().get_width() * 0.4, super().get_y() + super().get_width() * 0.75),
@@ -127,4 +124,4 @@ class CheckBox(GUIElement):
     def process_event(self, view, event):
         super().process_event(view, event)
         if self.is_focused() and event.type == pygame.MOUSEBUTTONDOWN:
-            self.checked = not self.checked
+            self._checked = not self._checked

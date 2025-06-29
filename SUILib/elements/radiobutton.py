@@ -16,11 +16,6 @@ class RadioButton(GUIElement):
     A radio button allows users to select a single option from a group. Only one radio button
     in a group can be checked at a time. Each radio button is associated with a label and a group,
     supports custom styles, click event callbacks, and integrates with the View layout system.
-
-    Attributes:
-        label (Label): The label displayed next to the radio button.
-        group (RadioButtonGroup): The group that manages the radio button's checked state.
-        checked (bool): Indicates whether the radio button is selected.
     """
 
     def __init__(self, view, style: dict, text: str, group, size=20, x: int = 0, y: int = 0):
@@ -38,10 +33,11 @@ class RadioButton(GUIElement):
             y (int, optional): Y coordinate of the radio button. Defaults to 0.
         """
         super().__init__(view, x, y, size, size, style)
-        self.label = Label(view, super().get_style()["label"], text, False, True, x, y)
-        self.group = group
-        group.add_radio_button(self)
-        self.checked = False
+        self._label = Label(view, super().get_style()["label"], text, x, y)
+        self._label.set_anchor_y("50%")
+        self._group = group
+        self._group.add_radio_button(self)
+        self._checked = False
 
     def set_text(self, text: str):
         """
@@ -50,8 +46,8 @@ class RadioButton(GUIElement):
         Args:
             text (str): New label text.
         """
-        if self.label is not None:
-            self.label.set_text(text)
+        if self._label is not None:
+            self._label.set_text(text)
 
     def get_label(self) -> Label:
         """
@@ -60,7 +56,7 @@ class RadioButton(GUIElement):
         Returns:
             Label: The label instance.
         """
-        return self.label
+        return self._label
 
     def set_checked(self, checked: bool):
         """
@@ -69,7 +65,7 @@ class RadioButton(GUIElement):
         Args:
             checked (bool): True if the radio button should be checked, False otherwise.
         """
-        self.checked = checked
+        self._checked = checked
 
     def is_checked(self) -> bool:
         """
@@ -78,15 +74,15 @@ class RadioButton(GUIElement):
         Returns:
             bool: True if checked, False otherwise.
         """
-        return self.checked
+        return self._checked
 
     @overrides(GUIElement)
     def draw(self, view, screen):
         # Draw label
-        if self.label is not None:
-            self.label.set_x(super().get_x() + super().get_width() + 5)
-            self.label.set_y(super().get_y() + super().get_height() / 2)
-            self.label.draw(view, screen)
+        if self._label is not None:
+            self._label.set_x(super().get_x() + super().get_width() + 5)
+            self._label.set_y(super().get_y() + super().get_height() / 2)
+            self._label.draw(view, screen)
         # Draw radio button circle
         center = (
             super().get_x() + super().get_width() / 2,
@@ -99,7 +95,7 @@ class RadioButton(GUIElement):
             pygame.draw.circle(screen, super().get_style()["background_color"], center, super().get_width() / 2)
         pygame.draw.circle(screen, super().get_style()["outline_color"], center, super().get_width() / 2, 2)
         # Draw check indicator if checked
-        if self.checked:
+        if self._checked:
             pygame.draw.circle(screen, super().get_style()["foreground_color"], center, super().get_width() / 4)
 
     @overrides(GUIElement)
@@ -107,8 +103,8 @@ class RadioButton(GUIElement):
         super().process_event(view, event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             if super().get_view_rect().collidepoint(event.pos):
-                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.label.get_text())
-                self.group.check_radio_button(self)
+                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self._label.get_text())
+                self._group.check_radio_button(self)
 
 
 class RadioButtonGroup:
@@ -117,9 +113,6 @@ class RadioButtonGroup:
 
     The RadioButtonGroup manages a collection of radio buttons,
     ensuring that only one button in the group is checked at any time.
-
-    Attributes:
-        radiobtns (list): List of RadioButton instances in the group.
     """
 
     def __init__(self, radiobtns: list):
@@ -129,10 +122,10 @@ class RadioButtonGroup:
         Args:
             radiobtns (list): List of RadioButton instances to add to the group.
         """
-        self.radiobtns = []
+        self._radiobtns = []
         for r in radiobtns:
             if isinstance(r, RadioButton):
-                self.radiobtns.append(r)
+                self._radiobtns.append(r)
 
     def add_radio_button(self, radiobtn: RadioButton):
         """
@@ -142,7 +135,7 @@ class RadioButtonGroup:
             radiobtn (RadioButton): The radio button to add.
         """
         if isinstance(radiobtn, RadioButton):
-            self.radiobtns.append(radiobtn)
+            self._radiobtns.append(radiobtn)
 
     def remove_radio_button(self, radiobtn: RadioButton):
         """
@@ -151,7 +144,7 @@ class RadioButtonGroup:
         Args:
             radiobtn (RadioButton): The radio button to remove.
         """
-        self.radiobtns.remove(radiobtn)
+        self._radiobtns.remove(radiobtn)
 
     def get_radio_button(self):
         """
@@ -160,7 +153,7 @@ class RadioButtonGroup:
         Returns:
             RadioButton: The checked radio button, or None if none is checked.
         """
-        for r in self.radiobtns:
+        for r in self._radiobtns:
             if r.is_checked():
                 return r
 
@@ -172,7 +165,7 @@ class RadioButtonGroup:
             radiobtn (RadioButton): The radio button to check.
         """
         if isinstance(radiobtn, RadioButton):
-            for r in self.radiobtns:
+            for r in self._radiobtns:
                 if r != radiobtn:
                     r.set_checked(False)
                 else:

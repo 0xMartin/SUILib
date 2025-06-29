@@ -15,11 +15,6 @@ class Button(GUIElement):
     and triggers a callback function when clicked. It handles rendering
     with hover and selection effects, and automatically adjusts its size
     to fit the text content.
-
-    Attributes:
-        text (str): The text displayed on the button.
-        hover (bool): Indicates whether the button is currently hovered.
-        font (pygame.font.Font): Font object used for rendering button text.
     """
 
     def __init__(self, view, style: dict, text: str, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -37,8 +32,8 @@ class Button(GUIElement):
             y (int, optional): Y coordinate of the button. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style)
-        self.text = text
-        self.font = pygame.font.SysFont(
+        self._text = text
+        self._font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
             bold=super().get_style()["font_bold"]
@@ -51,7 +46,7 @@ class Button(GUIElement):
         Args:
             text (str): New text to display on the button.
         """
-        self.text = text
+        self._text = text
 
     def get_text(self) -> str:
         """
@@ -60,7 +55,7 @@ class Button(GUIElement):
         Returns:
             str: The button's display text.
         """
-        return self.text
+        return self._text
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -81,9 +76,9 @@ class Button(GUIElement):
                 border_radius=10
             )
         # Draw button text
-        if len(self.text) != 0:
-            text_surface = self.font.render(
-                self.text, True, super().get_style()["foreground_color"]
+        if len(self._text) != 0:
+            text_surface = self._font.render(
+                self._text, True, super().get_style()["foreground_color"]
             )
             # Auto-resize button to fit text if needed
             if text_surface.get_height() + 4 > super().get_height():

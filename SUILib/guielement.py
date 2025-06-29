@@ -8,7 +8,7 @@ pygame-based application.
 """
 
 import pygame
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Union
 import abc
 import inspect
 from .events import SUIEvents
@@ -21,17 +21,10 @@ class GUIElement(metaclass=abc.ABCMeta):
     abstract interface for rendering, event processing, and updates.
 
     Attributes:
-        view: Reference to parent View.
-        x (int): X position.
-        y (int): Y position.
-        width (int): Width of the element.
-        height (int): Height of the element.
-        style (dict): Style dictionary.
-        focused_cursor: Pygame cursor type shown when this element is focused.
-        visible (bool): Visibility of the element.
-        focused (bool): Whether the element is currently focused.
-        hovered (bool): Whether the element is currently hovered.
-        rect (pygame.Rect): Rectangle representing the element's position and size.
+        x (int): X position of the element.
+        y (int): Y position of the element.
+        width (int): Width of the element in pixels.
+        height (int): Height of the element in pixels.
     """
 
     def __init__(
@@ -56,31 +49,34 @@ class GUIElement(metaclass=abc.ABCMeta):
             style (dict): Style dictionary. If None, will be resolved by class name.
             hover_cursor: Pygame cursor type to show when element is hovered.
         """
-        self.view = view
+        self._view = view
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.hover_cursor = hover_cursor
+        self._hover_cursor = hover_cursor
+
+        self._anchor_x = 0
+        self._anchor_y = 0
 
         # Default action variables
-        self.hovered = False
-        self.visible = True
-        self.focused = False
+        self._hovered = False
+        self._visible = True
+        self._focused = False
 
         sm = view.get_app().get_style_manager()
         if style is None:
-            self.style = sm.get_style_with_name(self.__class__.__name__)
-            if not self.style:
+            self._style = sm.get_style_with_name(self.__class__.__name__)
+            if not self._style:
                 for base in inspect.getmro(self.__class__)[1:]:
                     if base is object:
                         continue
                     style = sm.get_style_with_name(base.__name__)
                     if style:
-                        self.style = style
+                        self._style = style
                         break
         else:
-            self.style = style
+            self._style = style
 
         self.update_view_rect()
         # register of all event callbacks
@@ -94,7 +90,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Args:
             visible (bool): True to make element visible, False to hide.
         """
-        self.visible = visible
+        self._visible = visible
 
     def is_visible(self) -> bool:
         """
@@ -103,7 +99,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             bool: True if visible, False otherwise.
         """
-        return self.visible
+        return self._visible
     
     def is_hovered(self) -> bool:
         """
@@ -112,7 +108,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             bool: True if hovered, False otherwise.
         """
-        return self.hovered
+        return self._hovered
 
     def set_hover_cursor(self, cursor):
         """
@@ -121,7 +117,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Args:
             cursor: Pygame cursor type constant.
         """
-        self.hover_cursor = cursor
+        self._hover_cursor = cursor
 
     def get_hover_cursor(self):
         """
@@ -130,7 +126,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             int: Pygame cursor type constant.
         """
-        return self.hover_cursor
+        return self._hover_cursor
 
     def get_view(self):
         """
@@ -139,7 +135,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             View: The parent view object.
         """
-        return self.view
+        return self._view
 
     def get_x(self) -> int:
         """Get X position of this element."""
@@ -157,9 +153,69 @@ class GUIElement(metaclass=abc.ABCMeta):
         """Get height of this element."""
         return self.height
 
+    def set_anchor_x(self, anchor_x: Union[int, str]):
+        """
+        Set the anchor point for the X position.
+
+        Args:
+            anchor_x (int or str): Anchor point as an integer pixel offset or a percentage string
+                (e.g., "50%" for half the width).
+        """
+        self._anchor_x = anchor_x
+        self.update_view_rect()
+
+    def set_anchor_y(self, anchor_y: Union[int, str]):
+        """
+        Set the anchor point for the Y position.
+
+        Args:
+            anchor_y (int or str): Anchor point as an integer pixel offset or a percentage string
+                (e.g., "50%" for half the height).
+        """
+        self._anchor_y = anchor_y
+        self.update_view_rect()
+
+    def get_anchor_x(self):
+        """
+        Get the anchor point for the X position.
+
+        Returns:
+            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
+        """
+        return self._anchor_x
+
+    def get_anchor_y(self):
+        """
+        Get the anchor point for the Y position.
+
+        Returns:
+            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
+        """
+        return self._anchor_y
+
+    def _parse_anchor(self, anchor, size):
+        """
+        Convert anchor value (int or percent string) to px offset.
+        Examples:
+            - 0      -> 0
+            - 15     -> 15
+            - "50%"  -> 0.5 * size
+            - "100%" -> size
+        """
+        if isinstance(anchor, int):
+            return anchor
+        elif isinstance(anchor, str) and anchor.endswith('%'):
+            try:
+                percent = float(anchor[:-1]) / 100.0
+                return int(size * percent)
+            except ValueError:
+                return 0
+        else:
+            return 0
+
     def get_style(self) -> dict:
         """Get style dictionary of this element."""
-        return self.style
+        return self._style
 
     def set_x(self, x: int):
         """
@@ -210,13 +266,18 @@ class GUIElement(metaclass=abc.ABCMeta):
         Args:
             style (dict): New style.
         """
-        self.style = style
+        self._style = style
 
     def update_view_rect(self):
         """
-        Update the pygame.Rect representing this element's area.
+        Update the pygame.Rect representing this element's area, taking into account anchor points.
+        Anchor is subtracted from the (x, y) position.
         """
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        offset_x = self._parse_anchor(self._anchor_x, self.width)
+        offset_y = self._parse_anchor(self._anchor_y, self.height)
+        real_x = self.x - offset_x
+        real_y = self.y - offset_y
+        self._rect = pygame.Rect(real_x, real_y, self.width, self.height)
 
     def get_view_rect(self) -> pygame.Rect:
         """
@@ -225,15 +286,15 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             pygame.Rect: The rectangle for drawing and hit-testing.
         """
-        return self.rect
+        return self._rect
 
     def focus(self):
         """Mark this element as focused."""
-        self.focused = True
+        self._focused = True
 
     def un_focus(self):
         """Mark this element as unfocused."""
-        self.focused = False
+        self._focused = False
 
     def is_focused(self) -> bool:
         """
@@ -242,7 +303,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         Returns:
             bool: True if focused, False otherwise.
         """
-        return self.focused
+        return self._focused
 
     def draw(self, view, screen: pygame.Surface):
         """
@@ -262,7 +323,7 @@ class GUIElement(metaclass=abc.ABCMeta):
             view: The parent View sending the event.
             event: The pygame event object.
         """
-        if not self.visible:
+        if not self._visible:
             return
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -274,7 +335,7 @@ class GUIElement(metaclass=abc.ABCMeta):
                     self.trigger_event(SUIEvents.EVENT_ON_CLICK, event)
                     # Focus gained if mouse button is pressed over the element
                     if not self.is_focused():
-                        self.focused = True
+                        self._focused = True
                         self.trigger_event(SUIEvents.EVENT_ON_FOCUS, event)
                 elif event.button == 3:
                     # Trigger right click event if right mouse button is pressed
@@ -282,7 +343,7 @@ class GUIElement(metaclass=abc.ABCMeta):
             else:
                 # Focus lost if mouse button is pressed outside the element
                 if self.is_focused():
-                    self.focused = False
+                    self._focused = False
                     self.trigger_event(SUIEvents.EVENT_ON_BLUR, event)
 
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -296,12 +357,12 @@ class GUIElement(metaclass=abc.ABCMeta):
                 self.trigger_event(SUIEvents.EVENT_ON_MOUSE_MOVE, event)
             # Check if mouse entered or left the element (hover state)
             if self.get_view_rect().collidepoint(event.pos):
-                if not self.hovered:
-                    self.hovered = True
+                if not self._hovered:
+                    self._hovered = True
                     self.trigger_event(SUIEvents.EVENT_ON_MOUSE_ENTER, event)
             else:
-                if self.hovered:
-                    self.hovered = False
+                if self._hovered:
+                    self._hovered = False
                     self.trigger_event(SUIEvents.EVENT_ON_MOUSE_LEAVE, event)
 
         elif event.type == pygame.KEYDOWN:

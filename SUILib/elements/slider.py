@@ -18,13 +18,6 @@ class Slider(GUIElement):
     The Slider allows users to select a value within a specified range by dragging a handle.
     The slider displays its current value as a label and supports customizable formatting,
     min/max constraints, and a value change callback.
-
-    Attributes:
-        label (Label): The label displaying the current slider value.
-        min (float): The minimum value of the slider.
-        max (float): The maximum value of the slider.
-        position (float): The current x-position of the slider handle relative to the slider's width.
-        format (str): String format for the label, using '#' for percentage and '@' for the numerical value.
     """
         
     def __init__(self, view, style: dict, number: float, min: float, max: float, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -43,12 +36,12 @@ class Slider(GUIElement):
             x (int, optional): X coordinate of the slider. Defaults to 0.
             y (int, optional): Y coordinate of the slider. Defaults to 0.
         """
-        self.label = None
+        self._label = None
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEWE)
-        self.label = Label(view, super().get_style()["label"], " ", False, True)
-        self.format = "@"
-        self.min = min
-        self.max = max
+        self._label = Label(view, super().get_style()["label"], " ", False, True)
+        self._format = "@"
+        self._min = min
+        self._max = max
         self._start_scroller_pos = 0
         self._drag_start = 0
         self.set_number(number)
@@ -60,7 +53,7 @@ class Slider(GUIElement):
         Args:
             val (float): New minimum value.
         """
-        self.min = val
+        self._min = val
 
     def set_max(self, val: int):
         """
@@ -69,7 +62,7 @@ class Slider(GUIElement):
         Args:
             val (float): New maximum value.
         """
-        self.max = val
+        self._max = val
 
     def get_value(self) -> int:
         """
@@ -88,7 +81,7 @@ class Slider(GUIElement):
         Returns:
             float: The current numerical value of the slider.
         """
-        return self.get_value() / 100.0 * (self.max - self.min) + self.min
+        return self.get_value() / 100.0 * (self._max - self._min) + self._min
 
     def set_value(self, value: int):
         """
@@ -116,8 +109,8 @@ class Slider(GUIElement):
         Args:
             value (float): The value to set the slider to.
         """
-        if value <= self.max and value >= self.min:
-            value = (value - self.min) / (self.max - self.min) * 100
+        if value <= self._max and value >= self._min:
+            value = (value - self._min) / (self._max - self._min) * 100
             self.set_value(value)
 
     def set_label_format(self, format: str):
@@ -127,24 +120,24 @@ class Slider(GUIElement):
         Args:
             format (str): Format string; use '#' for percentage and '@' for numerical value.
         """
-        self.format = format
+        self._format = format
 
     def refresh_label(self):
         """
         Update the slider label to display the current value using the format string.
         """
-        if len(self.format) != 0:
-            txt = self.format
+        if len(self._format) != 0:
+            txt = self._format
             txt = txt.replace("#", '%.2f' % self.get_value())
             txt = txt.replace("@", '%.2f' % self.get_number())
-            self.label.set_text(txt)
+            self._label.set_text(txt)
 
     @overrides(GUIElement)
     def update_view_rect(self):
         super().update_view_rect()
-        if self.label is not None:
-            self.label.set_x(super().get_x() + super().get_width() + 20)
-            self.label.set_y(super().get_y() + super().get_height() / 2)
+        if self._label is not None:
+            self._label.set_x(super().get_x() + super().get_width() + 20)
+            self._label.set_y(super().get_y() + super().get_height() / 2)
 
     @overrides(GUIElement)
     def set_width(self, width):
@@ -187,7 +180,7 @@ class Slider(GUIElement):
             super().get_height() * 0.8
         )
         # label with current value
-        self.label.draw(view, screen)
+        self._label.draw(view, screen)
 
     @overrides(GUIElement)
     def process_event(self, view, event):

@@ -15,10 +15,6 @@ class Graph(GUIElement):
 
     The Graph element renders a matplotlib figure into a Pygame surface, allowing dynamic graph content
     inside SUILib views. The user supplies a figure builder function which draws the graph using matplotlib.
-
-    Attributes:
-        graph (pygame.Surface): The rendered graph as a Pygame surface.
-        fig_builder (callable): The user-supplied function for building the matplotlib figure.
     """
 
     def __init__(self, view, style: dict, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -34,8 +30,8 @@ class Graph(GUIElement):
             y (int, optional): Y coordinate of the graph. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style)
-        self.graph = None
-        self.fig_builder = None
+        self._graph = None
+        self._fig_builder = None
 
     def set_figure_builder_func(self, func):
         """
@@ -46,7 +42,7 @@ class Graph(GUIElement):
                 - The function receives a matplotlib.figure.Figure instance and
                   should draw the desired graph on it.
         """
-        self.fig_builder = func
+        self._fig_builder = func
 
     @overrides(GUIElement)
     def set_width(self, width):
@@ -75,21 +71,21 @@ class Graph(GUIElement):
         Redraw and re-render the matplotlib figure to the Pygame surface.
         Called automatically when the size of the graph changes or the builder function is set.
         """
-        if self.fig_builder is not None and super().get_width() > 50 and super().get_height() > 50:
+        if self._fig_builder is not None and super().get_width() > 50 and super().get_height() > 50:
             fig = pylab.figure(
                 figsize=[self.get_width()/100, self.get_height()/100], dpi=100)
             fig.patch.set_alpha(0.0)
-            self.fig_builder(fig)
-            self.graph = draw_graph(
+            self._fig_builder(fig)
+            self._graph = draw_graph(
                 fig,
                 super().get_style()["theme"]
             )
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        if self.graph is not None:
+        if self._graph is not None:
             screen.blit(
-                pygame.transform.scale(self.graph, (super().get_width(), super().get_height())),
+                pygame.transform.scale(self._graph, (super().get_width(), super().get_height())),
                 (super().get_x(), super().get_y())
             )
 
