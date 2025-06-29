@@ -43,6 +43,7 @@ class ListPanel(GUIElement, Container):
         self.data = data
         self.v_scroll = None
         self.body_offset_y = 0
+        self.hovered_row = None  # <-- Přidáno: aktuálně hovernutý index řádku
         super().__init__(view, x, y, width, height, style)
         self.v_scroll = VerticalScrollbar(
             view, 
@@ -104,25 +105,26 @@ class ListPanel(GUIElement, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the list panel, including background, visible items, scrollbar, and outline.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the panel onto.
-        """
         # Draw background
-        if super().is_hovered():
-            c = super().get_style()["background_color"]
-            pygame.draw.rect(screen, color_change(c, -0.2 if c[0] > 128 else 0.6), super().get_view_rect(), border_radius=5)
-        else:
-            pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
         # Draw list items
         if len(self.data) != 0:
             screen.set_clip(super().get_view_rect())
             offset = super().get_y() + 10 + self.body_offset_y
-            for line in self.data:
+            for idx, line in enumerate(self.data):
+                item_rect = pygame.Rect(
+                    super().get_x(),
+                    offset - 5,
+                    super().get_width() - self.v_scroll.get_width() - 5,
+                    self.font.get_height() + 10
+                )
+                # Zvýraznění pouze hovernutého řádku
+                if idx == self.hovered_row:
+                    # Barva pro zvýraznění řádku při hoveru
+                    c = super().get_style()["background_color"]
+                    highlight = color_change(c, -0.2 if c[0] > 128 else 0.6)
+                    pygame.draw.rect(screen, highlight, item_rect, border_radius=3)
                 text = self.font.render(
                     line, 1, super().get_style()["foreground_color"])
                 screen.blit(text, (super().get_x() + 10, offset))
@@ -134,6 +136,7 @@ class ListPanel(GUIElement, Container):
 
         # Draw outline
         pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
+
 
     @overrides(GUIElement)
     def process_event(self, view, event):
@@ -147,9 +150,30 @@ class ListPanel(GUIElement, Container):
         super().process_event(view, event)
         self.v_scroll.process_event(view, event)
 
+        # Reset hovered_row na None, pokud myš není v panelu nebo není nad žádným řádkem
+        reset_hover = True
+
+        if event.type == pygame.MOUSEMOTION:
+            # Detekce, nad kterým řádkem je kurzor
+            offset = super().get_y() + 10 + self.body_offset_y
+            for idx, line in enumerate(self.data):
+                item_view_rect = pygame.Rect(
+                    super().get_x(),
+                    offset,
+                    super().get_width() - self.v_scroll.get_width() - 5,
+                    self.font.get_height()
+                )
+                if item_view_rect.collidepoint(event.pos):
+                    self.hovered_row = idx
+                    reset_hover = False
+                    break
+                offset += self.font.get_height() + 10
+            if reset_hover:
+                self.hovered_row = None
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             offset = super().get_y() + 10 + self.body_offset_y
-            for line in self.data:
+            for idx, line in enumerate(self.data):
                 item_view_rect = pygame.Rect(
                     super().get_x(),
                     offset,
