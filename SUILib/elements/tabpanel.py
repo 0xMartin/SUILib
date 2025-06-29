@@ -233,8 +233,7 @@ class TabPanel(GUIElement, Container):
                         break
 
         # Offset event for content (so children receive proper local coords)
-        tab_header_height = self.font.render(
-            "W", 1, super().get_style()["foreground_color"]
+        tab_header_height = self.font.render("W", 1, super().get_style()["foreground_color"]
         ).get_height() + 10
         if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
             event.pos = (

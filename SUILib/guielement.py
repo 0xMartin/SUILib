@@ -42,7 +42,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         width: int,
         height: int,
         style: dict,
-        focused_cursor=pygame.SYSTEM_CURSOR_HAND
+        hover_cursor=pygame.SYSTEM_CURSOR_HAND
     ):
         """
         Initialize a new GUIElement.
@@ -54,14 +54,14 @@ class GUIElement(metaclass=abc.ABCMeta):
             width (int): Width in pixels.
             height (int): Height in pixels.
             style (dict): Style dictionary. If None, will be resolved by class name.
-            selected_cursor: Pygame cursor type to show when element is selected.
+            hover_cursor: Pygame cursor type to show when element is hovered.
         """
         self.view = view
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.focused_cursor = focused_cursor
+        self.hover_cursor = hover_cursor
 
         # Default action variables
         self.hovered = False
@@ -114,23 +114,23 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         return self.hovered
 
-    def set_focused_cursor(self, cursor):
+    def set_hover_cursor(self, cursor):
         """
-        Set the cursor type to use when this element is focused.
+        Set the cursor type to use when this element is hovered.
 
         Args:
             cursor: Pygame cursor type constant.
         """
-        self.focused_cursor = cursor
+        self.hover_cursor = cursor
 
-    def get_focused_cursor(self):
+    def get_hover_cursor(self):
         """
-        Get the cursor type to use when this element is focused.
+        Get the cursor type to use when this element is hovered.
 
         Returns:
             int: Pygame cursor type constant.
         """
-        return self.focused_cursor
+        return self.hover_cursor
 
     def get_view(self):
         """
@@ -265,44 +265,54 @@ class GUIElement(metaclass=abc.ABCMeta):
         if not self.visible:
             return
 
-        # Aktuální pozice myši
-        mouse_pos = pygame.mouse.get_pos()
-
-        # MOUSE ENTER/LEAVE (detekce při každém eventu)
-        if self.get_view_rect().collidepoint(mouse_pos):
-            if not self.hovered:
-                self.hovered = True
-                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_ENTER, event)
-        else:
-            if self.hovered:
-                self.hovered = False
-                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_LEAVE, event)
-
-        # Zpracování podle typu eventu
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.get_view_rect().collidepoint(event.pos):
+                # Check if mouse button is pressed over the element
                 self.trigger_event(SUIEvents.EVENT_ON_MOUSE_DOWN, event)
                 if event.button == 1:
+                    # Trigger click event if left mouse button is pressed
                     self.trigger_event(SUIEvents.EVENT_ON_CLICK, event)
-                    if not self.focused:
+                    # Focus gained if mouse button is pressed over the element
+                    if not self.is_focused():
                         self.focused = True
                         self.trigger_event(SUIEvents.EVENT_ON_FOCUS, event)
                 elif event.button == 3:
+                    # Trigger right click event if right mouse button is pressed
                     self.trigger_event(SUIEvents.EVENT_ON_RIGHT_CLICK, event)
             else:
-                if self.focused:
+                # Focus lost if mouse button is pressed outside the element
+                if self.is_focused():
                     self.focused = False
                     self.trigger_event(SUIEvents.EVENT_ON_BLUR, event)
+
         elif event.type == pygame.MOUSEBUTTONUP:
+            # Check if mouse button is released over the element
             if self.get_view_rect().collidepoint(event.pos):
                 self.trigger_event(SUIEvents.EVENT_ON_MOUSE_UP, event)
+
         elif event.type == pygame.MOUSEMOTION:
+            # Check if mouse is moving over the element
             if self.get_view_rect().collidepoint(event.pos):
                 self.trigger_event(SUIEvents.EVENT_ON_MOUSE_MOVE, event)
+            # Check if mouse entered or left the element (hover state)
+            if self.get_view_rect().collidepoint(event.pos):
+                if not self.hovered:
+                    self.hovered = True
+                    self.trigger_event(SUIEvents.EVENT_ON_MOUSE_ENTER, event)
+            else:
+                if self.hovered:
+                    self.hovered = False
+                    self.trigger_event(SUIEvents.EVENT_ON_MOUSE_LEAVE, event)
+
         elif event.type == pygame.KEYDOWN:
-            self.trigger_event(SUIEvents.EVENT_ON_KEY_DOWN, event)
+            # Check if the key is pressed while this element is focused
+            if self.is_focused():
+                self.trigger_event(SUIEvents.EVENT_ON_KEY_DOWN, event)
+
         elif event.type == pygame.KEYUP:
-            self.trigger_event(SUIEvents.EVENT_ON_KEY_UP, event)
+            # Check if the key is released while this element is focused
+            if self.is_focused():
+                self.trigger_event(SUIEvents.EVENT_ON_KEY_UP, event)
 
     def update(self, view):
         """
@@ -358,7 +368,14 @@ class GUIElement(metaclass=abc.ABCMeta):
                 self._event_callbacks[evt] = []
 
     def trigger_event(self, event_name: str, *args, **kwargs):
-        """Spustí všechny callbacky pro daný event."""
+        """
+        Trigger an event and call all registered callbacks for that event.
+        
+        Args:
+            event_name (str): Name of the event to trigger.
+            *args: Positional arguments to pass to the callbacks.
+            **kwargs: Keyword arguments to pass to the callbacks.
+        """
         for callback in self._event_callbacks.get(event_name, []):
             callback(*args, **kwargs)
 

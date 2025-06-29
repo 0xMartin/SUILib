@@ -85,7 +85,7 @@ class CheckBox(GUIElement):
             self.label.set_y(super().get_y() + super().get_height() / 2)
             self.label.draw(view, screen)
         # Draw checkbox background
-        if super().is_focused():
+        if super().is_hovered():
             c = super().get_style()["background_color"]
             pygame.draw.rect(
                 screen,

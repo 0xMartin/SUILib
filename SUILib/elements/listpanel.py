@@ -5,7 +5,7 @@ ListPanel UI element for SUILib
 import pygame
 from SUILib.guielement import GUIElement, Container
 from SUILib.elements.vertical_scrollbar import VerticalScrollbar
-from utils import overrides
+from SUILib.utils import overrides
 
 
 class ListPanel(GUIElement, Container):

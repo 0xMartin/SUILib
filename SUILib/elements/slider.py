@@ -49,6 +49,8 @@ class Slider(GUIElement):
         self.format = "@"
         self.min = min
         self.max = max
+        self._start_scroller_pos = 0
+        self._drag_start = 0
         self.set_number(number)
 
     def set_min(self, val: int):
@@ -190,11 +192,19 @@ class Slider(GUIElement):
     @overrides(GUIElement)
     def process_event(self, view, event):
         super().process_event(view, event)
-        if event.type == pygame.MOUSEBUTTONUP:
+        if not super().is_focused():
+            return
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self._start_scroller_pos = self.position
+            self._drag_start = event.pos[0]
+        elif event.type == pygame.MOUSEBUTTONUP:
             self.set_value(self.get_value())
+            super().un_focus()
+            super().trigger_event(SUIEvents.EVENT_ON_BLUR)
         elif event.type == pygame.MOUSEMOTION:
             if super().is_focused():
-                self.position = self.def_position + (event.pos[0] - self.drag_start)
+                self.position = self._start_scroller_pos + (event.pos[0] - self._drag_start)
                 dot_radius = super().get_height() / 2
                 self.position = min(
                     max(dot_radius, self.position), super().get_width() - dot_radius)

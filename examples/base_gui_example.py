@@ -37,13 +37,13 @@ class View1(View):
 
         # Theme toggle button
         theme_toggle = ToggleButton(self, None, "Theme", False, 40, 20)
-        theme_toggle.set_value_changed_evt(self.change_theme)
+        theme_toggle.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self.change_theme)
         layout.add_element(theme_toggle, ['5%', '5%'])
 
         # Canvas with random rectangles
         canvas = Canvas(self, None)
         layout.add_element(canvas, ['3%', '15%', '45%', '40%'])
-        canvas.set_paint_evt(self.paint)
+        canvas.add_paint_evt(self.paint)
 
         # Data for table
         table_data = {
@@ -141,7 +141,7 @@ class View2(View):
         panel1.add_element(image, ['5%', '20%', '45%', '75%'])
 
         graph = Graph(self, None)
-        graph.set_figure_builder_func(lambda f: Graph.builderFunc_pieGraph(
+        graph.set_figure_builder_func(lambda f: Graph.builder_func_pie_graph(
             f, ['A', 'B', 'C', 'D'], [1, 2, 3, 5], (0, 0.2, 0, 0)
         ))
         panel1.add_element(graph, ['50%', '8%', '45%', '90%'])

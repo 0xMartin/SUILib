@@ -92,8 +92,9 @@ class RadioButton(GUIElement):
             super().get_x() + super().get_width() / 2,
             super().get_y() + super().get_width() / 2
         )
-        if super().is_focused():
+        if super().is_hovered():
             c = super().get_style()["background_color"]
+            print(f"Hover color: {c}")
             pygame.draw.circle(screen, color_change(c, -0.2 if c[0] > 128 else 0.6), center, super().get_width() / 2)
         else:
             pygame.draw.circle(screen, super().get_style()["background_color"], center, super().get_width() / 2)

@@ -646,10 +646,9 @@ class View(metaclass=abc.ABCMeta):
                     el.process_event(self, event)
             else:
                 self.filter["element"].process_event(self, event)
-        selected = self.find_element(
-            self.GUIElements, lambda el: el.is_focused())
-        if selected is not None:
-            pygame.mouse.set_cursor(selected.get_focus_cursor())
+        hovered_elements = self.find_element(self.GUIElements, lambda el: el.is_hovered())
+        if hovered_elements is not None:
+            pygame.mouse.set_cursor(hovered_elements.get_hover_cursor())
         else:
             pygame.mouse.set_cursor(self.cursor)
 
