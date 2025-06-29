@@ -5,40 +5,13 @@ This module defines the core abstract base classes for GUI elements and containe
 used in the SUILib framework. It provides the foundational interface and functionality
 for all graphical elements (buttons, panels, sliders, etc.) in a multi-view
 pygame-based application.
-
-Author: Martin Krcma <martin.krcma1@gmail.com>
-Github: https://github.com/0xMartin
-Date: 08.02.2022
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
 from typing import Callable, Dict, List, Optional, final
 import abc
 import inspect
-import events
+from .events import SUIEvents
 
 class GUIElement(metaclass=abc.ABCMeta):
     """
@@ -54,9 +27,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         width (int): Width of the element.
         height (int): Height of the element.
         style (dict): Style dictionary.
-        selected_cursor: Pygame cursor type shown when this element is selected.
+        focused_cursor: Pygame cursor type shown when this element is focused.
         visible (bool): Visibility of the element.
-        selected (bool): Selection state.
+        focused (bool): Whether the element is currently focused.
         rect (pygame.Rect): Rectangle representing the element's position and size.
     """
 
@@ -68,7 +41,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         width: int,
         height: int,
         style: dict,
-        selected_cursor=pygame.SYSTEM_CURSOR_HAND
+        focused_cursor=pygame.SYSTEM_CURSOR_HAND
     ):
         """
         Initialize a new GUIElement.
@@ -87,9 +60,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.y = y
         self.width = width
         self.height = height
-        self.selected_cursor = selected_cursor
+        self.focused_cursor = focused_cursor
         self.visible = True
-        self.selected = False
+        self.focused = False
 
         sm = view.get_app().get_style_manager()
         if style is None:
@@ -107,7 +80,7 @@ class GUIElement(metaclass=abc.ABCMeta):
 
         self.update_view_rect()
         # Registr callbacků pro eventy
-        self._event_callbacks: Dict[str, List[Callable]] = {evt: [] for evt in events.STANDARD_EVENTS}
+        self._event_callbacks: Dict[str, List[Callable]] = {evt: [] for evt in SUIEvents.STANDARD_EVENTS}
         self._mouse_inside = False  # Pro detekci enter/leave
 
     def set_visibility(self, visible: bool):
@@ -128,24 +101,24 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         return self.visible
 
-    def set_select_cursor(self, cursor):
+    def set_focused_cursor(self, cursor):
         """
-        Set the cursor type to use when this element is selected.
+        Set the cursor type to use when this element is focused.
 
         Args:
             cursor: Pygame cursor type constant.
         """
-        self.selected_cursor = cursor
+        self.focused_cursor = cursor
 
     @final
-    def get_select_cursor(self):
+    def get_focused_cursor(self):
         """
-        Get the cursor type to use when this element is selected.
+        Get the cursor type to use when this element is focused.
 
         Returns:
             int: Pygame cursor type constant.
         """
-        return self.selected_cursor
+        return self.focused_cursor
 
     @final
     def get_view(self):
@@ -250,24 +223,24 @@ class GUIElement(metaclass=abc.ABCMeta):
         return self.rect
 
     @final
-    def select(self):
-        """Mark this element as selected."""
-        self.selected = True
+    def focus(self):
+        """Mark this element as focused."""
+        self.focused = True
 
     @final
-    def un_select(self):
-        """Mark this element as unselected."""
-        self.selected = False
+    def un_focus(self):
+        """Mark this element as unfocused."""
+        self.focused = False
 
     @final
-    def is_selected(self) -> bool:
+    def is_focused(self) -> bool:
         """
-        Check if this element is currently selected.
+        Check if this element is currently focused.
 
         Returns:
-            bool: True if selected, False otherwise.
+            bool: True if focused, False otherwise.
         """
-        return self.selected
+        return self.focused
 
     @abc.abstractmethod
     def draw(self, view, screen: pygame.Surface):
@@ -299,32 +272,38 @@ class GUIElement(metaclass=abc.ABCMeta):
         if self.get_view_rect().collidepoint(mouse_pos):
             if not self._mouse_inside:
                 self._mouse_inside = True
-                self.trigger_event(events.EVENT_ON_MOUSE_ENTER, event)
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_ENTER, event)
         else:
             if self._mouse_inside:
                 self._mouse_inside = False
-                self.trigger_event(events.EVENT_ON_MOUSE_LEAVE, event)
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_LEAVE, event)
 
         # Zpracování podle typu eventu
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.get_view_rect().collidepoint(event.pos):
-                self.trigger_event(events.EVENT_ON_MOUSE_DOWN, event)
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_DOWN, event)
                 if event.button == 1:
-                    self.trigger_event(events.EVENT_ON_CLICK, event)
+                    self.trigger_event(SUIEvents.EVENT_ON_CLICK, event)
+                    if not self.focused:
+                        self.focused = True
+                        self.trigger_event(SUIEvents.EVENT_ON_FOCUS, event)
                 elif event.button == 3:
-                    self.trigger_event(events.EVENT_ON_RIGHT_CLICK, event)
+                    self.trigger_event(SUIEvents.EVENT_ON_RIGHT_CLICK, event)
+            else:
+                if self.focused:
+                    self.focused = False
+                    self.trigger_event(SUIEvents.EVENT_ON_BLUR, event)
         elif event.type == pygame.MOUSEBUTTONUP:
             if self.get_view_rect().collidepoint(event.pos):
-                self.trigger_event(events.EVENT_ON_MOUSE_UP, event)
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_UP, event)
         elif event.type == pygame.MOUSEMOTION:
             if self.get_view_rect().collidepoint(event.pos):
-                self.trigger_event(events.EVENT_ON_MOUSE_MOVE, event)
-                # Hover (volitelné, např. při držení myši nad prvkem)
-                self.trigger_event(events.EVENT_ON_HOVER, event)
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_MOVE, event)
+                self.trigger_event(SUIEvents.EVENT_ON_HOVER, event)
         elif event.type == pygame.KEYDOWN:
-            self.trigger_event(events.EVENT_ON_KEY_DOWN, event)
+            self.trigger_event(SUIEvents.EVENT_ON_KEY_DOWN, event)
         elif event.type == pygame.KEYUP:
-            self.trigger_event(events.EVENT_ON_KEY_UP, event)
+            self.trigger_event(SUIEvents.EVENT_ON_KEY_UP, event)
 
     @abc.abstractmethod
     def update(self, view):

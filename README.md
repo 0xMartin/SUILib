@@ -64,8 +64,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 1. Clone this repository:
     ```sh
-    git clone https://github.com/0xMartin/SUILib.git
+    git clone https://github.com/0xMartin/SUILib.git 
     cd SUILib
+    git checkout dev 
     ```
 
 2. Install dependencies:

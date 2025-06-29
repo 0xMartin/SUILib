@@ -4,42 +4,12 @@ Layout managers for SUILib GUI framework
 This module provides layout manager classes for arranging GUI elements within a View.
 It includes AbsoluteLayout for pixel/percentage-based positioning and sizing,
 and RelativeLayout for stacking elements relative to a parent in horizontal or vertical fashion.
-
-Author: Martin Krcma <martin.krcma1@gmail.com>
-Github: https://github.com/0xMartin
-Date: 09.02.2022
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from .utils import *
 from .colors import *
 from .application import Layout   
 
-# **************************************************************************************************************
-# layout managers
-# **************************************************************************************************************
 
 class AbsoluteLayout(Layout):
     """
@@ -53,6 +23,8 @@ class AbsoluteLayout(Layout):
         al = AbsoluteLayout(self)
         label = Label(self, None, "Label 1", True)
         al.add_element(label, ['50%', '5%'])  # Centered horizontally, near top
+        button = Button(self, None, "Button 1", True)
+        al.add_element(button, ['50%', '5%', '30%', '10%'])  # Centered horizontally, 30% width, 10% height
 
     Attributes:
         Inherited from Layout.
