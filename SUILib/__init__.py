@@ -36,4 +36,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 https://github.com/0xMartin/SimpleApp-Pygame-framework
 """
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"
+__author__ = "Martin Krcma"
+__email__ = "martin.krcma1@gmail.com"
+__doc__ = "A simple lightweight UI library for Pygame. Easily build menu for games or simple applications with multiple views."

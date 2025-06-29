@@ -1,34 +1,5 @@
 """
 Canvas UI element for SUILib
-
-File:       canvas.py
-Date:       08.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -73,12 +44,12 @@ class Canvas(GUIElement):
         self.mouse_sensitivity = 2.0
         self.offset = [0, 0]
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
 
-    def enableMouseControl(self):
+    def enable_mouse_control(self):
         """
         Enable mouse control for the canvas.
 
@@ -87,7 +58,7 @@ class Canvas(GUIElement):
         """
         self.control = True
 
-    def disableMouseControl(self):
+    def disable_mouse_control(self):
         """
         Disable mouse control for the canvas.
 
@@ -95,7 +66,7 @@ class Canvas(GUIElement):
         """
         self.control = False
 
-    def setMouseSensitivity(self, mouse_sensitivity: float):
+    def set_mouse_sensitivity(self, mouse_sensitivity: float):
         """
         Set the sensitivity for mouse-based canvas control.
 
@@ -104,7 +75,7 @@ class Canvas(GUIElement):
         """
         self.mouse_sensitivity = mouse_sensitivity
 
-    def getMouseSensitivity(self) -> float:
+    def get_mouse_sensitivity(self) -> float:
         """
         Get the current mouse sensitivity value.
 
@@ -113,7 +84,7 @@ class Canvas(GUIElement):
         """
         return self.mouse_sensitivity
 
-    def setOffset(self, offset: list):
+    def set_offset(self, offset: list):
         """
         Set the drawing offset for the canvas.
 
@@ -122,7 +93,7 @@ class Canvas(GUIElement):
         """
         self.offset = offset
 
-    def getOffset(self) -> list:
+    def get_offset(self) -> list:
         """
         Get the current drawing offset.
 
@@ -131,7 +102,7 @@ class Canvas(GUIElement):
         """
         return self.offset
 
-    def setPaintEvt(self, callback):
+    def set_paint_evt(self, callback):
         """
         Set the paint event callback for the canvas.
 
@@ -153,15 +124,15 @@ class Canvas(GUIElement):
             screen (pygame.Surface): The surface to render the canvas onto.
         """
         # Draw canvas background
-        pygame.draw.rect(screen, super().getStyle()["background_color"], super().getViewRect())
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect())
 
         # Create a subsurface for drawing
         surface = screen.subsurface(
             pygame.Rect(
-                super().getX(),
-                super().getY(),
-                min(max(super().getWidth(), 10), screen.get_width() - super().getX()),
-                min(max(super().getHeight(), 10), screen.get_height() - super().getY())
+                super().get_x(),
+                super().get_y(),
+                min(max(super().get_width(), 10), screen.get_width() - super().get_x()),
+                min(max(super().get_height(), 10), screen.get_height() - super().get_y())
             )
         )
         # Call the paint callback if set
@@ -169,10 +140,10 @@ class Canvas(GUIElement):
             self.callback(surface, self.offset)
 
         # Draw canvas outline
-        pygame.draw.rect(screen, super().getStyle()["outline_color"], super().getViewRect(), 2)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2)
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process Pygame events for mouse-based canvas interaction.
 
@@ -182,14 +153,14 @@ class Canvas(GUIElement):
         """
         if self.control:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+                if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                     super().select()
                     self.mouse_motion = True
             elif event.type == pygame.MOUSEBUTTONUP:
-                super().unSelect()
+                super().un_select()
             elif event.type == pygame.MOUSEMOTION:
-                if inRect(event.pos[0], event.pos[1], super().getViewRect()):
-                    if self.isSelected():
+                if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
+                    if self.is_selected():
                         if self.mouse_motion:
                             self.last_pos = event.pos
                         else:

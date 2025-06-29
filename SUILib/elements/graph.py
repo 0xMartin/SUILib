@@ -1,34 +1,5 @@
 """
 Graph UI element for SUILib
-
-File:       graph.py
-Date:       09.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -64,7 +35,7 @@ class Graph(GUIElement):
         self.graph = None
         self.fig_builder = None
 
-    def setFigureBuilderFunc(self, func):
+    def set_figure_builder_func(self, func):
         """
         Set the function responsible for building the matplotlib figure.
 
@@ -76,40 +47,40 @@ class Graph(GUIElement):
         self.fig_builder = func
 
     @overrides(GUIElement)
-    def setWidth(self, width):
+    def set_width(self, width):
         """
         Set the width of the graph and refresh the rendered figure.
 
         Args:
             width (int): New width in pixels.
         """
-        super().setWidth(width)
-        self.refreshGraph()
+        super().set_width(width)
+        self.refresh_graph()
 
     @overrides(GUIElement)
-    def setHeight(self, height):
+    def set_height(self, height):
         """
         Set the height of the graph and refresh the rendered figure.
 
         Args:
             height (int): New height in pixels.
         """
-        super().setHeight(height)
-        self.refreshGraph()
+        super().set_height(height)
+        self.refresh_graph()
 
-    def refreshGraph(self):
+    def refresh_graph(self):
         """
         Redraw and re-render the matplotlib figure to the Pygame surface.
         Called automatically when the size of the graph changes or the builder function is set.
         """
-        if self.fig_builder is not None and super().getWidth() > 50 and super().getHeight() > 50:
+        if self.fig_builder is not None and super().get_width() > 50 and super().get_height() > 50:
             fig = pylab.figure(
-                figsize=[self.getWidth()/100, self.getHeight()/100], dpi=100)
+                figsize=[self.get_width()/100, self.get_height()/100], dpi=100)
             fig.patch.set_alpha(0.0)
             self.fig_builder(fig)
-            self.graph = drawGraph(
+            self.graph = draw_graph(
                 fig,
-                super().getStyle()["theme"]
+                super().get_style()["theme"]
             )
 
     @overrides(GUIElement)
@@ -123,12 +94,12 @@ class Graph(GUIElement):
         """
         if self.graph is not None:
             screen.blit(
-                pygame.transform.scale(self.graph, (super().getWidth(), super().getHeight())),
-                (super().getX(), super().getY())
+                pygame.transform.scale(self.graph, (super().get_width(), super().get_height())),
+                (super().get_x(), super().get_y())
             )
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for the graph.
 

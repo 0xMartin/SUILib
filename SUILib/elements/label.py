@@ -1,34 +1,5 @@
 """
 Label UI element for SUILib
-
-File:       label.py
-Date:       08.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -72,12 +43,12 @@ class Label(GUIElement):
         self.h_centered = h_centered
         self.v_centered = v_centered
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
 
-    def setHCentered(self, centered: bool):
+    def set_h_centered(self, centered: bool):
         """
         Set horizontal alignment for the label text.
 
@@ -86,7 +57,7 @@ class Label(GUIElement):
         """
         self.h_centered = centered
 
-    def setVCentered(self, centered: bool):
+    def set_v_centered(self, centered: bool):
         """
         Set vertical alignment for the label text.
 
@@ -95,7 +66,7 @@ class Label(GUIElement):
         """
         self.v_centered = centered
 
-    def setText(self, text: str):
+    def set_text(self, text: str):
         """
         Set the text displayed by the label.
 
@@ -104,7 +75,7 @@ class Label(GUIElement):
         """
         self.text = text
 
-    def getText(self) -> str:
+    def get_text(self) -> str:
         """
         Get the current text content of the label.
 
@@ -123,17 +94,17 @@ class Label(GUIElement):
             screen (pygame.Surface): The surface to render the label onto.
         """
         if len(self.text) != 0:
-            text_surface = self.font.render(self.text, True, super().getStyle()["foreground_color"])
-            x = super().getX()
+            text_surface = self.font.render(self.text, True, super().get_style()["foreground_color"])
+            x = super().get_x()
             if self.h_centered:
                 x -= text_surface.get_width() / 2
-            y = super().getY()
+            y = super().get_y()
             if self.v_centered:
                 y -= text_surface.get_height() / 2
             screen.blit(text_surface, (x, y))
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process Pygame events for the label (labels are static and do not handle events).
 

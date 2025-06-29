@@ -4,33 +4,6 @@ Utility functions for SUILib framework
 This module provides miscellaneous utility functions and helpers for the SUILib
 multi-view game application framework, including geometry, image loading, config
 parsing, async execution, and matplotlib graph rendering for pygame integration.
-
-Author: Martin Krcma <martin.krcma1@gmail.com>
-Github: https://github.com/0xMartin
-Date: 08.02.2022
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -63,7 +36,7 @@ def overrides(interface_class):
     return overrider
 
 
-def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
+def in_rect(x: int, y: int, rect: pygame.Rect) -> bool:
     """
     Check if the point (x, y) is within a given pygame.Rect.
 
@@ -81,7 +54,7 @@ def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
         return False
 
 
-def generateSignal(ms_periode: int) -> bool:
+def generate_signal(ms_periode: int) -> bool:
     """
     Generate a periodic boolean signal: (ms_periode) True -> (ms_periode) False -> ...
 
@@ -94,7 +67,7 @@ def generateSignal(ms_periode: int) -> bool:
     return round((time() * 1000) / ms_periode) % 2 == 0
 
 
-def loadImage(img_path: str) -> pygame.Surface:
+def load_image(img_path: str) -> pygame.Surface:
     """
     Load an image from the filesystem as a pygame Surface.
 
@@ -109,7 +82,7 @@ def loadImage(img_path: str) -> pygame.Surface:
     else:
         return None
 
-def drawGraph(fig: matplotlib.figure, dark: bool = False):
+def draw_graph(fig: matplotlib.figure, dark: bool = False):
     """
     Render a matplotlib figure to a pygame Surface.
 
@@ -135,7 +108,7 @@ def drawGraph(fig: matplotlib.figure, dark: bool = False):
     return pygame.image.frombuffer(raw_data, canvas.get_width_height(), "RGBA")
 
 
-def loadConfig(path: str) -> str:
+def load_config(path: str) -> str:
     """
     Load a JSON config file.
 
@@ -153,7 +126,7 @@ def loadConfig(path: str) -> str:
     return data
 
 
-def getDisplayWidth() -> int:
+def get_display_width() -> int:
     """
     Get width of the current pygame display surface.
 
@@ -162,7 +135,7 @@ def getDisplayWidth() -> int:
     """
     return pygame.display.get_surface().get_size().get_width()
 
-def getDisplayHeight() -> int:
+def get_display_height() -> int:
     """
     Get height of the current pygame display surface.
 
@@ -171,7 +144,7 @@ def getDisplayHeight() -> int:
     """
     return pygame.display.get_surface().get_size().get_height()
 
-def runTaskAsync(task):
+def run_task_async(task):
     """
     Run a function asynchronously in a new thread.
 

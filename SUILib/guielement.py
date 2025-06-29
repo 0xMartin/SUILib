@@ -5,39 +5,13 @@ This module defines the core abstract base classes for GUI elements and containe
 used in the SUILib framework. It provides the foundational interface and functionality
 for all graphical elements (buttons, panels, sliders, etc.) in a multi-view
 pygame-based application.
-
-Author: Martin Krcma <martin.krcma1@gmail.com>
-Github: https://github.com/0xMartin
-Date: 08.02.2022
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
-from typing import final
+from typing import Callable, Dict, List, Optional, final
 import abc
 import inspect
+from .events import SUIEvents
 
 class GUIElement(metaclass=abc.ABCMeta):
     """
@@ -53,9 +27,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         width (int): Width of the element.
         height (int): Height of the element.
         style (dict): Style dictionary.
-        selected_cursor: Pygame cursor type shown when this element is selected.
+        focused_cursor: Pygame cursor type shown when this element is focused.
         visible (bool): Visibility of the element.
-        selected (bool): Selection state.
+        focused (bool): Whether the element is currently focused.
         rect (pygame.Rect): Rectangle representing the element's position and size.
     """
 
@@ -67,7 +41,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         width: int,
         height: int,
         style: dict,
-        selected_cursor=pygame.SYSTEM_CURSOR_HAND
+        focused_cursor=pygame.SYSTEM_CURSOR_HAND
     ):
         """
         Initialize a new GUIElement.
@@ -86,28 +60,30 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.y = y
         self.width = width
         self.height = height
-        self.selected_cursor = selected_cursor
+        self.focused_cursor = focused_cursor
         self.visible = True
+        self.focused = False
 
-        sm = view.getApp().getStyleManager()
+        sm = view.get_app().get_style_manager()
         if style is None:
-            self.style = sm.getStyleWithName(self.__class__.__name__)
+            self.style = sm.get_style_with_name(self.__class__.__name__)
             if not self.style:
-                # Fallback to check all base 
                 for base in inspect.getmro(self.__class__)[1:]:
                     if base is object:
                         continue
-                    style = sm.getStyleWithName(base.__name__)
+                    style = sm.get_style_with_name(base.__name__)
                     if style:
                         self.style = style
                         break
         else:
             self.style = style
 
-        self.selected = False
-        self.updateViewRect()
+        self.update_view_rect()
+        # Registr callbacků pro eventy
+        self._event_callbacks: Dict[str, List[Callable]] = {evt: [] for evt in SUIEvents.STANDARD_EVENTS}
+        self._mouse_inside = False  # Pro detekci enter/leave
 
-    def setVisibility(self, visible: bool):
+    def set_visibility(self, visible: bool):
         """
         Set visibility of this element.
 
@@ -116,7 +92,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         self.visible = visible
 
-    def isVisible(self) -> bool:
+    def is_visible(self) -> bool:
         """
         Check visibility of this element.
 
@@ -125,27 +101,27 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         return self.visible
 
-    def setSelectCursor(self, cursor):
+    def set_focused_cursor(self, cursor):
         """
-        Set the cursor type to use when this element is selected.
+        Set the cursor type to use when this element is focused.
 
         Args:
             cursor: Pygame cursor type constant.
         """
-        self.selected_cursor = cursor
+        self.focused_cursor = cursor
 
     @final
-    def getSelectCursor(self):
+    def get_focused_cursor(self):
         """
-        Get the cursor type to use when this element is selected.
+        Get the cursor type to use when this element is focused.
 
         Returns:
             int: Pygame cursor type constant.
         """
-        return self.selected_cursor
+        return self.focused_cursor
 
     @final
-    def getView(self):
+    def get_view(self):
         """
         Get reference to the parent View.
 
@@ -155,31 +131,31 @@ class GUIElement(metaclass=abc.ABCMeta):
         return self.view
 
     @final
-    def getX(self) -> int:
+    def get_x(self) -> int:
         """Get X position of this element."""
         return self.x
 
     @final
-    def getY(self) -> int:
+    def get_y(self) -> int:
         """Get Y position of this element."""
         return self.y
 
     @final
-    def getWidth(self) -> int:
+    def get_width(self) -> int:
         """Get width of this element."""
         return self.width
 
     @final
-    def getHeight(self) -> int:
+    def get_height(self) -> int:
         """Get height of this element."""
         return self.height
 
     @final
-    def getStyle(self) -> dict:
+    def get_style(self) -> dict:
         """Get style dictionary of this element."""
         return self.style
 
-    def setX(self, x: int):
+    def set_x(self, x: int):
         """
         Set the X position of this element.
 
@@ -187,9 +163,9 @@ class GUIElement(metaclass=abc.ABCMeta):
             x (int): New X position.
         """
         self.x = x
-        self.updateViewRect()
+        self.update_view_rect()
 
-    def setY(self, y: int):
+    def set_y(self, y: int):
         """
         Set the Y position of this element.
 
@@ -197,9 +173,9 @@ class GUIElement(metaclass=abc.ABCMeta):
             y (int): New Y position.
         """
         self.y = y
-        self.updateViewRect()
+        self.update_view_rect()
 
-    def setWidth(self, width: int):
+    def set_width(self, width: int):
         """
         Set the width of this element.
 
@@ -208,9 +184,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         if width >= 0:
             self.width = width
-            self.updateViewRect()
+            self.update_view_rect()
 
-    def setHeight(self, height: int):
+    def set_height(self, height: int):
         """
         Set the height of this element.
 
@@ -219,9 +195,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         if height >= 0:
             self.height = height
-            self.updateViewRect()
+            self.update_view_rect()
 
-    def setStyle(self, style: dict):
+    def set_style(self, style: dict):
         """
         Set the style dictionary for this element.
 
@@ -230,14 +206,14 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         self.style = style
 
-    def updateViewRect(self):
+    def update_view_rect(self):
         """
         Update the pygame.Rect representing this element's area.
         """
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     @final
-    def getViewRect(self) -> pygame.Rect:
+    def get_view_rect(self) -> pygame.Rect:
         """
         Get the pygame.Rect representing the element's area.
 
@@ -247,24 +223,24 @@ class GUIElement(metaclass=abc.ABCMeta):
         return self.rect
 
     @final
-    def select(self):
-        """Mark this element as selected."""
-        self.selected = True
+    def focus(self):
+        """Mark this element as focused."""
+        self.focused = True
 
     @final
-    def unSelect(self):
-        """Mark this element as unselected."""
-        self.selected = False
+    def un_focus(self):
+        """Mark this element as unfocused."""
+        self.focused = False
 
     @final
-    def isSelected(self) -> bool:
+    def is_focused(self) -> bool:
         """
-        Check if this element is currently selected.
+        Check if this element is currently focused.
 
         Returns:
-            bool: True if selected, False otherwise.
+            bool: True if focused, False otherwise.
         """
-        return self.selected
+        return self.focused
 
     @abc.abstractmethod
     def draw(self, view, screen: pygame.Surface):
@@ -278,7 +254,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process a pygame event sent from the parent view.
 
@@ -286,7 +262,48 @@ class GUIElement(metaclass=abc.ABCMeta):
             view: The parent View sending the event.
             event: The pygame event object.
         """
-        pass
+        if not self.visible:
+            return
+
+        # Aktuální pozice myši
+        mouse_pos = pygame.mouse.get_pos()
+
+        # MOUSE ENTER/LEAVE (detekce při každém eventu)
+        if self.get_view_rect().collidepoint(mouse_pos):
+            if not self._mouse_inside:
+                self._mouse_inside = True
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_ENTER, event)
+        else:
+            if self._mouse_inside:
+                self._mouse_inside = False
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_LEAVE, event)
+
+        # Zpracování podle typu eventu
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_DOWN, event)
+                if event.button == 1:
+                    self.trigger_event(SUIEvents.EVENT_ON_CLICK, event)
+                    if not self.focused:
+                        self.focused = True
+                        self.trigger_event(SUIEvents.EVENT_ON_FOCUS, event)
+                elif event.button == 3:
+                    self.trigger_event(SUIEvents.EVENT_ON_RIGHT_CLICK, event)
+            else:
+                if self.focused:
+                    self.focused = False
+                    self.trigger_event(SUIEvents.EVENT_ON_BLUR, event)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_UP, event)
+        elif event.type == pygame.MOUSEMOTION:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(SUIEvents.EVENT_ON_MOUSE_MOVE, event)
+                self.trigger_event(SUIEvents.EVENT_ON_HOVER, event)
+        elif event.type == pygame.KEYDOWN:
+            self.trigger_event(SUIEvents.EVENT_ON_KEY_DOWN, event)
+        elif event.type == pygame.KEYUP:
+            self.trigger_event(SUIEvents.EVENT_ON_KEY_UP, event)
 
     @abc.abstractmethod
     def update(self, view):
@@ -298,19 +315,68 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         pass
 
+    def add_event_callback(self, event_name: str, callback: Callable):
+        """
+        Add a callback for a specific event.
+        
+        Args:
+            event_name (str): Name of the event to listen for. Check events module for supported events.
+            callback (Callable): Function to call when the event is triggered.
+            
+        Raises:
+            ValueError: If the event name is not supported.
+        """
+        if event_name not in self._event_callbacks:
+            raise ValueError(f"Unsupported event: {event_name}")
+        self._event_callbacks[event_name].append(callback)
+
+    def remove_event_callback(self, event_name: str, callback: Callable):
+        """
+        Remove a callback for a specific event.
+
+        Args:
+            event_name (str): Name of the event.
+            callback (Callable): Callback function to remove.
+        
+        Raises:
+            ValueError: If the event name is not supported or callback not found.
+        """
+        if event_name in self._event_callbacks and callback in self._event_callbacks[event_name]:
+            self._event_callbacks[event_name].remove(callback)
+
+    def clear_event_callbacks(self, event_name: Optional[str] = None):
+        """
+        Remove all callbacks for a specific event or all events.
+
+        Args:
+            event_name (Optional[str]): Name of the event to clear callbacks for.
+                If None, clears all callbacks for all events.
+        """
+        if event_name:
+            if event_name in self._event_callbacks:
+                self._event_callbacks[event_name] = []
+        else:
+            for evt in self._event_callbacks:
+                self._event_callbacks[evt] = []
+
+    def trigger_event(self, event_name: str, *args, **kwargs):
+        """Spustí všechny callbacky pro daný event."""
+        for callback in self._event_callbacks.get(event_name, []):
+            callback(*args, **kwargs)
+
 
 class Container(metaclass=abc.ABCMeta):
     """
     Abstract base class for a container of GUI elements.
 
-    Any class inheriting from Container must implement getChilds().
+    Any class inheriting from Container must implement get_childs().
 
     Methods:
-        getChilds(): Returns a list of child GUI elements.
+        get_childs(): Returns a list of child GUI elements.
     """
 
     @abc.abstractmethod
-    def getChilds(self) -> list:
+    def get_childs(self) -> list:
         """
         Get child GUI elements of the container.
 

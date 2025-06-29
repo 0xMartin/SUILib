@@ -1,34 +1,5 @@
 """
 RadioButton UI element for SUILib
-
-File:       radiobutton.py
-Date:       08.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -68,13 +39,13 @@ class RadioButton(GUIElement):
             y (int, optional): Y coordinate of the radio button. Defaults to 0.
         """
         super().__init__(view, x, y, size, size, style)
-        self.label = Label(view, super().getStyle()["label"], text, False, True, x, y)
+        self.label = Label(view, super().get_style()["label"], text, False, True, x, y)
         self.group = group
-        group.addRadioButton(self)
+        group.add_radio_button(self)
         self.checked = False
         self.callback = None
 
-    def setText(self, text: str):
+    def set_text(self, text: str):
         """
         Set the text of the radio button's label.
 
@@ -82,9 +53,9 @@ class RadioButton(GUIElement):
             text (str): New label text.
         """
         if self.label is not None:
-            self.label.setText(text)
+            self.label.set_text(text)
 
-    def getLabel(self) -> Label:
+    def get_label(self) -> Label:
         """
         Get the label object associated with this radio button.
 
@@ -93,7 +64,7 @@ class RadioButton(GUIElement):
         """
         return self.label
 
-    def setCheckedEvt(self, callback):
+    def set_checked_evt(self, callback):
         """
         Set the callback function to be called when the checked state changes.
 
@@ -103,7 +74,7 @@ class RadioButton(GUIElement):
         """
         self.callback = callback
 
-    def setChecked(self, checked: bool):
+    def set_checked(self, checked: bool):
         """
         Set the checked state of this radio button.
 
@@ -112,7 +83,7 @@ class RadioButton(GUIElement):
         """
         self.checked = checked
 
-    def isChecked(self) -> bool:
+    def is_checked(self) -> bool:
         """
         Return whether this radio button is currently checked.
 
@@ -132,26 +103,26 @@ class RadioButton(GUIElement):
         """
         # Draw label
         if self.label is not None:
-            self.label.setX(super().getX() + super().getWidth() + 5)
-            self.label.setY(super().getY() + super().getHeight() / 2)
+            self.label.set_x(super().get_x() + super().get_width() + 5)
+            self.label.set_y(super().get_y() + super().get_height() / 2)
             self.label.draw(view, screen)
         # Draw radio button circle
         center = (
-            super().getX() + super().getWidth() / 2,
-            super().getY() + super().getWidth() / 2
+            super().get_x() + super().get_width() / 2,
+            super().get_y() + super().get_width() / 2
         )
-        if super().isSelected():
-            c = super().getStyle()["background_color"]
-            pygame.draw.circle(screen, colorChange(c, -0.2 if c[0] > 128 else 0.6), center, super().getWidth() / 2)
+        if super().is_selected():
+            c = super().get_style()["background_color"]
+            pygame.draw.circle(screen, color_change(c, -0.2 if c[0] > 128 else 0.6), center, super().get_width() / 2)
         else:
-            pygame.draw.circle(screen, super().getStyle()["background_color"], center, super().getWidth() / 2)
-        pygame.draw.circle(screen, super().getStyle()["outline_color"], center, super().getWidth() / 2, 2)
+            pygame.draw.circle(screen, super().get_style()["background_color"], center, super().get_width() / 2)
+        pygame.draw.circle(screen, super().get_style()["outline_color"], center, super().get_width() / 2, 2)
         # Draw check indicator if checked
         if self.checked:
-            pygame.draw.circle(screen, super().getStyle()["foreground_color"], center, super().getWidth() / 4)
+            pygame.draw.circle(screen, super().get_style()["foreground_color"], center, super().get_width() / 4)
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for radio button interaction (click, hover).
 
@@ -160,15 +131,15 @@ class RadioButton(GUIElement):
             event (pygame.event.Event): The Pygame event to process.
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                 if self.callback is not None:
                     self.callback(self)
-                self.group.checkRadioButton(self)
+                self.group.check_radio_button(self)
         elif event.type == pygame.MOUSEMOTION:
-            if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                 super().select()
             else:
-                super().unSelect()
+                super().un_select()
 
     @overrides(GUIElement)
     def update(self, view):
@@ -206,7 +177,7 @@ class RadioButtonGroup:
             if isinstance(r, RadioButton):
                 self.radiobtns.append(r)
 
-    def addRadioButton(self, radiobtn: RadioButton):
+    def add_radio_button(self, radiobtn: RadioButton):
         """
         Add a RadioButton to this group.
 
@@ -216,7 +187,7 @@ class RadioButtonGroup:
         if isinstance(radiobtn, RadioButton):
             self.radiobtns.append(radiobtn)
 
-    def removeRadioButton(self, radiobtn: RadioButton):
+    def remove_radio_button(self, radiobtn: RadioButton):
         """
         Remove a RadioButton from this group.
 
@@ -225,7 +196,7 @@ class RadioButtonGroup:
         """
         self.radiobtns.remove(radiobtn)
 
-    def getRadioButton(self):
+    def get_radio_button(self):
         """
         Return the currently checked radio button in the group.
 
@@ -233,10 +204,10 @@ class RadioButtonGroup:
             RadioButton: The checked radio button, or None if none is checked.
         """
         for r in self.radiobtns:
-            if r.isChecked():
+            if r.is_checked():
                 return r
 
-    def checkRadioButton(self, radiobtn: RadioButton):
+    def check_radio_button(self, radiobtn: RadioButton):
         """
         Set the specified radio button as checked and uncheck all others in the group.
 
@@ -246,6 +217,6 @@ class RadioButtonGroup:
         if isinstance(radiobtn, RadioButton):
             for r in self.radiobtns:
                 if r != radiobtn:
-                    r.setChecked(False)
+                    r.set_checked(False)
                 else:
-                    r.setChecked(True)
+                    r.set_checked(True)

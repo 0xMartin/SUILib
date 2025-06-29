@@ -5,33 +5,6 @@ This module defines basic RGB color constants and provides utility functions for
 color manipulation, such as changing brightness, adding values, inverting colors,
 and constructing RGB tuples. Designed to support GUI elements in multi-view
 pygame-based applications.
-
-Author: Martin Krcma <martin.krcma1@gmail.com>
-Github: https://github.com/0xMartin
-Date: 08.02.2022
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 # Basic RGB color constants for general use in GUIs.
@@ -46,7 +19,7 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 
 
-def colorChange(color: tuple, amount: float) -> tuple:
+def color_change(color: tuple, amount: float) -> tuple:
     """
     Adjust the brightness of an RGB color.
 
@@ -69,7 +42,7 @@ def colorChange(color: tuple, amount: float) -> tuple:
     return tuple(rgb)
 
 
-def colorAdd(color: tuple, amount: int) -> tuple:
+def color_add(color: tuple, amount: int) -> tuple:
     """
     Add a constant value to each RGB channel.
 
@@ -90,7 +63,7 @@ def colorAdd(color: tuple, amount: int) -> tuple:
     return tuple(rgb)
 
 
-def colorInvert(color: tuple) -> tuple:
+def color_invert(color: tuple) -> tuple:
     """
     Invert an RGB color.
 
@@ -107,7 +80,7 @@ def colorInvert(color: tuple) -> tuple:
     return tuple(rgb)
 
 
-def createColor(red: int, green: int, blue: int) -> tuple:
+def create_color(red: int, green: int, blue: int) -> tuple:
     """
     Construct an RGB color tuple from integer channel values.
 

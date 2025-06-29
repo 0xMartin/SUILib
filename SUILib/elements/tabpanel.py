@@ -1,34 +1,5 @@
 """
 TabPanel UI element for SUILib
-
-File:       tabpanel.py
-Date:       12.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -70,16 +41,16 @@ class TabPanel(GUIElement, Container):
         self.layoutmanager = None
         self.selected_tab = 0
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
         self.tabs = []
         for t in tabs:
             if isinstance(t, Tab):
-                self.addTab(t)
+                self.add_tab(t)
 
-    def setTabs(self, tabs: list):
+    def set_tabs(self, tabs: list):
         """
         Set the panel's tabs.
 
@@ -89,9 +60,9 @@ class TabPanel(GUIElement, Container):
         self.tabs = []
         for t in tabs:
             if isinstance(t, Tab):
-                self.addTab(t)
+                self.add_tab(t)
 
-    def setSelectedTab(self, index: int):
+    def set_selected_tab(self, index: int):
         """
         Set the selected tab by index.
 
@@ -100,7 +71,7 @@ class TabPanel(GUIElement, Container):
         """
         self.selected_tab = index
 
-    def addTab(self, tab):
+    def add_tab(self, tab):
         """
         Add a new tab to the panel.
 
@@ -109,28 +80,28 @@ class TabPanel(GUIElement, Container):
         """
         if isinstance(tab, Tab):
             self.tabs.append(tab)
-            self.updateTabSize(tab)
+            self.update_tab_size(tab)
 
-    def updateTabSize(self, tab):
+    def update_tab_size(self, tab):
         """
         Update the size of the content of a tab to match the TabPanel.
 
         Args:
             tab (Tab): The Tab whose content size should be updated.
         """
-        content = tab.getContent()
+        content = tab.get_content()
         if content is not None:
             tab_header_height = self.font.render(
-                "W", 1, super().getStyle()["foreground_color"]
+                "W", 1, super().get_style()["foreground_color"]
             ).get_height() + 10
-            content.setX(0)
-            content.setY(0)
-            content.setWidth(super().getWidth())
-            content.setHeight(super().getHeight() - tab_header_height)
-            if isinstance(content, Layout) and content.getWidth() > 0 and content.getHeight() > 0:
-                content.updateLayout(0, 0)
+            content.set_x(0)
+            content.set_y(0)
+            content.set_width(super().get_width())
+            content.set_height(super().get_height() - tab_header_height)
+            if isinstance(content, Layout) and content.get_width() > 0 and content.get_height() > 0:
+                content.update_layout(0, 0)
 
-    def removeTab(self, tab):
+    def remove_tab(self, tab):
         """
         Remove a tab from the panel.
 
@@ -140,16 +111,16 @@ class TabPanel(GUIElement, Container):
         self.tabs.remove(tab)
 
     @overrides(GUIElement)
-    def setWidth(self, width):
-        super().setWidth(width)
+    def set_width(self, width):
+        super().set_width(width)
         for tab in self.tabs:
-            self.updateTabSize(tab)
+            self.update_tab_size(tab)
 
     @overrides(GUIElement)
-    def setHeight(self, height):
-        super().setHeight(height)
+    def set_height(self, height):
+        super().set_height(height)
         for tab in self.tabs:
-            self.updateTabSize(tab)
+            self.update_tab_size(tab)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -158,14 +129,14 @@ class TabPanel(GUIElement, Container):
 
         tab_header_height = 0
         selected_x = [0, 0]
-        x_offset = 5 + super().getX()
+        x_offset = 5 + super().get_x()
         # Draw tab headers
         for i, tab in enumerate(self.tabs):
-            if len(tab.getName()) != 0:
+            if len(tab.get_name()) != 0:
                 text = self.font.render(
-                    tab.getName(),
+                    tab.get_name(),
                     1,
-                    super().getStyle()["foreground_color"]
+                    super().get_style()["foreground_color"]
                 )
                 tab_header_height = max(tab_header_height, text.get_height() + 10)
                 x1 = x_offset
@@ -173,10 +144,10 @@ class TabPanel(GUIElement, Container):
                 if i == self.selected_tab:
                     pygame.draw.rect(
                         screen,
-                        super().getStyle()["background_color"],
+                        super().get_style()["background_color"],
                         pygame.Rect(
                             x1,
-                            super().getY(),
+                            super().get_y(),
                             x2 - x1,
                             tab_header_height
                         )
@@ -184,39 +155,39 @@ class TabPanel(GUIElement, Container):
                     selected_x = [x1 + 2, x2 - 1]
                 pygame.draw.lines(
                     screen,
-                    super().getStyle()["outline_color"],
+                    super().get_style()["outline_color"],
                     False,
                     [
-                        (x1, super().getY() + tab_header_height),
-                        (x1, super().getY()),
-                        (x2, super().getY()),
-                        (x2, super().getY() + tab_header_height)
+                        (x1, super().get_y() + tab_header_height),
+                        (x1, super().get_y()),
+                        (x2, super().get_y()),
+                        (x2, super().get_y() + tab_header_height)
                     ],
                     2
                 )
                 screen.blit(
                     text,
-                    (x_offset + 5, 5 + super().getY())
+                    (x_offset + 5, 5 + super().get_y())
                 )
                 x_offset += text.get_width() + 10
 
         rect = pygame.Rect(
-            super().getX(),
-            super().getY() + tab_header_height,
-            super().getWidth(),
-            super().getHeight() - tab_header_height
+            super().get_x(),
+            super().get_y() + tab_header_height,
+            super().get_width(),
+            super().get_height() - tab_header_height
         )
 
         # Draw tab content background
         pygame.draw.rect(
             screen,
-            super().getStyle()["background_color"],
+            super().get_style()["background_color"],
             rect,
             border_radius=5
         )
         pygame.draw.rect(
             screen,
-            super().getStyle()["outline_color"],
+            super().get_style()["outline_color"],
             rect,
             2,
             border_radius=5
@@ -224,62 +195,62 @@ class TabPanel(GUIElement, Container):
         # Draw content of selected tab
         if self.selected_tab >= 0 and self.selected_tab < len(self.tabs):
             tab_screen = screen.subsurface(rect)
-            content = self.tabs[self.selected_tab].getContent()
+            content = self.tabs[self.selected_tab].get_content()
             if content is not None:
                 content.draw(view, tab_screen)
         # Draw line under selected tab header to blend it with background
         pygame.draw.line(
             screen,
-            super().getStyle()["background_color"],
-            (selected_x[0], super().getY() + tab_header_height),
-            (selected_x[1], super().getY() + tab_header_height),
+            super().get_style()["background_color"],
+            (selected_x[0], super().get_y() + tab_header_height),
+            (selected_x[1], super().get_y() + tab_header_height),
             2
         )
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         # Handle tab header clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
-            x_offset = 5 + super().getX()
+            x_offset = 5 + super().get_x()
             for i, tab in enumerate(self.tabs):
-                if len(tab.getName()) != 0:
+                if len(tab.get_name()) != 0:
                     text = self.font.render(
-                        tab.getName(),
+                        tab.get_name(),
                         1,
-                        super().getStyle()["foreground_color"]
+                        super().get_style()["foreground_color"]
                     )
                     x1 = x_offset
                     x2 = x_offset + text.get_width() + 10
                     rect = pygame.Rect(
                         x1,
-                        super().getY(),
+                        super().get_y(),
                         x2 - x1,
                         text.get_height() + 10
                     )
                     x_offset += text.get_width() + 10
-                    if inRect(event.pos[0], event.pos[1], rect):
+                    if in_rect(event.pos[0], event.pos[1], rect):
                         self.selected_tab = i
                         break
 
         # Offset event for content (so children receive proper local coords)
         tab_header_height = self.font.render(
-            "W", 1, super().getStyle()["foreground_color"]
+            "W", 1, super().get_style()["foreground_color"]
         ).get_height() + 10
         if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
             event.pos = (
-                event.pos[0] - super().getX(),
-                event.pos[1] - super().getY() - tab_header_height
+                event.pos[0] - super().get_x(),
+                event.pos[1] - super().get_y() - tab_header_height
             )
         # Propagate event to selected tab content
         if self.selected_tab >= 0 and self.selected_tab < len(self.tabs):
-            content = self.tabs[self.selected_tab].getContent()
+            content = self.tabs[self.selected_tab].get_content()
             if content is not None:
-                content.processEvent(view, event)
+                content.process_event(view, event)
         # Restore event position
         if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
             event.pos = (
-                event.pos[0] + super().getX(),
-                event.pos[1] + super().getY() + tab_header_height
+                event.pos[0] + super().get_x(),
+                event.pos[1] + super().get_y() + tab_header_height
             )
 
     @overrides(GUIElement)
@@ -291,11 +262,11 @@ class TabPanel(GUIElement, Container):
             view: The parent View instance.
         """
         for tab in self.tabs:
-            if tab.getContent() is not None:
-                tab.getContent().update(view)
+            if tab.get_content() is not None:
+                tab.get_content().update(view)
 
     @overrides(Container)
-    def getChilds(self):
+    def get_childs(self):
         """
         Return the content elements of all tabs as children.
 
@@ -304,8 +275,8 @@ class TabPanel(GUIElement, Container):
         """
         result = []
         for tab in self.tabs:
-            if tab.getContent() is not None:
-                result.append(tab.getContent())
+            if tab.get_content() is not None:
+                result.append(tab.get_content())
         return result
 
 
@@ -325,25 +296,25 @@ class Tab:
         else:
             self.content = None
 
-    def getName(self):
+    def get_name(self):
         """
         Return the tab's label.
         """
         return self.name
 
-    def setName(self, name: str):
+    def set_name(self, name: str):
         """
         Set the tab's label.
         """
         self.name = name
 
-    def getContent(self):
+    def get_content(self):
         """
         Return the content GUIElement of the tab.
         """
         return self.content
 
-    def setContent(self, content: GUIElement):
+    def set_content(self, content: GUIElement):
         """
         Set the content GUIElement of the tab.
         """

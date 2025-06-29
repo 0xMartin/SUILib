@@ -1,34 +1,5 @@
 """
 TextInput UI element for SUILib
-
-File:       textinput.py
-Date:       08.02.2022
-
-Github:     https://github.com/0xMartin
-Email:      martin.krcma1@gmail.com
-
-Copyright (C) 2022 Martin Krcma
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
@@ -74,12 +45,12 @@ class TextInput(GUIElement):
         self.text = text
         self.caret_position = len(text)
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
 
-    def setText(self, text: str):
+    def set_text(self, text: str):
         """
         Set the current text value.
 
@@ -89,7 +60,7 @@ class TextInput(GUIElement):
         self.text = text
         self.caret_position = len(text)
 
-    def getText(self):
+    def get_text(self):
         """
         Get the current text value.
 
@@ -98,7 +69,7 @@ class TextInput(GUIElement):
         """
         return self.text
 
-    def setTextChangedEvt(self, callback):
+    def set_text_changed_evt(self, callback):
         """
         Set the callback function to be called when the text is changed/committed.
 
@@ -107,7 +78,7 @@ class TextInput(GUIElement):
         """
         self.callback = callback
 
-    def setFilterPattern(self, pattern: str):
+    def set_filter_pattern(self, pattern: str):
         """
         Set a regular expression pattern that the text must match when committed.
 
@@ -126,45 +97,45 @@ class TextInput(GUIElement):
             screen (pygame.Surface): The surface to render the input onto.
         """
         # background
-        if super().isSelected():
-            c = super().getStyle()["background_color"]
-            pygame.draw.rect(screen, colorChange(
-                c, 0.4 if c[0] > 128 else 0.7), super().getViewRect(), border_radius=5)
+        if super().is_selected():
+            c = super().get_style()["background_color"]
+            pygame.draw.rect(screen, color_change(
+                c, 0.4 if c[0] > 128 else 0.7), super().get_view_rect(), border_radius=5)
         else:
-            pygame.draw.rect(screen, super().getStyle()["background_color"], super().getViewRect(), border_radius=5)
+            pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
         # create subsurface for text (clipping)
-        surface = screen.subsurface(super().getViewRect())
+        surface = screen.subsurface(super().get_view_rect())
         text_offset = 0
         caret_offset = 0
         if len(self.text) != 0:
             text_surface = self.font.render(
                 self.text,
                 1,
-                super().getStyle()["foreground_color"]
+                super().get_style()["foreground_color"]
             )
             # calculate caret offset
             caret_offset = self.font.size(self.text[0: self.caret_position])[0]
             # offset for text
-            text_offset = max(caret_offset + 20 - super().getWidth(), 0)
-            if not super().isSelected():
+            text_offset = max(caret_offset + 20 - super().get_width(), 0)
+            if not super().is_selected():
                 text_offset = 0
             # draw text
             surface.blit(
-                text_surface, (5 - text_offset, (super().getHeight() - text_surface.get_height()) / 2)
+                text_surface, (5 - text_offset, (super().get_height() - text_surface.get_height()) / 2)
             )
 
         # caret
-        if super().isSelected() and generateSignal(400):
+        if super().is_selected() and generate_signal(400):
             x = 5 - text_offset + caret_offset
             y = surface.get_height() * 0.2
-            pygame.draw.line(surface, super().getStyle()["foreground_color"], (x, y), (x, surface.get_height() - y), 2)
+            pygame.draw.line(surface, super().get_style()["foreground_color"], (x, y), (x, surface.get_height() - y), 2)
 
         # outline
-        pygame.draw.rect(screen, super().getStyle()["outline_color"], super().getViewRect(), 2, border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for text input focus, editing, and caret navigation.
 
@@ -173,16 +144,16 @@ class TextInput(GUIElement):
             event (pygame.event.Event): The event to process.
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                 super().select()
                 # Move caret to end on focus
                 self.caret_position = len(self.text)
             else:
-                self.unselectTI()
+                self.unselect_ti()
         elif event.type == pygame.KEYDOWN:
-            if super().isSelected():
+            if super().is_selected():
                 if event.key == pygame.K_RETURN:
-                    self.unselectTI()
+                    self.unselect_ti()
                 elif event.key == pygame.K_BACKSPACE:
                     i = self.caret_position
                     if i > 0 and len(self.text) > 0:
@@ -210,11 +181,11 @@ class TextInput(GUIElement):
         """
         pass
 
-    def unselectTI(self):
+    def unselect_ti(self):
         """
         Handle unselecting the text input, call text changed event, and validate filter if set.
         """
-        if super().isSelected():
+        if super().is_selected():
             # text filter
             if self.filter_pattern is not None:
                 if not self.filter_pattern.match(self.text):
@@ -222,4 +193,4 @@ class TextInput(GUIElement):
                     self.text = ""
             if self.callback is not None:
                 self.callback(self.text)
-        super().unSelect()
+        super().un_select()
