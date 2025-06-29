@@ -3,6 +3,7 @@ import pygame
 import os
 
 from SUILib.application import Application, View
+from SUILib.events import SUIEvents
 from SUILib.layout import AbsoluteLayout, RelativeLayout
 from SUILib.stylemanager import StyleManager
 from SUILib.utils import overrides
@@ -59,7 +60,8 @@ class View1(View):
 
         # Navigation button
         nav_btn = Button(self, CUSTOM_BTN_STYLE, "Go to view 2")
-        nav_btn.add_click_evt(lambda btn: self.app.show_view_with_id(VIEW2_ID))
+        nav_btn.add_event_callback(SUIEvents.EVENT_ON_CLICK,
+                                   lambda btn: self.get_app().show_view_with_id(VIEW2_ID))
         layout.add_element(nav_btn, ['25%', '60%', '50%', '40'])
 
         # Checkboxes using RelativeLayout
@@ -148,7 +150,8 @@ class View2(View):
         panel2 = Panel(self, None)
         panel2.set_layout_manager(AbsoluteLayout(self))
         btn = Button(self, None, "Go to view 1")
-        btn.add_click_evt(lambda btn: self.get_app().show_view_with_id(VIEW1_ID))
+        btn.add_event_callback(SUIEvents.EVENT_ON_CLICK, 
+                               lambda btn: self.get_app().show_view_with_id(VIEW1_ID))
         panel2.add_element(btn, ['25%', '85%', '50%', '40'])
 
         txt = TextInput(self, None, "A1B2")

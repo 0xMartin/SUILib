@@ -3,10 +3,9 @@ Button UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
+from SUILib.colors import color_change
 
 class Button(GUIElement):
     """
@@ -19,7 +18,6 @@ class Button(GUIElement):
 
     Attributes:
         text (str): The text displayed on the button.
-        callbacks (list): List of functions to be called when the button is clicked.
         hover (bool): Indicates whether the button is currently hovered.
         font (pygame.font.Font): Font object used for rendering button text.
     """
@@ -40,8 +38,6 @@ class Button(GUIElement):
         """
         super().__init__(view, x, y, width, height, style)
         self.text = text
-        self.callbacks = []
-        self.hover = False
         self.font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
@@ -66,27 +62,10 @@ class Button(GUIElement):
         """
         return self.text
 
-    def add_click_evt(self, callback):
-        """
-        Set the callback function to be called when the button is clicked.
-
-        Args:
-            callback (callable): Function to be invoked on click event.
-                The function should accept a single argument: the Button instance.
-        """
-        self.callbacks.append(callback)
-
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Draw the button on the given screen surface.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the button onto.
-        """
         # Draw button background with selection effect
-        if self.is_selected():
+        if super().is_hovered():
             c = super().get_style()["background_color"]
             pygame.draw.rect(
                 screen,
@@ -126,38 +105,3 @@ class Button(GUIElement):
             2,
             border_radius=10
         )
-
-    @overrides(GUIElement)
-    def process_event(self, view, event):
-        """
-        Process a Pygame event related to the button.
-
-        Handles mouse button down and mouse motion events to manage
-        selection/hover state and trigger the click callback.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The Pygame event to process.
-        """
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                for callback in self.callbacks:
-                    callback(self)
-        elif event.type == pygame.MOUSEMOTION:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                self.select()
-            else:
-                self.un_select()
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the button.
-
-        This method is a placeholder for future extensions;
-        currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass

@@ -4,9 +4,10 @@ Slider UI element for SUILib
 
 import pygame
 import math
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.events import SUIEvents
+from SUILib.utils import overrides
+from SUILib.colors import color_change
 from SUILib.elements import Label
 
 
@@ -23,7 +24,6 @@ class Slider(GUIElement):
         min (float): The minimum value of the slider.
         max (float): The maximum value of the slider.
         position (float): The current x-position of the slider handle relative to the slider's width.
-        callback (callable): Function to be called when the slider value changes.
         format (str): String format for the label, using '#' for percentage and '@' for the numerical value.
     """
         
@@ -46,7 +46,6 @@ class Slider(GUIElement):
         self.label = None
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEWE)
         self.label = Label(view, super().get_style()["label"], " ", False, True)
-        self.callback = None
         self.format = "@"
         self.min = min
         self.max = max
@@ -69,16 +68,6 @@ class Slider(GUIElement):
             val (float): New maximum value.
         """
         self.max = val
-
-    def set_on_value_changed(self, callback):
-        """
-        Set the callback function to be called when the slider value changes.
-
-        Args:
-            callback (callable): Function to be invoked when the value changes.
-                The function receives the current slider number as an argument.
-        """
-        self.callback = callback
 
     def get_value(self) -> int:
         """
@@ -150,9 +139,6 @@ class Slider(GUIElement):
 
     @overrides(GUIElement)
     def update_view_rect(self):
-        """
-        Update the slider's label position when the view rectangle changes.
-        """
         super().update_view_rect()
         if self.label is not None:
             self.label.set_x(super().get_x() + super().get_width() + 20)
@@ -160,31 +146,18 @@ class Slider(GUIElement):
 
     @overrides(GUIElement)
     def set_width(self, width):
-        """
-        Set the width of the slider and update the handle position and label.
-        """
         super().set_width(width)
         self.set_value(None)
         self.refresh_label()
 
     @overrides(GUIElement)
     def set_height(self, height):
-        """
-        Set the height of the slider and update the handle position and label.
-        """
         super().set_height(height)
         self.set_value(None)
         self.refresh_label()
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the slider background, track, handle, and label.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the slider onto.
-        """
         # background
         pygame.draw.rect(screen, super().get_style()[
                          "background_color"], super().get_view_rect(), border_radius=10)
@@ -216,44 +189,14 @@ class Slider(GUIElement):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for slider interaction (dragging the handle).
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if math.dist(
-                (event.pos[0], event.pos[1]),
-                (super().get_x() + self.position,
-                 super().get_y() + super().get_height() / 2)
-            ) <= super().get_height() * 0.8:
-                super().select()
-                self.def_position = self.position
-                self.drag_start = event.pos[0]
-        elif event.type == pygame.MOUSEBUTTONUP:
-            super().un_select()
+        super().process_event(view, event)
+        if event.type == pygame.MOUSEBUTTONUP:
             self.set_value(self.get_value())
         elif event.type == pygame.MOUSEMOTION:
-            if super().is_selected():
-                self.position = self.def_position + \
-                    (event.pos[0] - self.drag_start)
+            if super().is_focused():
+                self.position = self.def_position + (event.pos[0] - self.drag_start)
                 dot_radius = super().get_height() / 2
                 self.position = min(
                     max(dot_radius, self.position), super().get_width() - dot_radius)
                 self.refresh_label()
-                if self.callback is not None:
-                    self.callback(self.get_number())
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the slider.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
+                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.get_number())

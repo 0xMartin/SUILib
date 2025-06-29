@@ -3,11 +3,11 @@ RadioButton UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.events import SUIEvents
+from SUILib.utils import overrides
+from SUILib.colors import color_change
 from SUILib.elements.label import Label
-
 
 class RadioButton(GUIElement):
     """
@@ -21,7 +21,6 @@ class RadioButton(GUIElement):
         label (Label): The label displayed next to the radio button.
         group (RadioButtonGroup): The group that manages the radio button's checked state.
         checked (bool): Indicates whether the radio button is selected.
-        callback (callable): Function to call when the radio button is clicked/checked.
     """
 
     def __init__(self, view, style: dict, text: str, group, size=20, x: int = 0, y: int = 0):
@@ -43,7 +42,6 @@ class RadioButton(GUIElement):
         self.group = group
         group.add_radio_button(self)
         self.checked = False
-        self.callback = None
 
     def set_text(self, text: str):
         """
@@ -63,16 +61,6 @@ class RadioButton(GUIElement):
             Label: The label instance.
         """
         return self.label
-
-    def set_checked_evt(self, callback):
-        """
-        Set the callback function to be called when the checked state changes.
-
-        Args:
-            callback (callable): Function to be invoked on check/uncheck.
-                The function should accept a single argument: the RadioButton instance.
-        """
-        self.callback = callback
 
     def set_checked(self, checked: bool):
         """
@@ -94,13 +82,6 @@ class RadioButton(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the radio button and its label onto the provided surface.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the radio button onto.
-        """
         # Draw label
         if self.label is not None:
             self.label.set_x(super().get_x() + super().get_width() + 5)
@@ -111,7 +92,7 @@ class RadioButton(GUIElement):
             super().get_x() + super().get_width() / 2,
             super().get_y() + super().get_width() / 2
         )
-        if super().is_selected():
+        if super().is_focused():
             c = super().get_style()["background_color"]
             pygame.draw.circle(screen, color_change(c, -0.2 if c[0] > 128 else 0.6), center, super().get_width() / 2)
         else:
@@ -123,35 +104,11 @@ class RadioButton(GUIElement):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for radio button interaction (click, hover).
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The Pygame event to process.
-        """
+        super().process_event(view, event)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                if self.callback is not None:
-                    self.callback(self)
+            if super().get_view_rect().collidepoint(event.pos):
+                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.label.get_text())
                 self.group.check_radio_button(self)
-        elif event.type == pygame.MOUSEMOTION:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                super().select()
-            else:
-                super().un_select()
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the radio button.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
 
 
 class RadioButtonGroup:

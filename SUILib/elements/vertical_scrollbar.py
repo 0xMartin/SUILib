@@ -3,9 +3,9 @@ VerticalScrollbar UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
+from SUILib.events import SUIEvents
 
 
 class VerticalScrollbar(GUIElement):
@@ -19,7 +19,6 @@ class VerticalScrollbar(GUIElement):
     Attributes:
         scroller_pos (float): Current vertical position of the scroller handle.
         scroller_size (int): Height of the scroller handle in pixels.
-        callback (callable): Function to call when the scroller is moved.
     """
 
     def __init__(self, view, style: dict, scroller_size: int, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -37,7 +36,6 @@ class VerticalScrollbar(GUIElement):
             y (int, optional): Y coordinate of the scrollbar. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZENS)
-        self.callback = None
         self.scroller_pos = 0
         self.scroller_size = scroller_size
 
@@ -50,24 +48,8 @@ class VerticalScrollbar(GUIElement):
         """
         self.scroller_size = max(size, super().get_width())
 
-    def set_on_scroll_evt(self, callback):
-        """
-        Set a callback to be called when the scrollbar is scrolled.
-
-        Args:
-            callback (callable): Function to be called with the new position (0.0 - 1.0).
-        """
-        self.callback = callback
-
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the scrollbar background, handle, and outline.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the scrollbar onto.
-        """
         # Background
         pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect())
         # Scroller handle
@@ -96,27 +78,16 @@ class VerticalScrollbar(GUIElement):
         """
         if self.scroller_size >= super().get_height():
             return
+        if not super().is_focused():
+            return
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                super().select()
-                self.def_scroller_pos = self.scroller_pos
-                self.drag_start = event.pos[1]
-        elif event.type == pygame.MOUSEBUTTONUP:
-            super().un_select()
+            self.def_scroller_pos = self.scroller_pos
+            self.drag_start = event.pos[1]
         elif event.type == pygame.MOUSEMOTION:
-            if super().is_selected():
-                self.scroller_pos = self.def_scroller_pos + (event.pos[1] - self.drag_start)
-                self.scroller_pos = min(
-                    max(0, self.scroller_pos), super().get_height() - self.scroller_size)
-                if self.callback is not None:
-                    self.callback(self.scroller_pos / (super().get_height() - self.scroller_size))
+            # calculate relative scroller position
+            self.scroller_pos = self.def_scroller_pos + (event.pos[1] - self.drag_start)
+            self.scroller_pos = min(max(0, self.scroller_pos), super().get_height() - self.scroller_size)
+            relative_pos = self.scroller_pos / (super().get_height() - self.scroller_size)
+            super().trigger_event(SUIEvents.EVENT_ON_CHANGE, relative_pos)
 
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the vertical scrollbar.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass

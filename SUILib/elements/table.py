@@ -3,9 +3,10 @@ Table UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement, Container
+from SUILib.events import SUIEvents
+from SUILib.utils import overrides
+from SUILib.colors import color_change
 from SUILib.elements.vertical_scrollbar import VerticalScrollbar
 from SUILib.elements.horizontal_scrollbar import HorizontalScrollbar
 
@@ -53,14 +54,14 @@ class Table(GUIElement, Container):
             super().get_style()["scrollbar"],
             super().get_style()["body"]["scrollbar_width"]
         )
-        self.v_scroll.set_on_scroll_evt(self.table_scroll_vertical)
+        self.v_scroll.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self.table_scroll_vertical)
         # horizontal scrollbar
         self.h_scroll = HorizontalScrollbar(
             view,
             super().get_style()["scrollbar"],
             super().get_style()["body"]["scrollbar_width"]
         )
-        self.h_scroll.set_on_scroll_evt(self.table_scroll_horizontal)
+        self.h_scroll.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self.table_scroll_horizontal)
         # initialize table data
         self.refresh_table(data)
 
@@ -150,21 +151,11 @@ class Table(GUIElement, Container):
 
     @overrides(GUIElement)
     def update_view_rect(self):
-        """
-        Update the table's view rectangle and refresh scrollbars and layout.
-        """
         super().update_view_rect()
         self.refresh_table()
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the table, including headers, body, scrollbars, and outline.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the table onto.
-        """
         # set clip
         screen.set_clip(
             pygame.Rect(
@@ -264,35 +255,9 @@ class Table(GUIElement, Container):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for scrollbars.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
         self.v_scroll.process_event(view, event)
         self.h_scroll.process_event(view, event)
 
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the table.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
-
-    @overrides(Container)
+    @overrides(Container)  
     def get_childs(self):
-        """
-        Return the child scrollbar elements of the table.
-
-        Returns:
-            list: List containing the vertical and horizontal scrollbars.
-        """
-        elements = [self.v_scroll, self.h_scroll]
-        return elements
+        return [self.v_scroll, self.h_scroll]

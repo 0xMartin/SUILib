@@ -3,10 +3,11 @@ ToggleButton UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.events import SUIEvents
+from SUILib.utils import overrides
 from SUILib.elements.label import Label
+from SUILib.colors import color_change
 
 
 class ToggleButton(GUIElement):
@@ -19,7 +20,6 @@ class ToggleButton(GUIElement):
     Attributes:
         label (Label): The label displayed next to the toggle button.
         status (bool): The ON/OFF state of the toggle.
-        callback (callable): Function to call when the value (status) changes.
     """
 
     def __init__(self, view, style: dict, text: str, status: bool = False, width: int = 0, height: int = 0, x: int = 0, y: int = 0):
@@ -39,8 +39,6 @@ class ToggleButton(GUIElement):
         """
         super().__init__(view, x, y, width, height, style)
         self.label = Label(view, super().get_style()["label"], text, False, True)
-        self.callback = None
-        self.hover = False
         self.status = status
 
     def set_text(self, text: str):
@@ -71,24 +69,8 @@ class ToggleButton(GUIElement):
         """
         return self.label
 
-    def set_value_changed_evt(self, callback):
-        """
-        Set the callback function to be called when the toggle value changes.
-
-        Args:
-            callback (callable): Function to be invoked with new status (True/False).
-        """
-        self.callback = callback
-
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the toggle button (switch) and its label.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the toggle onto.
-        """
         # Background and outline
         if self.status:
             bg_color = color_change(super().get_style()["foreground_color"], 0.8)
@@ -131,30 +113,8 @@ class ToggleButton(GUIElement):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for toggle button interaction (click, hover).
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
+        super().process_event(view, event)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
+            if super().get_view_rect().collidepoint(event.pos):
                 self.status = not self.status
-                if self.callback is not None:
-                    self.callback(self.status)
-        elif event.type == pygame.MOUSEMOTION:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                self.select()
-            else:
-                self.un_select()
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the toggle button.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
+                super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.status)

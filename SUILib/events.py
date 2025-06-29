@@ -47,9 +47,6 @@ class SUIEvents:
     EVENT_ON_CHANGE = "on_change"
     """str: Event triggered when the element's value changes."""
 
-    EVENT_ON_HOVER = "on_hover"
-    """str: Event triggered when the mouse hovers over the element."""
-
     STANDARD_EVENTS = [
         EVENT_ON_CLICK,
         EVENT_ON_DOUBLE_CLICK,
@@ -63,7 +60,6 @@ class SUIEvents:
         EVENT_ON_KEY_UP,
         EVENT_ON_FOCUS,
         EVENT_ON_BLUR,
-        EVENT_ON_CHANGE,
-        EVENT_ON_HOVER
+        EVENT_ON_CHANGE
     ]
     """list[str]: All standard event names supported by all GUI elements."""

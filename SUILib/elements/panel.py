@@ -3,11 +3,10 @@ Panel UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-from ..application import *
-
+import copy
+from SUILib.guielement import GUIElement, Container
+from SUILib.application import Layout
+from SUILib.utils import overrides
 
 class Panel(GUIElement, Layout, Container):
     """
@@ -50,13 +49,6 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the panel background, contained elements, and outline.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the panel onto.
-        """
         # Draw background
         pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
@@ -78,15 +70,8 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for panel and delegate to child elements.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
         if len(self.get_layout_elements()) != 0:
-            panel_evt = event
+            panel_evt = pygame.event.Event(event.type, **copy.deepcopy(event.dict))
 
             # Offset event position for child elements
             if panel_evt.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
@@ -108,24 +93,11 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(GUIElement)
     def update(self, view):
-        """
-        Update logic for the panel and all contained elements.
-
-        Args:
-            view: The parent View instance.
-        """
         for el in self.get_layout_elements():
             el["element"].update(view)
 
     @overrides(Layout)
     def update_layout(self, width, height):
-        """
-        Update the layout of the panel's child elements using its layout manager.
-
-        Args:
-            width (int): New width for the layout area.
-            height (int): New height for the layout area.
-        """
         if self.layoutmanager is not None:
             self.layoutmanager.set_elements(self.get_layout_elements())
             self.layoutmanager.update_layout(
@@ -134,12 +106,6 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(Container)
     def get_childs(self):
-        """
-        Return the child elements of the panel.
-
-        Returns:
-            list: List of contained GUI elements.
-        """
         elements = []
         for le in self.get_layout_elements():
             elements.append(le["element"])

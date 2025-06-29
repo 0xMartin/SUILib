@@ -3,10 +3,9 @@ Image UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
+from SUILib.utils import load_image
 
 class Image(GUIElement):
     """
@@ -55,36 +54,8 @@ class Image(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the image onto the given Pygame surface, scaled to fit the element's area.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the image onto.
-        """
         if self.image is not None:
             screen.blit(
                 pygame.transform.scale(self.image, (super().get_width(), super().get_height())),
                 (super().get_x(), super().get_y())
             )
-
-    @overrides(GUIElement)
-    def process_event(self, view, event):
-        """
-        Handle Pygame events for the image element.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
-        pass
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the image element.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass

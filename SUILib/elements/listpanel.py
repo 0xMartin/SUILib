@@ -2,12 +2,10 @@
 ListPanel UI element for SUILib
 """
 
-from SUILib.elements.vertical_scrollbar import VerticalScrollbar
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-from ..application import *
+from SUILib.guielement import GUIElement, Container
+from SUILib.elements.vertical_scrollbar import VerticalScrollbar
+from utils import overrides
 
 
 class ListPanel(GUIElement, Container):
@@ -23,7 +21,7 @@ class ListPanel(GUIElement, Container):
         v_scroll (VerticalScrollbar): Scrollbar for vertical navigation.
         body_offset_y (float): Current vertical offset for list rendering.
         font (pygame.font.Font): Font object used for rendering list items.
-        callback (callable): Function to be called when an item is clicked.
+        callbacks (list): List of callback functions for item clicks.
         layoutmanager: Reserved for future custom layout integration.
     """
 
@@ -46,10 +44,13 @@ class ListPanel(GUIElement, Container):
         self.body_offset_y = 0
         super().__init__(view, x, y, width, height, style)
         self.v_scroll = VerticalScrollbar(
-            view, super().get_style()["scrollbar"], super().get_style()["scrollbar_width"])
+            view, 
+            super().get_style()["scrollbar"], 
+            super().get_style()["scrollbar_width"]
+        )
         self.v_scroll.set_on_scroll_evt(self.scroll_vertical)
         self.layoutmanager = None
-        self.callback = None
+        self.callbacks = []
         self.refresh_list()
 
     @overrides(GUIElement)
@@ -60,14 +61,14 @@ class ListPanel(GUIElement, Container):
         super().update_view_rect()
         self.refresh_list()
 
-    def set_item_click_evet(self, callback):
+    def add_item_click_evet(self, callback):
         """
         Set the callback function to be called when a list item is clicked.
 
         Args:
             callback (callable): Function to be called with the clicked item's value.
         """
-        self.callback = callback
+        self.callbacks.append(callback)
 
     def scroll_vertical(self, position: float):
         """
@@ -153,37 +154,17 @@ class ListPanel(GUIElement, Container):
         if event.type == pygame.MOUSEBUTTONDOWN:
             offset = super().get_y() + 10 + self.body_offset_y
             for line in self.data:
-                if in_rect(
-                        event.pos[0],
-                        event.pos[1],
-                        pygame.Rect(
-                            super().get_x(),
-                            offset,
-                            super().get_width() - self.v_scroll.get_width() - 5,
-                            self.font.get_height()
-                        )):
-                    if self.callback is not None:
-                        self.callback(line)
+                item_view_rect = pygame.Rect(
+                    super().get_x(),
+                    offset,
+                    super().get_width() - self.v_scroll.get_width() - 5,
+                    self.font.get_height()
+                )
+                if item_view_rect.collidepoint(event.pos):
+                    for callback in self.callbacks:
+                        callback(line)
                 offset += self.font.get_height() + 10
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the list panel.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
 
     @overrides(Container)
     def get_childs(self):
-        """
-        Return the child elements of the ListPanel.
-
-        Returns:
-            list: List containing the vertical scrollbar as a child element.
-        """
         return [self.v_scroll]

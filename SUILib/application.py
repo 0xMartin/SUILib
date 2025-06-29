@@ -525,7 +525,7 @@ class View(metaclass=abc.ABCMeta):
         else:
             return False
 
-    def setFilter_processOnly(self, element):
+    def set_filter_process_only(self, element):
         """
         Restrict event processing to a single GUI element.
 
@@ -605,7 +605,7 @@ class View(metaclass=abc.ABCMeta):
         for lm in self.layout_manager_list:
             lm.update_layout(width, height)
         for el in self.GUIElements:
-            el.un_select()
+            el.un_focus()
         self.open_evt()
 
     @abc.abstractmethod
@@ -647,9 +647,9 @@ class View(metaclass=abc.ABCMeta):
             else:
                 self.filter["element"].process_event(self, event)
         selected = self.find_element(
-            self.GUIElements, lambda el: el.is_selected())
+            self.GUIElements, lambda el: el.is_focused())
         if selected is not None:
-            pygame.mouse.set_cursor(selected.get_select_cursor())
+            pygame.mouse.set_cursor(selected.get_focus_cursor())
         else:
             pygame.mouse.set_cursor(self.cursor)
 

@@ -3,10 +3,9 @@ HorizontalScrollbar UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
+from SUILib.events import SUIEvents
 
 class HorizontalScrollbar(GUIElement):
     """
@@ -16,7 +15,6 @@ class HorizontalScrollbar(GUIElement):
     It supports custom styles, drag interaction, and a callback for scroll events.
 
     Attributes:
-        callback (callable): Function to be called when the scrollbar moves.
         scroller_pos (int): Current X position (in pixels) of the scroller.
         scroller_size (int): Width of the draggable scroller in pixels.
     """
@@ -36,7 +34,6 @@ class HorizontalScrollbar(GUIElement):
             y (int, optional): Y coordinate of the scrollbar. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEWE)
-        self.callback = None
         self.scroller_pos = 0
         self.scroller_size = scroller_size
 
@@ -49,25 +46,8 @@ class HorizontalScrollbar(GUIElement):
         """
         self.scroller_size = max(size, super().get_height())
 
-    def set_on_scroll_evt(self, callback):
-        """
-        Set the callback function to be called when the scrollbar position changes.
-
-        Args:
-            callback (callable): Function to be invoked on scroll.
-                The function should accept the normalized scroll position (float from 0.0 to 1.0).
-        """
-        self.callback = callback
-
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the horizontal scrollbar and its scroller.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the scrollbar onto.
-        """
         # Draw background
         pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect())
         # Draw scroller
@@ -96,29 +76,15 @@ class HorizontalScrollbar(GUIElement):
         """
         if self.scroller_size >= super().get_width():
             return
+        if not super().is_focused():
+            return
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                super().select()
-                self.def_scroller_pos = self.scroller_pos
-                self.drag_start = event.pos[0]
-        elif event.type == pygame.MOUSEBUTTONUP:
-            super().un_select()
+            self.def_scroller_pos = self.scroller_pos
+            self.drag_start = event.pos[0]
         elif event.type == pygame.MOUSEMOTION:
-            if super().is_selected():
-                self.scroller_pos = self.def_scroller_pos + (event.pos[0] - self.drag_start)
-                self.scroller_pos = min(
-                    max(0, self.scroller_pos), super().get_width() - self.scroller_size)
-                if self.callback is not None:
-                    self.callback(self.scroller_pos / (super().get_width() - self.scroller_size))
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the scrollbar.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
+            # Calculate relative position
+            self.scroller_pos = self.def_scroller_pos + (event.pos[0] - self.drag_start)
+            self.scroller_pos = min(max(0, self.scroller_pos), super().get_width() - self.scroller_size)
+            self.relative_pos = self.scroller_pos / (super().get_width() - self.scroller_size)
+            super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self.relative_pos)

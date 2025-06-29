@@ -10,12 +10,10 @@ import pygame
 import os.path
 import json
 import threading
-import numpy as np
 from time import time
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
-import pylab
 
 def overrides(interface_class):
     """
@@ -34,24 +32,6 @@ def overrides(interface_class):
         assert(method.__name__ in dir(interface_class))
         return method
     return overrider
-
-
-def in_rect(x: int, y: int, rect: pygame.Rect) -> bool:
-    """
-    Check if the point (x, y) is within a given pygame.Rect.
-
-    Args:
-        x (int): X coordinate.
-        y (int): Y coordinate.
-        rect (pygame.Rect): Rectangle to check against.
-
-    Returns:
-        bool: True if the point is inside the rectangle, False otherwise.
-    """
-    if x >= rect.left and y >= rect.top and x <= rect.left + rect.width and y <= rect.top + rect.height:
-        return True
-    else:
-        return False
 
 
 def generate_signal(ms_periode: int) -> bool:

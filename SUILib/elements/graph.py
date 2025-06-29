@@ -3,9 +3,11 @@ Graph UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+import pylab
+import numpy as np
+from SUILib.guielement import GUIElement, Container
+from SUILib.utils import overrides
+from SUILib.utils import draw_graph
 
 class Graph(GUIElement):
     """
@@ -85,42 +87,14 @@ class Graph(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the graph onto the given Pygame surface.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the graph onto.
-        """
         if self.graph is not None:
             screen.blit(
                 pygame.transform.scale(self.graph, (super().get_width(), super().get_height())),
                 (super().get_x(), super().get_y())
             )
 
-    @overrides(GUIElement)
-    def process_event(self, view, event):
-        """
-        Handle Pygame events for the graph.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
-        pass
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the graph.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
-
     @staticmethod
-    def builderFunc_lineGraph(fig, x_label, y_label, values, legend=None):
+    def builder_func_line_graph(fig, x_label, y_label, values, legend=None):
         """
         Builder function for Graph: Plot line graph.
 
@@ -150,7 +124,7 @@ class Graph(GUIElement):
         ax.set_ylabel(y_label)
 
     @staticmethod
-    def builderFunc_pieGraph(fig, labels, values, explode=None):
+    def builder_func_pie_graph(fig, labels, values, explode=None):
         """
         Builder function for Graph: Plot pie graph.
 
@@ -174,7 +148,7 @@ class Graph(GUIElement):
         ax.axis('equal')
 
     @staticmethod
-    def builderFunc_dotGraph(fig, x_label, y_label, values, legend=None):
+    def builder_func_dot_graph(fig, x_label, y_label, values, legend=None):
         """
         Builder function for Graph: Dot graph.
 
@@ -204,7 +178,7 @@ class Graph(GUIElement):
         ax.set_ylabel(y_label)
 
     @staticmethod
-    def builderFunc_barGraph(fig, labels, values):
+    def builder_func_bar_graph(fig, labels, values):
         """
         Builder function for Graph: Bar graph.
 
@@ -224,7 +198,7 @@ class Graph(GUIElement):
         ax.bar(labels, values, width=1, edgecolor="white", linewidth=0.7)
 
     @staticmethod
-    def builderFunc_scatterGraph(fig, values, xlim, ylim):
+    def builder_func_scatter_graph(fig, values, xlim, ylim):
         """
         Builder function for Graph: Scatter graph.
 

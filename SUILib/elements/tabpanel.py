@@ -3,10 +3,9 @@ TabPanel UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-from ..application import *
+from SUILib.guielement import GUIElement, Container
+from SUILib.application import Layout
+from SUILib.utils import overrides
 
 
 class TabPanel(GUIElement, Container):
@@ -209,6 +208,7 @@ class TabPanel(GUIElement, Container):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
+        super().process_event(view, event)
         # Handle tab header clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
             x_offset = 5 + super().get_x()
@@ -221,14 +221,14 @@ class TabPanel(GUIElement, Container):
                     )
                     x1 = x_offset
                     x2 = x_offset + text.get_width() + 10
-                    rect = pygame.Rect(
+                    tab_view_rect = pygame.Rect(
                         x1,
                         super().get_y(),
                         x2 - x1,
                         text.get_height() + 10
                     )
                     x_offset += text.get_width() + 10
-                    if in_rect(event.pos[0], event.pos[1], rect):
+                    if tab_view_rect.collidepoint(event.pos):
                         self.selected_tab = i
                         break
 
@@ -255,24 +255,12 @@ class TabPanel(GUIElement, Container):
 
     @overrides(GUIElement)
     def update(self, view):
-        """
-        Update logic for the tab panel and its child contents.
-
-        Args:
-            view: The parent View instance.
-        """
         for tab in self.tabs:
             if tab.get_content() is not None:
                 tab.get_content().update(view)
 
     @overrides(Container)
     def get_childs(self):
-        """
-        Return the content elements of all tabs as children.
-
-        Returns:
-            list: List of tab content GUIElement objects.
-        """
         result = []
         for tab in self.tabs:
             if tab.get_content() is not None:
@@ -290,6 +278,13 @@ class Tab:
     """
 
     def __init__(self, name: str, content: GUIElement):
+        """
+        Initialize a new Tab instance.
+
+        Args:
+            name (str): The label for the tab.
+            content (GUIElement): The content element displayed when this tab is selected.
+        """
         self.name = name
         if isinstance(content, GUIElement):
             self.content = content

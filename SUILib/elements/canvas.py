@@ -3,10 +3,8 @@ Canvas UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
-
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
 
 class Canvas(GUIElement):
     """
@@ -39,7 +37,7 @@ class Canvas(GUIElement):
             y (int, optional): Y coordinate of the canvas. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_SIZEALL)
-        self.callback = None
+        self.callbacks = []
         self.control = False
         self.mouse_sensitivity = 2.0
         self.offset = [0, 0]
@@ -102,9 +100,9 @@ class Canvas(GUIElement):
         """
         return self.offset
 
-    def set_paint_evt(self, callback):
+    def add_paint_evt(self, callback):
         """
-        Set the paint event callback for the canvas.
+        Add the paint event callback for the canvas.
 
         The callback should be a function accepting (surface, offset) and will be called
         whenever the canvas needs to be redrawn.
@@ -112,17 +110,10 @@ class Canvas(GUIElement):
         Args:
             callback (callable): Function to be called for custom drawing.
         """
-        self.callback = callback
+        self.callbacks.append(callback)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the canvas and call the user-provided paint callback.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the canvas onto.
-        """
         # Draw canvas background
         pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect())
 
@@ -135,48 +126,23 @@ class Canvas(GUIElement):
                 min(max(super().get_height(), 10), screen.get_height() - super().get_y())
             )
         )
-        # Call the paint callback if set
-        if self.callback is not None:
-            self.callback(surface, self.offset)
+        # Call the paint callbacks if set
+        for callback in self.callbacks:
+            callback(surface, self.offset)
 
         # Draw canvas outline
         pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2)
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Process Pygame events for mouse-based canvas interaction.
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The Pygame event to process.
-        """
+        super().process_event(view, event)
         if self.control:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                    super().select()
-                    self.mouse_motion = True
-            elif event.type == pygame.MOUSEBUTTONUP:
-                super().un_select()
-            elif event.type == pygame.MOUSEMOTION:
-                if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                    if self.is_selected():
+            if event.type == pygame.MOUSEMOTION:
+                if super().get_view_rect().collidepoint(event.pos):
+                    if self.is_focused():
                         if self.mouse_motion:
                             self.last_pos = event.pos
                         else:
                             self.offset[0] += (event.pos[0] - self.last_pos[0]) * self.mouse_sensitivity
                             self.offset[1] += (event.pos[1] - self.last_pos[1]) * self.mouse_sensitivity
                         self.mouse_motion = not self.mouse_motion
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the canvas.
-
-        This method is a placeholder for future extensions;
-        currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass

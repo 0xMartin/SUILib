@@ -3,9 +3,9 @@ CheckBox UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
+from SUILib.colors import color_change
 from SUILib.elements.label import Label
 
 
@@ -20,7 +20,6 @@ class CheckBox(GUIElement):
     Attributes:
         label (Label): The label displayed next to the checkbox.
         checked (bool): Indicates whether the checkbox is checked.
-        callback (callable): Function to be called when the checkbox state changes.
     """
 
     def __init__(self, view, style: dict, text: str, checked: bool, size: int = 20, x: int = 0, y: int = 0):
@@ -40,7 +39,6 @@ class CheckBox(GUIElement):
         super().__init__(view, x, y, size, size, style)
         self.label = Label(view, super().get_style()["label"], text, False, True, x, y)
         self.checked = checked
-        self.callback = None
 
     def set_text(self, text: str):
         """
@@ -60,16 +58,6 @@ class CheckBox(GUIElement):
             Label: The label instance.
         """
         return self.label
-
-    def set_checked_evt(self, callback):
-        """
-        Set the callback function to be called when the checked state changes.
-
-        Args:
-            callback (callable): Function to be invoked on check/uncheck.
-                The function should accept a single argument: the CheckBox instance.
-        """
-        self.callback = callback
 
     def set_checked(self, checked: bool):
         """
@@ -91,20 +79,13 @@ class CheckBox(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the checkbox and its label onto the provided surface.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the checkbox onto.
-        """
         # Position and draw the label
         if self.label is not None:
             self.label.set_x(super().get_x() + super().get_width() + 5)
             self.label.set_y(super().get_y() + super().get_height() / 2)
             self.label.draw(view, screen)
         # Draw checkbox background
-        if super().is_selected():
+        if super().is_focused():
             c = super().get_style()["background_color"]
             pygame.draw.rect(
                 screen,
@@ -144,32 +125,6 @@ class CheckBox(GUIElement):
 
     @overrides(GUIElement)
     def process_event(self, view, event):
-        """
-        Handle Pygame events for checkbox interaction (click, hover).
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The Pygame event to process.
-        """
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                if self.callback is not None:
-                    self.callback(self)
-                self.checked = not self.checked
-        elif event.type == pygame.MOUSEMOTION:
-            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
-                super().select()
-            else:
-                super().un_select()
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the checkbox.
-
-        This method is a placeholder for future extensions; currently, it does not perform any updates.
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
+        super().process_event(view, event)
+        if self.is_focused() and event.type == pygame.MOUSEBUTTONDOWN:
+            self.checked = not self.checked

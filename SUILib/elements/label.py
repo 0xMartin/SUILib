@@ -3,9 +3,8 @@ Label UI element for SUILib
 """
 
 import pygame
-from ..utils import *
-from ..colors import *
-from ..guielement import *
+from SUILib.guielement import GUIElement
+from SUILib.utils import overrides
 
 
 class Label(GUIElement):
@@ -86,13 +85,6 @@ class Label(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
-        """
-        Render the label's text onto the given Pygame surface.
-
-        Args:
-            view: The parent View instance.
-            screen (pygame.Surface): The surface to render the label onto.
-        """
         if len(self.text) != 0:
             text_surface = self.font.render(self.text, True, super().get_style()["foreground_color"])
             x = super().get_x()
@@ -102,24 +94,3 @@ class Label(GUIElement):
             if self.v_centered:
                 y -= text_surface.get_height() / 2
             screen.blit(text_surface, (x, y))
-
-    @overrides(GUIElement)
-    def process_event(self, view, event):
-        """
-        Process Pygame events for the label (labels are static and do not handle events).
-
-        Args:
-            view: The parent View instance.
-            event (pygame.event.Event): The event to process.
-        """
-        pass
-
-    @overrides(GUIElement)
-    def update(self, view):
-        """
-        Update logic for the label (labels are static and do not require updates).
-
-        Args:
-            view: The parent View instance.
-        """
-        pass
