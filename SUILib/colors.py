@@ -46,7 +46,7 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 
 
-def colorChange(color: tuple, amount: float) -> tuple:
+def color_change(color: tuple, amount: float) -> tuple:
     """
     Adjust the brightness of an RGB color.
 
@@ -69,7 +69,7 @@ def colorChange(color: tuple, amount: float) -> tuple:
     return tuple(rgb)
 
 
-def colorAdd(color: tuple, amount: int) -> tuple:
+def color_add(color: tuple, amount: int) -> tuple:
     """
     Add a constant value to each RGB channel.
 
@@ -90,7 +90,7 @@ def colorAdd(color: tuple, amount: int) -> tuple:
     return tuple(rgb)
 
 
-def colorInvert(color: tuple) -> tuple:
+def color_invert(color: tuple) -> tuple:
     """
     Invert an RGB color.
 
@@ -107,7 +107,7 @@ def colorInvert(color: tuple) -> tuple:
     return tuple(rgb)
 
 
-def createColor(red: int, green: int, blue: int) -> tuple:
+def create_color(red: int, green: int, blue: int) -> tuple:
     """
     Construct an RGB color tuple from integer channel values.
 

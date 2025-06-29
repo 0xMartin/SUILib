@@ -72,12 +72,12 @@ class Button(GUIElement):
         self.callbacks = []
         self.hover = False
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
 
-    def setText(self, text: str):
+    def set_text(self, text: str):
         """
         Set the button's display text.
 
@@ -86,7 +86,7 @@ class Button(GUIElement):
         """
         self.text = text
 
-    def getText(self) -> str:
+    def get_text(self) -> str:
         """
         Get the current text displayed on the button.
 
@@ -95,7 +95,7 @@ class Button(GUIElement):
         """
         return self.text
 
-    def addClickEvt(self, callback):
+    def add_click_evt(self, callback):
         """
         Set the callback function to be called when the button is clicked.
 
@@ -115,49 +115,49 @@ class Button(GUIElement):
             screen (pygame.Surface): The surface to render the button onto.
         """
         # Draw button background with selection effect
-        if self.isSelected():
-            c = super().getStyle()["background_color"]
+        if self.is_selected():
+            c = super().get_style()["background_color"]
             pygame.draw.rect(
                 screen,
-                colorChange(c, -0.2 if c[0] > 128 else 0.6),
-                super().getViewRect(),
+                color_change(c, -0.2 if c[0] > 128 else 0.6),
+                super().get_view_rect(),
                 border_radius=10
             )
         else:
             pygame.draw.rect(
                 screen,
-                super().getStyle()["background_color"],
-                super().getViewRect(),
+                super().get_style()["background_color"],
+                super().get_view_rect(),
                 border_radius=10
             )
         # Draw button text
         if len(self.text) != 0:
             text_surface = self.font.render(
-                self.text, True, super().getStyle()["foreground_color"]
+                self.text, True, super().get_style()["foreground_color"]
             )
             # Auto-resize button to fit text if needed
-            if text_surface.get_height() + 4 > super().getHeight():
-                super().setHeight(text_surface.get_height() + 4)
-            if text_surface.get_width() + 4 > super().getWidth():
-                super().setWidth(text_surface.get_width() + 4)
+            if text_surface.get_height() + 4 > super().get_height():
+                super().set_height(text_surface.get_height() + 4)
+            if text_surface.get_width() + 4 > super().get_width():
+                super().set_width(text_surface.get_width() + 4)
             screen.blit(
                 text_surface,
                 (
-                    super().getX() + (super().getWidth() - text_surface.get_width()) / 2,
-                    super().getY() + (super().getHeight() - text_surface.get_height()) / 2
+                    super().get_x() + (super().get_width() - text_surface.get_width()) / 2,
+                    super().get_y() + (super().get_height() - text_surface.get_height()) / 2
                 )
             )
         # Draw button outline
         pygame.draw.rect(
             screen,
-            super().getStyle()["outline_color"],
-            super().getViewRect(),
+            super().get_style()["outline_color"],
+            super().get_view_rect(),
             2,
             border_radius=10
         )
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process a Pygame event related to the button.
 
@@ -169,14 +169,14 @@ class Button(GUIElement):
             event (pygame.event.Event): The Pygame event to process.
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                 for callback in self.callbacks:
                     callback(self)
         elif event.type == pygame.MOUSEMOTION:
-            if inRect(event.pos[0], event.pos[1], super().getViewRect()):
+            if in_rect(event.pos[0], event.pos[1], super().get_view_rect()):
                 self.select()
             else:
-                self.unSelect()
+                self.un_select()
 
     @overrides(GUIElement)
     def update(self, view):

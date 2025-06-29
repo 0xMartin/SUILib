@@ -64,7 +64,7 @@ class Graph(GUIElement):
         self.graph = None
         self.fig_builder = None
 
-    def setFigureBuilderFunc(self, func):
+    def set_figure_builder_func(self, func):
         """
         Set the function responsible for building the matplotlib figure.
 
@@ -76,40 +76,40 @@ class Graph(GUIElement):
         self.fig_builder = func
 
     @overrides(GUIElement)
-    def setWidth(self, width):
+    def set_width(self, width):
         """
         Set the width of the graph and refresh the rendered figure.
 
         Args:
             width (int): New width in pixels.
         """
-        super().setWidth(width)
-        self.refreshGraph()
+        super().set_width(width)
+        self.refresh_graph()
 
     @overrides(GUIElement)
-    def setHeight(self, height):
+    def set_height(self, height):
         """
         Set the height of the graph and refresh the rendered figure.
 
         Args:
             height (int): New height in pixels.
         """
-        super().setHeight(height)
-        self.refreshGraph()
+        super().set_height(height)
+        self.refresh_graph()
 
-    def refreshGraph(self):
+    def refresh_graph(self):
         """
         Redraw and re-render the matplotlib figure to the Pygame surface.
         Called automatically when the size of the graph changes or the builder function is set.
         """
-        if self.fig_builder is not None and super().getWidth() > 50 and super().getHeight() > 50:
+        if self.fig_builder is not None and super().get_width() > 50 and super().get_height() > 50:
             fig = pylab.figure(
-                figsize=[self.getWidth()/100, self.getHeight()/100], dpi=100)
+                figsize=[self.get_width()/100, self.get_height()/100], dpi=100)
             fig.patch.set_alpha(0.0)
             self.fig_builder(fig)
-            self.graph = drawGraph(
+            self.graph = draw_graph(
                 fig,
-                super().getStyle()["theme"]
+                super().get_style()["theme"]
             )
 
     @overrides(GUIElement)
@@ -123,12 +123,12 @@ class Graph(GUIElement):
         """
         if self.graph is not None:
             screen.blit(
-                pygame.transform.scale(self.graph, (super().getWidth(), super().getHeight())),
-                (super().getX(), super().getY())
+                pygame.transform.scale(self.graph, (super().get_width(), super().get_height())),
+                (super().get_x(), super().get_y())
             )
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for the graph.
 

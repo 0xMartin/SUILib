@@ -75,21 +75,21 @@ class ListPanel(GUIElement, Container):
         self.body_offset_y = 0
         super().__init__(view, x, y, width, height, style)
         self.v_scroll = VerticalScrollbar(
-            view, super().getStyle()["scrollbar"], super().getStyle()["scrollbar_width"])
-        self.v_scroll.setOnScrollEvt(self.scrollVertical)
+            view, super().get_style()["scrollbar"], super().get_style()["scrollbar_width"])
+        self.v_scroll.set_on_scroll_evt(self.scroll_vertical)
         self.layoutmanager = None
         self.callback = None
-        self.refreshList()
+        self.refresh_list()
 
     @overrides(GUIElement)
-    def updateViewRect(self):
+    def update_view_rect(self):
         """
         Update the ListPanel's view rectangle and refresh layout and scrollbar.
         """
-        super().updateViewRect()
-        self.refreshList()
+        super().update_view_rect()
+        self.refresh_list()
 
-    def setItemClickEvet(self, callback):
+    def set_item_click_evet(self, callback):
         """
         Set the callback function to be called when a list item is clicked.
 
@@ -98,7 +98,7 @@ class ListPanel(GUIElement, Container):
         """
         self.callback = callback
 
-    def scrollVertical(self, position: float):
+    def scroll_vertical(self, position: float):
         """
         Event handler for vertical scrollbar movement.
 
@@ -106,10 +106,10 @@ class ListPanel(GUIElement, Container):
             position (float): Vertical scroll position in the range [0.0, 1.0].
         """
         total_body_data_height = 10 + (self.font.get_height() + 10) * len(self.data)
-        h = super().getHeight()
+        h = super().get_height()
         self.body_offset_y = -max(0, (total_body_data_height - h)) * position
 
-    def refreshList(self, new_data: list = None):
+    def refresh_list(self, new_data: list = None):
         """
         Refresh or update the contents of the list panel.
 
@@ -121,22 +121,22 @@ class ListPanel(GUIElement, Container):
             self.data = new_data
 
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
         self.height = 10 + (self.font.get_height() + 10) * min(5, len(self.data))
 
         if self.v_scroll is not None:
-            sw = super().getStyle()["scrollbar_width"]
-            self.v_scroll.setX(super().getX() + super().getWidth() - sw)
-            self.v_scroll.setY(super().getY())
-            self.v_scroll.setWidth(sw)
-            self.v_scroll.setHeight(super().getHeight())
+            sw = super().get_style()["scrollbar_width"]
+            self.v_scroll.set_x(super().get_x() + super().get_width() - sw)
+            self.v_scroll.set_y(super().get_y())
+            self.v_scroll.set_width(sw)
+            self.v_scroll.set_height(super().get_height())
 
             height = 10 + (self.font.get_height() + 10) * len(self.data)
-            self.v_scroll.setScrollerSize(
-                (1.0 - max(0, height - super().getHeight()) / height) * self.v_scroll.getHeight()
+            self.v_scroll.set_scroller_size(
+                (1.0 - max(0, height - super().get_height()) / height) * self.v_scroll.get_height()
             )
 
     @overrides(GUIElement)
@@ -149,16 +149,16 @@ class ListPanel(GUIElement, Container):
             screen (pygame.Surface): The surface to render the panel onto.
         """
         # Draw background
-        pygame.draw.rect(screen, super().getStyle()["background_color"], super().getViewRect(), border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
         # Draw list items
         if len(self.data) != 0:
-            screen.set_clip(super().getViewRect())
-            offset = super().getY() + 10 + self.body_offset_y
+            screen.set_clip(super().get_view_rect())
+            offset = super().get_y() + 10 + self.body_offset_y
             for line in self.data:
                 text = self.font.render(
-                    line, 1, super().getStyle()["foreground_color"])
-                screen.blit(text, (super().getX() + 10, offset))
+                    line, 1, super().get_style()["foreground_color"])
+                screen.blit(text, (super().get_x() + 10, offset))
                 offset += text.get_height() + 10
             screen.set_clip(None)
 
@@ -166,10 +166,10 @@ class ListPanel(GUIElement, Container):
         self.v_scroll.draw(view, screen)
 
         # Draw outline
-        pygame.draw.rect(screen, super().getStyle()["outline_color"], super().getViewRect(), 2, border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for list item selection and scrollbar interaction.
 
@@ -177,18 +177,18 @@ class ListPanel(GUIElement, Container):
             view: The parent View instance.
             event (pygame.event.Event): The event to process.
         """
-        self.v_scroll.processEvent(view, event)
+        self.v_scroll.process_event(view, event)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            offset = super().getY() + 10 + self.body_offset_y
+            offset = super().get_y() + 10 + self.body_offset_y
             for line in self.data:
-                if inRect(
+                if in_rect(
                         event.pos[0],
                         event.pos[1],
                         pygame.Rect(
-                            super().getX(),
+                            super().get_x(),
                             offset,
-                            super().getWidth() - self.v_scroll.getWidth() - 5,
+                            super().get_width() - self.v_scroll.get_width() - 5,
                             self.font.get_height()
                         )):
                     if self.callback is not None:
@@ -208,7 +208,7 @@ class ListPanel(GUIElement, Container):
         pass
 
     @overrides(Container)
-    def getChilds(self):
+    def get_childs(self):
         """
         Return the child elements of the ListPanel.
 

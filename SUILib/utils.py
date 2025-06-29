@@ -63,7 +63,7 @@ def overrides(interface_class):
     return overrider
 
 
-def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
+def in_rect(x: int, y: int, rect: pygame.Rect) -> bool:
     """
     Check if the point (x, y) is within a given pygame.Rect.
 
@@ -81,7 +81,7 @@ def inRect(x: int, y: int, rect: pygame.Rect) -> bool:
         return False
 
 
-def generateSignal(ms_periode: int) -> bool:
+def generate_signal(ms_periode: int) -> bool:
     """
     Generate a periodic boolean signal: (ms_periode) True -> (ms_periode) False -> ...
 
@@ -94,7 +94,7 @@ def generateSignal(ms_periode: int) -> bool:
     return round((time() * 1000) / ms_periode) % 2 == 0
 
 
-def loadImage(img_path: str) -> pygame.Surface:
+def load_image(img_path: str) -> pygame.Surface:
     """
     Load an image from the filesystem as a pygame Surface.
 
@@ -109,7 +109,7 @@ def loadImage(img_path: str) -> pygame.Surface:
     else:
         return None
 
-def drawGraph(fig: matplotlib.figure, dark: bool = False):
+def draw_graph(fig: matplotlib.figure, dark: bool = False):
     """
     Render a matplotlib figure to a pygame Surface.
 
@@ -135,7 +135,7 @@ def drawGraph(fig: matplotlib.figure, dark: bool = False):
     return pygame.image.frombuffer(raw_data, canvas.get_width_height(), "RGBA")
 
 
-def loadConfig(path: str) -> str:
+def load_config(path: str) -> str:
     """
     Load a JSON config file.
 
@@ -153,7 +153,7 @@ def loadConfig(path: str) -> str:
     return data
 
 
-def getDisplayWidth() -> int:
+def get_display_width() -> int:
     """
     Get width of the current pygame display surface.
 
@@ -162,7 +162,7 @@ def getDisplayWidth() -> int:
     """
     return pygame.display.get_surface().get_size().get_width()
 
-def getDisplayHeight() -> int:
+def get_display_height() -> int:
     """
     Get height of the current pygame display surface.
 
@@ -171,7 +171,7 @@ def getDisplayHeight() -> int:
     """
     return pygame.display.get_surface().get_size().get_height()
 
-def runTaskAsync(task):
+def run_task_async(task):
     """
     Run a function asynchronously in a new thread.
 

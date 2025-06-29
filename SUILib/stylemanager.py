@@ -72,9 +72,9 @@ class StyleManager:
         """
         Initialize the style manager by loading the stylesheet from file.
         """
-        self.loadStyleSheet(self.styles_path)
+        self.load_style_sheet(self.styles_path)
 
-    def loadStyleSheet(self, styles_path):
+    def load_style_sheet(self, styles_path):
         """
         Load a stylesheet from a JSON configuration file.
 
@@ -84,9 +84,9 @@ class StyleManager:
         Side Effects:
             Updates self.styles with the processed styles from the file.
         """
-        self.styles = loadConfig(styles_path)
+        self.styles = load_config(styles_path)
 
-    def getStyleWithName(self, name) -> dict:
+    def get_style_with_name(self, name) -> dict:
         """
         Retrieve and process a style dictionary by its name from the stylesheet.
 
@@ -99,9 +99,9 @@ class StyleManager:
         if name not in self.styles.keys():
             return None
         else:
-            return self.processStyle(self.styles[name])
+            return self.process_style(self.styles[name])
 
-    def processStyle(self, style) -> dict:
+    def process_style(self, style) -> dict:
         """
         Recursively process a style dictionary, converting color strings to tuples.
 
@@ -117,5 +117,5 @@ class StyleManager:
                 rgb = new_style[tag].split(",")
                 new_style[tag] = tuple([int(rgb[0]), int(rgb[1]), int(rgb[2])])
             elif isinstance(new_style[tag], dict):
-                new_style[tag] = self.processStyle(new_style[tag])
+                new_style[tag] = self.process_style(new_style[tag])
         return new_style

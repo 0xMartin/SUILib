@@ -72,12 +72,12 @@ class Label(GUIElement):
         self.h_centered = h_centered
         self.v_centered = v_centered
         self.font = pygame.font.SysFont(
-            super().getStyle()["font_name"],
-            super().getStyle()["font_size"],
-            bold=super().getStyle()["font_bold"]
+            super().get_style()["font_name"],
+            super().get_style()["font_size"],
+            bold=super().get_style()["font_bold"]
         )
 
-    def setHCentered(self, centered: bool):
+    def set_h_centered(self, centered: bool):
         """
         Set horizontal alignment for the label text.
 
@@ -86,7 +86,7 @@ class Label(GUIElement):
         """
         self.h_centered = centered
 
-    def setVCentered(self, centered: bool):
+    def set_v_centered(self, centered: bool):
         """
         Set vertical alignment for the label text.
 
@@ -95,7 +95,7 @@ class Label(GUIElement):
         """
         self.v_centered = centered
 
-    def setText(self, text: str):
+    def set_text(self, text: str):
         """
         Set the text displayed by the label.
 
@@ -104,7 +104,7 @@ class Label(GUIElement):
         """
         self.text = text
 
-    def getText(self) -> str:
+    def get_text(self) -> str:
         """
         Get the current text content of the label.
 
@@ -123,17 +123,17 @@ class Label(GUIElement):
             screen (pygame.Surface): The surface to render the label onto.
         """
         if len(self.text) != 0:
-            text_surface = self.font.render(self.text, True, super().getStyle()["foreground_color"])
-            x = super().getX()
+            text_surface = self.font.render(self.text, True, super().get_style()["foreground_color"])
+            x = super().get_x()
             if self.h_centered:
                 x -= text_surface.get_width() / 2
-            y = super().getY()
+            y = super().get_y()
             if self.v_centered:
                 y -= text_surface.get_height() / 2
             screen.blit(text_surface, (x, y))
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process Pygame events for the label (labels are static and do not handle events).
 

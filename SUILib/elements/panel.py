@@ -67,7 +67,7 @@ class Panel(GUIElement, Layout, Container):
         Layout.__init__(self, view)
         self.layoutmanager = None
 
-    def setLayoutManager(self, layoutmanager: Layout):
+    def set_layout_manager(self, layoutmanager: Layout):
         """
         Set the layout manager for arranging elements inside the panel.
 
@@ -75,7 +75,7 @@ class Panel(GUIElement, Layout, Container):
             layoutmanager (Layout): The layout manager instance.
         """
         self.layoutmanager = layoutmanager
-        self.getView().unregisterLayoutManager(self.layoutmanager)
+        self.get_view().unregister_layout_manager(self.layoutmanager)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -87,26 +87,26 @@ class Panel(GUIElement, Layout, Container):
             screen (pygame.Surface): The surface to render the panel onto.
         """
         # Draw background
-        pygame.draw.rect(screen, super().getStyle()["background_color"], super().getViewRect(), border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
         # Draw child elements within panel area
-        if len(self.getLayoutElements()) != 0:
+        if len(self.get_layout_elements()) != 0:
             panel_screen = screen.subsurface(
                 pygame.Rect(
-                    super().getX() + 5,
-                    super().getY() + 5,
-                    min(max(super().getWidth() - 10, 10), screen.get_width() - super().getX() - 5),
-                    min(max(super().getHeight() - 10, 10), screen.get_height() - super().getY() - 5)
+                    super().get_x() + 5,
+                    super().get_y() + 5,
+                    min(max(super().get_width() - 10, 10), screen.get_width() - super().get_x() - 5),
+                    min(max(super().get_height() - 10, 10), screen.get_height() - super().get_y() - 5)
                 )
             )
-            for el in self.getLayoutElements():
+            for el in self.get_layout_elements():
                 el["element"].draw(view, panel_screen)
 
         # Draw outline
-        pygame.draw.rect(screen, super().getStyle()["outline_color"], super().getViewRect(), 2, border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for panel and delegate to child elements.
 
@@ -114,25 +114,25 @@ class Panel(GUIElement, Layout, Container):
             view: The parent View instance.
             event (pygame.event.Event): The event to process.
         """
-        if len(self.getLayoutElements()) != 0:
+        if len(self.get_layout_elements()) != 0:
             panel_evt = event
 
             # Offset event position for child elements
             if panel_evt.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
                 panel_evt.pos = (
-                    panel_evt.pos[0] - super().getX(),
-                    panel_evt.pos[1] - super().getY()
+                    panel_evt.pos[0] - super().get_x(),
+                    panel_evt.pos[1] - super().get_y()
                 )
 
             # Propagate event to each child element
-            for el in self.getLayoutElements():
-                el["element"].processEvent(view, panel_evt)
+            for el in self.get_layout_elements():
+                el["element"].process_event(view, panel_evt)
 
             # Restore event position
             if panel_evt.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN):
                 panel_evt.pos = (
-                    panel_evt.pos[0] + super().getX(),
-                    panel_evt.pos[1] + super().getY()
+                    panel_evt.pos[0] + super().get_x(),
+                    panel_evt.pos[1] + super().get_y()
                 )
 
     @overrides(GUIElement)
@@ -143,11 +143,11 @@ class Panel(GUIElement, Layout, Container):
         Args:
             view: The parent View instance.
         """
-        for el in self.getLayoutElements():
+        for el in self.get_layout_elements():
             el["element"].update(view)
 
     @overrides(Layout)
-    def updateLayout(self, width, height):
+    def update_layout(self, width, height):
         """
         Update the layout of the panel's child elements using its layout manager.
 
@@ -156,13 +156,13 @@ class Panel(GUIElement, Layout, Container):
             height (int): New height for the layout area.
         """
         if self.layoutmanager is not None:
-            self.layoutmanager.setElements(self.getLayoutElements())
-            self.layoutmanager.updateLayout(
-                self.getWidth() - 10, self.getHeight() - 10
+            self.layoutmanager.set_elements(self.get_layout_elements())
+            self.layoutmanager.update_layout(
+                self.get_width() - 10, self.get_height() - 10
             )
 
     @overrides(Container)
-    def getChilds(self):
+    def get_childs(self):
         """
         Return the child elements of the panel.
 
@@ -170,6 +170,6 @@ class Panel(GUIElement, Layout, Container):
             list: List of contained GUI elements.
         """
         elements = []
-        for le in self.getLayoutElements():
+        for le in self.get_layout_elements():
             elements.append(le["element"])
         return elements

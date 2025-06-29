@@ -61,13 +61,13 @@ class Application:
         else:
             self.stylemanager = StyleManager(
                 os.path.join(module_path, StyleManager.LIGHT_THEME_CONFIG))
-        self.setFillColor(WHITE)
+        self.set_fill_color(WHITE)
         for v in views:
             if isinstance(v, View):
-                v.setApplication(self)
+                v.set_application(self)
                 self.views.append(v)
 
-    def setFillColor(self, color: tuple):
+    def set_fill_color(self, color: tuple):
         """
         Set default fill color for views in the application.
 
@@ -76,7 +76,7 @@ class Application:
         """
         self.fill_color = color
 
-    def addView(self, view) -> bool:
+    def add_view(self, view) -> bool:
         """
         Add a new view to the application.
 
@@ -87,7 +87,7 @@ class Application:
             bool: True on success, False if not a valid View.
         """
         if(isinstance(view, View)):
-            view.setApplication(self)
+            view.set_application(self)
             self.views.append(view)
             # call create event (only if app is running)
             if self.inited:
@@ -97,7 +97,7 @@ class Application:
         else:
             return False
 
-    def getStyleManager(self) -> StyleManager:
+    def get_style_manager(self) -> StyleManager:
         """
         Get the application's style manager.
 
@@ -106,26 +106,26 @@ class Application:
         """
         return self.stylemanager
 
-    def reloadStyleSheet(self, styles_path: str):
+    def reload_style_sheet(self, styles_path: str):
         """
         Reload stylesheet from a file.
 
         Args:
             styles_path (str): Path to the stylesheet JSON file.
         """
-        self.stylemanager.loadStyleSheet(styles_path)
+        self.stylemanager.load_style_sheet(styles_path)
 
-    def reloadElementStyles(self):
+    def reload_element_styles(self):
         """
         Reload styles of all GUI elements in all views.
         """
-        fill_color = self.stylemanager.getStyleWithName("default")[
+        fill_color = self.stylemanager.get_style_with_name("default")[
             "fill_color"]
         for view in self.views:
-            view.setFillColor(fill_color)
-            view.reloadElementStyle()
+            view.set_fill_color(fill_color)
+            view.reload_element_style()
 
-    def removeView(self, view) -> bool:
+    def remove_view(self, view) -> bool:
         """
         Remove a view from the application.
 
@@ -141,7 +141,7 @@ class Application:
         else:
             return False
 
-    def getScreen(self) -> pygame.Surface:
+    def get_screen(self) -> pygame.Surface:
         """
         Get the pygame Surface representing the application window.
 
@@ -170,10 +170,10 @@ class Application:
         pygame.init()
         self.default_font = pygame.font.SysFont("Verdana", 35, bold=True)
         pygame.display.set_caption(name)
-        img = loadImage(self.icon)
+        img = load_image(self.icon)
         if img is None:
             module_path = os.path.dirname(os.path.abspath(__file__))
-            img = loadImage(os.path.join(module_path, "./assets/icon.png"))
+            img = load_image(os.path.join(module_path, "./assets/icon.png"))
         if img is not None:
             pygame.display.set_icon(img)
         self.screen = pygame.display.set_mode(
@@ -202,7 +202,7 @@ class Application:
             view.createEvt_base(self.screen.get_width(), self.screen.get_height())
 
         if start_view is not None:
-            self.showView(start_view)
+            self.show_view(start_view)
 
         # Enable periodic repaint if requested
         if self._periodic_repaint_enabled:
@@ -217,15 +217,15 @@ class Application:
                 self._needs_repaint = True
             else:
                 if self.visible_view is not None:
-                    self.visible_view.processEvt(event)
+                    self.visible_view.process_evt(event)
                     self.visible_view.update()
                 self._needs_repaint = True  # repaint after every event
 
             if self._needs_repaint and self.visible_view is not None:
-                if self.visible_view.getFillColor() is None:
+                if self.visible_view.get_fill_color() is None:
                     self.screen.fill(self.fill_color)
                 else:
-                    self.screen.fill(self.visible_view.getFillColor())
+                    self.screen.fill(self.visible_view.get_fill_color())
                 self.visible_view.render(self.screen)
                 pygame.display.flip()
                 self._needs_repaint = False  # repaint done
@@ -233,21 +233,21 @@ class Application:
         pygame.quit()
         return True
     
-    def requestRepaint(self):
+    def request_repaint(self):
         """
         Request an immediate repaint of the active view.
         """
         self._needs_repaint = True
         if self.visible_view is not None:
-            if self.visible_view.getFillColor() is None:
+            if self.visible_view.get_fill_color() is None:
                 self.screen.fill(self.fill_color)
             else:
-                self.screen.fill(self.visible_view.getFillColor())
+                self.screen.fill(self.visible_view.get_fill_color())
             self.visible_view.render(self.screen)
             pygame.display.flip()
             self._needs_repaint = False
 
-    def enablePeriodicRepaint(self, fps=60):
+    def enable_periodic_repaint(self, fps=60):
         """
         Enable periodic repaint at a given FPS.
 
@@ -258,7 +258,7 @@ class Application:
         self._periodic_repaint_fps = fps
         pygame.time.set_timer(REPAINT_EVENT, int(1000 / fps))
 
-    def disablePeriodicRepaint(self):
+    def disable_periodic_repaint(self):
         """
         Disable periodic repaint. Repaint will only happen on user/event/request.
         """
@@ -270,14 +270,14 @@ class Application:
         Close the application and clean up views.
 
         Side Effects:
-            Calls closeEvt on all views and clears the views list.
+            Calls close_evt on all views and clears the views list.
         """
         self.running = False
         for view in self.views:
-            view.closeEvt()
+            view.close_evt()
         self.views = []
 
-    def showView(self, view) -> bool:
+    def show_view(self, view) -> bool:
         """
         Display a specific view in the application.
 
@@ -293,10 +293,10 @@ class Application:
         if view in self.views:
             # hide current visible view
             if self.visible_view is not None:
-                self.visible_view.setVisibility(False)
-                self.visible_view.hideEvt()
+                self.visible_view.set_visibility(False)
+                self.visible_view.hide_evt()
             # show new view
-            view.setVisibility(True)
+            view.set_visibility(True)
             view.openEvt_base(self.screen.get_width(),
                               self.screen.get_height())
             self.visible_view = view
@@ -309,7 +309,7 @@ class Application:
         else:
             return False
 
-    def showViewWithName(self, name: str) -> bool:
+    def show_view_with_name(self, name: str) -> bool:
         """
         Show a view with a specific name.
 
@@ -321,9 +321,9 @@ class Application:
         """
         for view in self.views:
             if view.name == name:
-                return self.showView(view)
+                return self.show_view(view)
 
-    def showViewWithID(self, id: int) -> bool:
+    def show_view_with_id(self, id: int) -> bool:
         """
         Show a view by its unique ID.
 
@@ -335,9 +335,9 @@ class Application:
         """
         for view in self.views:
             if view.ID == id:
-                return self.showView(view)
+                return self.show_view(view)
 
-    def drawLater(self, z_index, draw_callback):
+    def draw_later(self, z_index, draw_callback):
         """
         Add a draw callback to the queue for deferred drawing.
 
@@ -369,7 +369,7 @@ class View(metaclass=abc.ABCMeta):
         GUIElements (list): List of GUIElement objects contained in this view.
         layout_manager_list (list): List of registered layout managers for this view.
         cursor: The default system cursor for this view.
-        app (Application): Reference to the parent Application (set via setApplication()).
+        app (Application): Reference to the parent Application (set via set_application()).
     """
 
     def __init__(self, name: str, id: int):
@@ -387,9 +387,9 @@ class View(metaclass=abc.ABCMeta):
         self.filter = None
         self.GUIElements = []
         self.layout_manager_list = []
-        self.setDefaultCursor()
+        self.set_default_cursor()
 
-    def setID(self, id: int):
+    def set_id(self, id: int):
         """
         Set the unique ID of the view.
 
@@ -398,7 +398,7 @@ class View(metaclass=abc.ABCMeta):
         """
         self.ID = id
 
-    def addGUIElements(self, elements):
+    def add_gui_elements(self, elements):
         """
         Add one or more GUI elements to this view.
 
@@ -409,7 +409,7 @@ class View(metaclass=abc.ABCMeta):
             if isinstance(el, GUIElement):
                 self.GUIElements.append(el)
 
-    def removeGUIElement(self, element):
+    def remove_gui_element(self, element):
         """
         Remove a GUI element from this view.
 
@@ -418,17 +418,17 @@ class View(metaclass=abc.ABCMeta):
         """
         self.GUIElements.remove(element)
 
-    def requestRepaint(self):
+    def request_repaint(self):
         """
         Request a repaint of this view (only if it is currently visible/active).
         Triggers the repaint mechanism in the parent application.
         """
         if hasattr(self, "app") and self.app is not None and self.app.visible_view == self:
             self.app._needs_repaint = True
-            self.app.requestRepaint()
+            self.app.request_repaint()
 
     @final
-    def getApp(self):
+    def get_app(self):
         """
         Get the parent application instance.
 
@@ -437,33 +437,33 @@ class View(metaclass=abc.ABCMeta):
         """
         return self.app
 
-    def registerLayoutManager(self, layoutManager) -> bool:
+    def register_layout_manager(self, layout_manager) -> bool:
         """
         Register a layout manager with this view.
 
         Args:
-            layoutManager (Layout): The layout manager to add.
+            layout_manager (Layout): The layout manager to add.
 
         Returns:
             bool: True if successfully registered, False otherwise.
         """
-        if isinstance(layoutManager, Layout):
-            self.layout_manager_list.append(layoutManager)
+        if isinstance(layout_manager, Layout):
+            self.layout_manager_list.append(layout_manager)
             return True
         else:
             return False
 
-    def unregisterLayoutManager(self, layoutManager):
+    def unregister_layout_manager(self, layout_manager):
         """
         Unregister a layout manager from this view.
 
         Args:
-            layoutManager (Layout): The layout manager to remove.
+            layout_manager (Layout): The layout manager to remove.
         """
-        self.layout_manager_list.remove(layoutManager)
+        self.layout_manager_list.remove(layout_manager)
 
     @final
-    def getGUIElements(self) -> list:
+    def get_gui_elements(self) -> list:
         """
         Get a list of all GUI elements in this view.
 
@@ -472,7 +472,7 @@ class View(metaclass=abc.ABCMeta):
         """
         return self.GUIElements
 
-    def setDefaultCursor(self, cursor=pygame.SYSTEM_CURSOR_ARROW):
+    def set_default_cursor(self, cursor=pygame.SYSTEM_CURSOR_ARROW):
         """
         Set the default cursor for this view.
 
@@ -481,7 +481,7 @@ class View(metaclass=abc.ABCMeta):
         """
         self.cursor = cursor
 
-    def setFillColor(self, color: tuple):
+    def set_fill_color(self, color: tuple):
         """
         Set the background fill color for this view.
 
@@ -491,7 +491,7 @@ class View(metaclass=abc.ABCMeta):
         self.fill_color = color
 
     @final
-    def getFillColor(self) -> tuple:
+    def get_fill_color(self) -> tuple:
         """
         Get the current fill color of this view.
 
@@ -500,7 +500,7 @@ class View(metaclass=abc.ABCMeta):
         """
         return self.fill_color
 
-    def setVisibility(self, visible: bool):
+    def set_visibility(self, visible: bool):
         """
         Set this view's visibility.
 
@@ -509,7 +509,7 @@ class View(metaclass=abc.ABCMeta):
         """
         self.visible = visible
 
-    def setApplication(self, app: Application):
+    def set_application(self, app: Application):
         """
         Assign this view to a parent application.
 
@@ -535,14 +535,14 @@ class View(metaclass=abc.ABCMeta):
         if element is not None:
             self.filter = {"type": "process_only", "element": element}
 
-    def clearFilter(self):
+    def clear_filter(self):
         """
         Clear the event processing filter, so all elements will process events.
         """
         self.filter = None
 
     @final
-    def reloadElementStyle(self, list=None):
+    def reload_element_style(self, list=None):
         """
         Reload the style for all GUI elements in the view.
 
@@ -554,12 +554,12 @@ class View(metaclass=abc.ABCMeta):
         for el in list:
             if el is None:
                 continue
-            style = self.app.getStyleManager().getStyleWithName(el.__class__.__name__)
+            style = self.app.get_style_manager().get_style_with_name(el.__class__.__name__)
             if style is not None:
-                el.setStyle(style)
+                el.set_style(style)
             if isinstance(el, Container):
-                self.reloadElementStyle(el.getChilds())
-        self.reloadStyleEvt()
+                self.reload_element_style(el.get_childs())
+        self.reload_style_evt()
 
     @final
     def createEvt_base(self, width: int, height: int):
@@ -570,15 +570,15 @@ class View(metaclass=abc.ABCMeta):
             width (int): Width of the view window.
             height (int): Height of the view window.
         """
-        self.createEvt()
+        self.create_evt()
         if self.fill_color is None:
-            self.fill_color = self.getApp().getStyleManager(
-            ).getStyleWithName("default")["fill_color"]
+            self.fill_color = self.get_app().get_style_manager(
+            ).get_style_with_name("default")["fill_color"]
         for lm in self.layout_manager_list:
-            lm.updateLayout(width, height)
+            lm.update_layout(width, height)
 
     @abc.abstractmethod
-    def createEvt(self):
+    def create_evt(self):
         """
         Abstract: Called when the application starts or the view is created.
         Implement view-specific initialization logic here.
@@ -586,7 +586,7 @@ class View(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def closeEvt(self):
+    def close_evt(self):
         """
         Abstract: Called when the application closes.
         Implement view-specific cleanup logic here.
@@ -603,13 +603,13 @@ class View(metaclass=abc.ABCMeta):
             height (int): Height of the view window.
         """
         for lm in self.layout_manager_list:
-            lm.updateLayout(width, height)
+            lm.update_layout(width, height)
         for el in self.GUIElements:
-            el.unSelect()
-        self.openEvt()
+            el.un_select()
+        self.open_evt()
 
     @abc.abstractmethod
-    def openEvt(self):
+    def open_evt(self):
         """
         Abstract: Called when this view is shown (becomes active).
         Implement logic to run when a view is activated.
@@ -617,7 +617,7 @@ class View(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def hideEvt(self):
+    def hide_evt(self):
         """
         Abstract: Called when this view is hidden (becomes inactive).
         Implement logic to run when a view is deactivated.
@@ -625,7 +625,7 @@ class View(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def reloadStyleEvt(self):
+    def reload_style_evt(self):
         """
         Abstract: Called when styles are reloaded for this view.
         Implement logic for style updates.
@@ -633,7 +633,7 @@ class View(metaclass=abc.ABCMeta):
         pass
 
     @final
-    def processEvt(self, event):
+    def process_evt(self, event):
         """
         Process a single event from the application and dispatch to GUI elements.
 
@@ -643,17 +643,17 @@ class View(metaclass=abc.ABCMeta):
         if self.app is not None:
             if self.filter is None:
                 for el in self.GUIElements:
-                    el.processEvent(self, event)
+                    el.process_event(self, event)
             else:
-                self.filter["element"].processEvent(self, event)
-        selected = self.findElement(
-            self.GUIElements, lambda el: el.isSelected())
+                self.filter["element"].process_event(self, event)
+        selected = self.find_element(
+            self.GUIElements, lambda el: el.is_selected())
         if selected is not None:
-            pygame.mouse.set_cursor(selected.getSelectCursor())
+            pygame.mouse.set_cursor(selected.get_select_cursor())
         else:
             pygame.mouse.set_cursor(self.cursor)
 
-    def findElement(self, list, procces_function=None):
+    def find_element(self, list, procces_function=None):
         """
         Find the first element in a list of GUI elements for which a process function returns True.
 
@@ -669,8 +669,8 @@ class View(metaclass=abc.ABCMeta):
         ret = None
         for el in list:
             if isinstance(el, Container):
-                ret_container = self.findElement(
-                    el.getChilds(), procces_function)
+                ret_container = self.find_element(
+                    el.get_childs(), procces_function)
                 if ret_container is not None:
                     ret = ret_container
                     break
@@ -689,7 +689,7 @@ class View(metaclass=abc.ABCMeta):
         """
         if self.app is not None:
             for el in self.GUIElements:
-                if el.isVisible():
+                if el.is_visible():
                     el.draw(self, screen)
 
     def update(self):
@@ -698,7 +698,7 @@ class View(metaclass=abc.ABCMeta):
         """
         if self.app is not None:
             for el in self.GUIElements:
-                if el.isVisible():
+                if el.is_visible():
                     el.update(self)
 
 # **************************************************************************************************************
@@ -713,11 +713,11 @@ class Layout(metaclass=abc.ABCMeta):
     and its properties relevant to the specific layout manager. 
     Layout elements are stored as dictionaries: {"element": ..., "propt": ...}.
 
-    Subclasses should implement the updateLayout() method to arrange elements according to their own rules.
+    Subclasses should implement the update_layout() method to arrange elements according to their own rules.
 
     Attributes:
         view (View): The associated View instance for this layout manager.
-        layoutElements (list): List of layout elements managed by this layout manager.
+        layout_elements (list): List of layout elements managed by this layout manager.
     """
 
     def __init__(self, view: View, register: bool = True):
@@ -730,31 +730,31 @@ class Layout(metaclass=abc.ABCMeta):
         """
         if isinstance(view, View):
             self.view = view
-        self.layoutElements = []
+        self.layout_elements = []
         # register
         if register:
-            view.registerLayoutManager(self)
+            view.register_layout_manager(self)
 
     @final
-    def getLayoutElements(self) -> list:
+    def get_layout_elements(self) -> list:
         """
         Get the list of layout elements managed by this layout manager.
 
         Returns:
             list: List of layout element dictionaries.
         """
-        return self.layoutElements
+        return self.layout_elements
 
-    def setElements(self, layoutElements):
+    def set_elements(self, layout_elements):
         """
         Replace the current list of layout elements.
 
         Args:
-            layoutElements (list): New list of layout elements.
+            layout_elements (list): New list of layout elements.
         """
-        self.layoutElements = layoutElements
+        self.layout_elements = layout_elements
 
-    def addElement(self, element: GUIElement, propt: bool = None):
+    def add_element(self, element: GUIElement, propt: bool = None):
         """
         Add a new layout element to this layout manager.
 
@@ -763,10 +763,10 @@ class Layout(metaclass=abc.ABCMeta):
             propt (any, optional): Property of element for this manager (e.g., position, alignment).
         """
         if isinstance(element, GUIElement):
-            self.layoutElements.append({"element": element, "propt": propt})
+            self.layout_elements.append({"element": element, "propt": propt})
 
     @abc.abstractmethod
-    def updateLayout(self, width: int, height: int):
+    def update_layout(self, width: int, height: int):
         """
         Abstract method to arrange all GUI elements managed by this layout.
 
@@ -777,7 +777,7 @@ class Layout(metaclass=abc.ABCMeta):
         pass
 
     @final
-    def getView(self):
+    def get_view(self):
         """
         Get the View instance associated with this layout manager.
 

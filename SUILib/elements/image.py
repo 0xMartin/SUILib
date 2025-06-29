@@ -62,18 +62,18 @@ class Image(GUIElement):
             y (int, optional): Y coordinate of the image. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, None)
-        self.image = loadImage(image_path)
+        self.image = load_image(image_path)
 
-    def setImage(self, image_path: str):
+    def set_image(self, image_path: str):
         """
         Set a new image to be displayed.
 
         Args:
             image_path (str): The file path to the new image.
         """
-        self.image = loadImage(image_path)
+        self.image = load_image(image_path)
 
-    def getImage(self) -> pygame.Surface:
+    def get_image(self) -> pygame.Surface:
         """
         Get the currently loaded image surface.
 
@@ -93,12 +93,12 @@ class Image(GUIElement):
         """
         if self.image is not None:
             screen.blit(
-                pygame.transform.scale(self.image, (super().getWidth(), super().getHeight())),
-                (super().getX(), super().getY())
+                pygame.transform.scale(self.image, (super().get_width(), super().get_height())),
+                (super().get_x(), super().get_y())
             )
 
     @overrides(GUIElement)
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Handle Pygame events for the image element.
 

@@ -89,15 +89,15 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.selected_cursor = selected_cursor
         self.visible = True
 
-        sm = view.getApp().getStyleManager()
+        sm = view.get_app().get_style_manager()
         if style is None:
-            self.style = sm.getStyleWithName(self.__class__.__name__)
+            self.style = sm.get_style_with_name(self.__class__.__name__)
             if not self.style:
                 # Fallback to check all base 
                 for base in inspect.getmro(self.__class__)[1:]:
                     if base is object:
                         continue
-                    style = sm.getStyleWithName(base.__name__)
+                    style = sm.get_style_with_name(base.__name__)
                     if style:
                         self.style = style
                         break
@@ -105,9 +105,9 @@ class GUIElement(metaclass=abc.ABCMeta):
             self.style = style
 
         self.selected = False
-        self.updateViewRect()
+        self.update_view_rect()
 
-    def setVisibility(self, visible: bool):
+    def set_visibility(self, visible: bool):
         """
         Set visibility of this element.
 
@@ -116,7 +116,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         self.visible = visible
 
-    def isVisible(self) -> bool:
+    def is_visible(self) -> bool:
         """
         Check visibility of this element.
 
@@ -125,7 +125,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         return self.visible
 
-    def setSelectCursor(self, cursor):
+    def set_select_cursor(self, cursor):
         """
         Set the cursor type to use when this element is selected.
 
@@ -135,7 +135,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.selected_cursor = cursor
 
     @final
-    def getSelectCursor(self):
+    def get_select_cursor(self):
         """
         Get the cursor type to use when this element is selected.
 
@@ -145,7 +145,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         return self.selected_cursor
 
     @final
-    def getView(self):
+    def get_view(self):
         """
         Get reference to the parent View.
 
@@ -155,31 +155,31 @@ class GUIElement(metaclass=abc.ABCMeta):
         return self.view
 
     @final
-    def getX(self) -> int:
+    def get_x(self) -> int:
         """Get X position of this element."""
         return self.x
 
     @final
-    def getY(self) -> int:
+    def get_y(self) -> int:
         """Get Y position of this element."""
         return self.y
 
     @final
-    def getWidth(self) -> int:
+    def get_width(self) -> int:
         """Get width of this element."""
         return self.width
 
     @final
-    def getHeight(self) -> int:
+    def get_height(self) -> int:
         """Get height of this element."""
         return self.height
 
     @final
-    def getStyle(self) -> dict:
+    def get_style(self) -> dict:
         """Get style dictionary of this element."""
         return self.style
 
-    def setX(self, x: int):
+    def set_x(self, x: int):
         """
         Set the X position of this element.
 
@@ -187,9 +187,9 @@ class GUIElement(metaclass=abc.ABCMeta):
             x (int): New X position.
         """
         self.x = x
-        self.updateViewRect()
+        self.update_view_rect()
 
-    def setY(self, y: int):
+    def set_y(self, y: int):
         """
         Set the Y position of this element.
 
@@ -197,9 +197,9 @@ class GUIElement(metaclass=abc.ABCMeta):
             y (int): New Y position.
         """
         self.y = y
-        self.updateViewRect()
+        self.update_view_rect()
 
-    def setWidth(self, width: int):
+    def set_width(self, width: int):
         """
         Set the width of this element.
 
@@ -208,9 +208,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         if width >= 0:
             self.width = width
-            self.updateViewRect()
+            self.update_view_rect()
 
-    def setHeight(self, height: int):
+    def set_height(self, height: int):
         """
         Set the height of this element.
 
@@ -219,9 +219,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         if height >= 0:
             self.height = height
-            self.updateViewRect()
+            self.update_view_rect()
 
-    def setStyle(self, style: dict):
+    def set_style(self, style: dict):
         """
         Set the style dictionary for this element.
 
@@ -230,14 +230,14 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         self.style = style
 
-    def updateViewRect(self):
+    def update_view_rect(self):
         """
         Update the pygame.Rect representing this element's area.
         """
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     @final
-    def getViewRect(self) -> pygame.Rect:
+    def get_view_rect(self) -> pygame.Rect:
         """
         Get the pygame.Rect representing the element's area.
 
@@ -252,12 +252,12 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.selected = True
 
     @final
-    def unSelect(self):
+    def un_select(self):
         """Mark this element as unselected."""
         self.selected = False
 
     @final
-    def isSelected(self) -> bool:
+    def is_selected(self) -> bool:
         """
         Check if this element is currently selected.
 
@@ -278,7 +278,7 @@ class GUIElement(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def processEvent(self, view, event):
+    def process_event(self, view, event):
         """
         Process a pygame event sent from the parent view.
 
@@ -303,14 +303,14 @@ class Container(metaclass=abc.ABCMeta):
     """
     Abstract base class for a container of GUI elements.
 
-    Any class inheriting from Container must implement getChilds().
+    Any class inheriting from Container must implement get_childs().
 
     Methods:
-        getChilds(): Returns a list of child GUI elements.
+        get_childs(): Returns a list of child GUI elements.
     """
 
     @abc.abstractmethod
-    def getChilds(self) -> list:
+    def get_childs(self) -> list:
         """
         Get child GUI elements of the container.
 
