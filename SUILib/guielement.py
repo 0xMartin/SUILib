@@ -35,9 +35,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import pygame
-from typing import final
+from typing import Callable, Dict, List, Optional, final
 import abc
 import inspect
+import events
 
 class GUIElement(metaclass=abc.ABCMeta):
     """
@@ -88,12 +89,12 @@ class GUIElement(metaclass=abc.ABCMeta):
         self.height = height
         self.selected_cursor = selected_cursor
         self.visible = True
+        self.selected = False
 
         sm = view.get_app().get_style_manager()
         if style is None:
             self.style = sm.get_style_with_name(self.__class__.__name__)
             if not self.style:
-                # Fallback to check all base 
                 for base in inspect.getmro(self.__class__)[1:]:
                     if base is object:
                         continue
@@ -104,8 +105,10 @@ class GUIElement(metaclass=abc.ABCMeta):
         else:
             self.style = style
 
-        self.selected = False
         self.update_view_rect()
+        # Registr callbacků pro eventy
+        self._event_callbacks: Dict[str, List[Callable]] = {evt: [] for evt in events.STANDARD_EVENTS}
+        self._mouse_inside = False  # Pro detekci enter/leave
 
     def set_visibility(self, visible: bool):
         """
@@ -286,7 +289,42 @@ class GUIElement(metaclass=abc.ABCMeta):
             view: The parent View sending the event.
             event: The pygame event object.
         """
-        pass
+        if not self.visible:
+            return
+
+        # Aktuální pozice myši
+        mouse_pos = pygame.mouse.get_pos()
+
+        # MOUSE ENTER/LEAVE (detekce při každém eventu)
+        if self.get_view_rect().collidepoint(mouse_pos):
+            if not self._mouse_inside:
+                self._mouse_inside = True
+                self.trigger_event(events.EVENT_ON_MOUSE_ENTER, event)
+        else:
+            if self._mouse_inside:
+                self._mouse_inside = False
+                self.trigger_event(events.EVENT_ON_MOUSE_LEAVE, event)
+
+        # Zpracování podle typu eventu
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(events.EVENT_ON_MOUSE_DOWN, event)
+                if event.button == 1:
+                    self.trigger_event(events.EVENT_ON_CLICK, event)
+                elif event.button == 3:
+                    self.trigger_event(events.EVENT_ON_RIGHT_CLICK, event)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(events.EVENT_ON_MOUSE_UP, event)
+        elif event.type == pygame.MOUSEMOTION:
+            if self.get_view_rect().collidepoint(event.pos):
+                self.trigger_event(events.EVENT_ON_MOUSE_MOVE, event)
+                # Hover (volitelné, např. při držení myši nad prvkem)
+                self.trigger_event(events.EVENT_ON_HOVER, event)
+        elif event.type == pygame.KEYDOWN:
+            self.trigger_event(events.EVENT_ON_KEY_DOWN, event)
+        elif event.type == pygame.KEYUP:
+            self.trigger_event(events.EVENT_ON_KEY_UP, event)
 
     @abc.abstractmethod
     def update(self, view):
@@ -297,6 +335,55 @@ class GUIElement(metaclass=abc.ABCMeta):
             view: The parent View updating this element.
         """
         pass
+
+    def add_event_callback(self, event_name: str, callback: Callable):
+        """
+        Add a callback for a specific event.
+        
+        Args:
+            event_name (str): Name of the event to listen for. Check events module for supported events.
+            callback (Callable): Function to call when the event is triggered.
+            
+        Raises:
+            ValueError: If the event name is not supported.
+        """
+        if event_name not in self._event_callbacks:
+            raise ValueError(f"Unsupported event: {event_name}")
+        self._event_callbacks[event_name].append(callback)
+
+    def remove_event_callback(self, event_name: str, callback: Callable):
+        """
+        Remove a callback for a specific event.
+
+        Args:
+            event_name (str): Name of the event.
+            callback (Callable): Callback function to remove.
+        
+        Raises:
+            ValueError: If the event name is not supported or callback not found.
+        """
+        if event_name in self._event_callbacks and callback in self._event_callbacks[event_name]:
+            self._event_callbacks[event_name].remove(callback)
+
+    def clear_event_callbacks(self, event_name: Optional[str] = None):
+        """
+        Remove all callbacks for a specific event or all events.
+
+        Args:
+            event_name (Optional[str]): Name of the event to clear callbacks for.
+                If None, clears all callbacks for all events.
+        """
+        if event_name:
+            if event_name in self._event_callbacks:
+                self._event_callbacks[event_name] = []
+        else:
+            for evt in self._event_callbacks:
+                self._event_callbacks[evt] = []
+
+    def trigger_event(self, event_name: str, *args, **kwargs):
+        """Spustí všechny callbacky pro daný event."""
+        for callback in self._event_callbacks.get(event_name, []):
+            callback(*args, **kwargs)
 
 
 class Container(metaclass=abc.ABCMeta):
