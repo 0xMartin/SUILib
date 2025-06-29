@@ -48,7 +48,7 @@ class Button(GUIElement):
 
     Attributes:
         text (str): The text displayed on the button.
-        callback (callable): Function to be called when the button is clicked.
+        callbacks (list): List of functions to be called when the button is clicked.
         hover (bool): Indicates whether the button is currently hovered.
         font (pygame.font.Font): Font object used for rendering button text.
     """
@@ -69,7 +69,7 @@ class Button(GUIElement):
         """
         super().__init__(view, x, y, width, height, style)
         self.text = text
-        self.callback = None
+        self.callbacks = []
         self.hover = False
         self.font = pygame.font.SysFont(
             super().getStyle()["font_name"],
@@ -95,7 +95,7 @@ class Button(GUIElement):
         """
         return self.text
 
-    def setClickEvt(self, callback):
+    def addClickEvt(self, callback):
         """
         Set the callback function to be called when the button is clicked.
 
@@ -103,7 +103,7 @@ class Button(GUIElement):
             callback (callable): Function to be invoked on click event.
                 The function should accept a single argument: the Button instance.
         """
-        self.callback = callback
+        self.callbacks.append(callback)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -170,8 +170,8 @@ class Button(GUIElement):
         """
         if event.type == pygame.MOUSEBUTTONDOWN:
             if inRect(event.pos[0], event.pos[1], super().getViewRect()):
-                if self.callback is not None:
-                    self.callback(self)
+                for callback in self.callbacks:
+                    callback(self)
         elif event.type == pygame.MOUSEMOTION:
             if inRect(event.pos[0], event.pos[1], super().getViewRect()):
                 self.select()
