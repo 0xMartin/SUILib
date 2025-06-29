@@ -4,8 +4,10 @@ ListPanel UI element for SUILib
 
 import pygame
 from SUILib.guielement import GUIElement, Container
+from SUILib.events import SUIEvents
 from SUILib.elements.vertical_scrollbar import VerticalScrollbar
 from SUILib.utils import overrides
+from SUILib.colors import color_change
 
 
 class ListPanel(GUIElement, Container):
@@ -21,7 +23,6 @@ class ListPanel(GUIElement, Container):
         v_scroll (VerticalScrollbar): Scrollbar for vertical navigation.
         body_offset_y (float): Current vertical offset for list rendering.
         font (pygame.font.Font): Font object used for rendering list items.
-        callbacks (list): List of callback functions for item clicks.
         layoutmanager: Reserved for future custom layout integration.
     """
 
@@ -48,9 +49,8 @@ class ListPanel(GUIElement, Container):
             super().get_style()["scrollbar"], 
             super().get_style()["scrollbar_width"]
         )
-        self.v_scroll.set_on_scroll_evt(self.scroll_vertical)
+        self.v_scroll.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self.scroll_vertical)
         self.layoutmanager = None
-        self.callbacks = []
         self.refresh_list()
 
     @overrides(GUIElement)
@@ -60,15 +60,6 @@ class ListPanel(GUIElement, Container):
         """
         super().update_view_rect()
         self.refresh_list()
-
-    def add_item_click_evet(self, callback):
-        """
-        Set the callback function to be called when a list item is clicked.
-
-        Args:
-            callback (callable): Function to be called with the clicked item's value.
-        """
-        self.callbacks.append(callback)
 
     def scroll_vertical(self, position: float):
         """
@@ -121,7 +112,11 @@ class ListPanel(GUIElement, Container):
             screen (pygame.Surface): The surface to render the panel onto.
         """
         # Draw background
-        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
+        if super().is_hovered():
+            c = super().get_style()["background_color"]
+            pygame.draw.rect(screen, color_change(c, -0.2 if c[0] > 128 else 0.6), super().get_view_rect(), border_radius=5)
+        else:
+            pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
 
         # Draw list items
         if len(self.data) != 0:
@@ -149,6 +144,7 @@ class ListPanel(GUIElement, Container):
             view: The parent View instance.
             event (pygame.event.Event): The event to process.
         """
+        super().process_event(view, event)
         self.v_scroll.process_event(view, event)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -161,8 +157,7 @@ class ListPanel(GUIElement, Container):
                     self.font.get_height()
                 )
                 if item_view_rect.collidepoint(event.pos):
-                    for callback in self.callbacks:
-                        callback(line)
+                    super().trigger_event(SUIEvents.EVENT_ON_CHANGE, line)
                 offset += self.font.get_height() + 10
 
     @overrides(Container)

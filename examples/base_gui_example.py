@@ -158,6 +158,9 @@ class View2(View):
         txt.set_filter_pattern(r"^([A-Z][0-9]+)+$")
         panel2.add_element(txt, ['25%', '5%', '50%', '40'])
 
+        box = ComboBox(self, None, ["Option 1", "Option 2", "Option 3"])
+        panel2.add_element(box, ['25%', '45%', '50%', '40'])
+
         # Tab panel
         tab_panel = TabPanel(self, None, [
             Tab("Tab 1", panel1),
