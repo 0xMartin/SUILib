@@ -40,7 +40,7 @@
                                 <a class="variable" href="#Button.text">text</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Button.callback">callback</a>
+                                <a class="variable" href="#Button.callbacks">callbacks</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Button.hover">hover</a>
@@ -55,7 +55,7 @@
                                 <a class="function" href="#Button.getText">getText</a>
                         </li>
                         <li>
-                                <a class="function" href="#Button.setClickEvt">setClickEvt</a>
+                                <a class="function" href="#Button.addClickEvt">addClickEvt</a>
                         </li>
                         <li>
                                 <a class="function" href="#Button.draw">draw</a>
@@ -996,7 +996,7 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </span><span id="Button-49"><a href="#Button-49"><span class="linenos"> 49</span></a>
 </span><span id="Button-50"><a href="#Button-50"><span class="linenos"> 50</span></a><span class="sd">    Attributes:</span>
 </span><span id="Button-51"><a href="#Button-51"><span class="linenos"> 51</span></a><span class="sd">        text (str): The text displayed on the button.</span>
-</span><span id="Button-52"><a href="#Button-52"><span class="linenos"> 52</span></a><span class="sd">        callback (callable): Function to be called when the button is clicked.</span>
+</span><span id="Button-52"><a href="#Button-52"><span class="linenos"> 52</span></a><span class="sd">        callbacks (list): List of functions to be called when the button is clicked.</span>
 </span><span id="Button-53"><a href="#Button-53"><span class="linenos"> 53</span></a><span class="sd">        hover (bool): Indicates whether the button is currently hovered.</span>
 </span><span id="Button-54"><a href="#Button-54"><span class="linenos"> 54</span></a><span class="sd">        font (pygame.font.Font): Font object used for rendering button text.</span>
 </span><span id="Button-55"><a href="#Button-55"><span class="linenos"> 55</span></a><span class="sd">    &quot;&quot;&quot;</span>
@@ -1017,7 +1017,7 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </span><span id="Button-70"><a href="#Button-70"><span class="linenos"> 70</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Button-71"><a href="#Button-71"><span class="linenos"> 71</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
 </span><span id="Button-72"><a href="#Button-72"><span class="linenos"> 72</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
-</span><span id="Button-73"><a href="#Button-73"><span class="linenos"> 73</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Button-73"><a href="#Button-73"><span class="linenos"> 73</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="Button-74"><a href="#Button-74"><span class="linenos"> 74</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">hover</span> <span class="o">=</span> <span class="kc">False</span>
 </span><span id="Button-75"><a href="#Button-75"><span class="linenos"> 75</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span>
 </span><span id="Button-76"><a href="#Button-76"><span class="linenos"> 76</span></a>            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getStyle</span><span class="p">()[</span><span class="s2">&quot;font_name&quot;</span><span class="p">],</span>
@@ -1043,7 +1043,7 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </span><span id="Button-96"><a href="#Button-96"><span class="linenos"> 96</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Button-97"><a href="#Button-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span>
 </span><span id="Button-98"><a href="#Button-98"><span class="linenos"> 98</span></a>
-</span><span id="Button-99"><a href="#Button-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">setClickEvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+</span><span id="Button-99"><a href="#Button-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">addClickEvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
 </span><span id="Button-100"><a href="#Button-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Button-101"><a href="#Button-101"><span class="linenos">101</span></a><span class="sd">        Set the callback function to be called when the button is clicked.</span>
 </span><span id="Button-102"><a href="#Button-102"><span class="linenos">102</span></a>
@@ -1051,7 +1051,7 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </span><span id="Button-104"><a href="#Button-104"><span class="linenos">104</span></a><span class="sd">            callback (callable): Function to be invoked on click event.</span>
 </span><span id="Button-105"><a href="#Button-105"><span class="linenos">105</span></a><span class="sd">                The function should accept a single argument: the Button instance.</span>
 </span><span id="Button-106"><a href="#Button-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Button-107"><a href="#Button-107"><span class="linenos">107</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+</span><span id="Button-107"><a href="#Button-107"><span class="linenos">107</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 </span><span id="Button-108"><a href="#Button-108"><span class="linenos">108</span></a>
 </span><span id="Button-109"><a href="#Button-109"><span class="linenos">109</span></a>    <span class="nd">@overrides</span><span class="p">(</span><span class="n">GUIElement</span><span class="p">)</span>
 </span><span id="Button-110"><a href="#Button-110"><span class="linenos">110</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">,</span> <span class="n">screen</span><span class="p">):</span>
@@ -1118,8 +1118,8 @@ OTHER DEALINGS IN THE SOFTWARE.</p>
 </span><span id="Button-171"><a href="#Button-171"><span class="linenos">171</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Button-172"><a href="#Button-172"><span class="linenos">172</span></a>        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
 </span><span id="Button-173"><a href="#Button-173"><span class="linenos">173</span></a>            <span class="k">if</span> <span class="n">inRect</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getViewRect</span><span class="p">()):</span>
-</span><span id="Button-174"><a href="#Button-174"><span class="linenos">174</span></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Button-175"><a href="#Button-175"><span class="linenos">175</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</span><span id="Button-174"><a href="#Button-174"><span class="linenos">174</span></a>                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+</span><span id="Button-175"><a href="#Button-175"><span class="linenos">175</span></a>                    <span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </span><span id="Button-176"><a href="#Button-176"><span class="linenos">176</span></a>        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEMOTION</span><span class="p">:</span>
 </span><span id="Button-177"><a href="#Button-177"><span class="linenos">177</span></a>            <span class="k">if</span> <span class="n">inRect</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getViewRect</span><span class="p">()):</span>
 </span><span id="Button-178"><a href="#Button-178"><span class="linenos">178</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
@@ -1152,7 +1152,7 @@ to fit the text content.</p>
 
 <ul>
 <li><strong>text (str):</strong>  The text displayed on the button.</li>
-<li><strong>callback (callable):</strong>  Function to be called when the button is clicked.</li>
+<li><strong>callbacks (list):</strong>  List of functions to be called when the button is clicked.</li>
 <li><strong>hover (bool):</strong>  Indicates whether the button is currently hovered.</li>
 <li><strong>font (pygame.font.Font):</strong>  Font object used for rendering button text.</li>
 </ul>
@@ -1185,7 +1185,7 @@ to fit the text content.</p>
 </span><span id="Button.__init__-70"><a href="#Button.__init__-70"><span class="linenos">70</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Button.__init__-71"><a href="#Button.__init__-71"><span class="linenos">71</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
 </span><span id="Button.__init__-72"><a href="#Button.__init__-72"><span class="linenos">72</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
-</span><span id="Button.__init__-73"><a href="#Button.__init__-73"><span class="linenos">73</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Button.__init__-73"><a href="#Button.__init__-73"><span class="linenos">73</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
 </span><span id="Button.__init__-74"><a href="#Button.__init__-74"><span class="linenos">74</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">hover</span> <span class="o">=</span> <span class="kc">False</span>
 </span><span id="Button.__init__-75"><a href="#Button.__init__-75"><span class="linenos">75</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span>
 </span><span id="Button.__init__-76"><a href="#Button.__init__-76"><span class="linenos">76</span></a>            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getStyle</span><span class="p">()[</span><span class="s2">&quot;font_name&quot;</span><span class="p">],</span>
@@ -1224,13 +1224,13 @@ See config/styles.json for details.</li>
     
 
                             </div>
-                            <div id="Button.callback" class="classattr">
+                            <div id="Button.callbacks" class="classattr">
                                 <div class="attr variable">
-            <span class="name">callback</span>
+            <span class="name">callbacks</span>
 
         
     </div>
-    <a class="headerlink" href="#Button.callback"></a>
+    <a class="headerlink" href="#Button.callbacks"></a>
     
     
 
@@ -1323,26 +1323,26 @@ See config/styles.json for details.</li>
 
 
                             </div>
-                            <div id="Button.setClickEvt" class="classattr">
-                                        <input id="Button.setClickEvt-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="Button.addClickEvt" class="classattr">
+                                        <input id="Button.addClickEvt-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setClickEvt</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">callback</span></span><span class="return-annotation">):</span></span>
+        <span class="name">addClickEvt</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">callback</span></span><span class="return-annotation">):</span></span>
 
-                <label class="view-source-button" for="Button.setClickEvt-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="Button.addClickEvt-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#Button.setClickEvt"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Button.setClickEvt-99"><a href="#Button.setClickEvt-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">setClickEvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
-</span><span id="Button.setClickEvt-100"><a href="#Button.setClickEvt-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Button.setClickEvt-101"><a href="#Button.setClickEvt-101"><span class="linenos">101</span></a><span class="sd">        Set the callback function to be called when the button is clicked.</span>
-</span><span id="Button.setClickEvt-102"><a href="#Button.setClickEvt-102"><span class="linenos">102</span></a>
-</span><span id="Button.setClickEvt-103"><a href="#Button.setClickEvt-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
-</span><span id="Button.setClickEvt-104"><a href="#Button.setClickEvt-104"><span class="linenos">104</span></a><span class="sd">            callback (callable): Function to be invoked on click event.</span>
-</span><span id="Button.setClickEvt-105"><a href="#Button.setClickEvt-105"><span class="linenos">105</span></a><span class="sd">                The function should accept a single argument: the Button instance.</span>
-</span><span id="Button.setClickEvt-106"><a href="#Button.setClickEvt-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Button.setClickEvt-107"><a href="#Button.setClickEvt-107"><span class="linenos">107</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+    <a class="headerlink" href="#Button.addClickEvt"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Button.addClickEvt-99"><a href="#Button.addClickEvt-99"><span class="linenos"> 99</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">addClickEvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+</span><span id="Button.addClickEvt-100"><a href="#Button.addClickEvt-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Button.addClickEvt-101"><a href="#Button.addClickEvt-101"><span class="linenos">101</span></a><span class="sd">        Set the callback function to be called when the button is clicked.</span>
+</span><span id="Button.addClickEvt-102"><a href="#Button.addClickEvt-102"><span class="linenos">102</span></a>
+</span><span id="Button.addClickEvt-103"><a href="#Button.addClickEvt-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
+</span><span id="Button.addClickEvt-104"><a href="#Button.addClickEvt-104"><span class="linenos">104</span></a><span class="sd">            callback (callable): Function to be invoked on click event.</span>
+</span><span id="Button.addClickEvt-105"><a href="#Button.addClickEvt-105"><span class="linenos">105</span></a><span class="sd">                The function should accept a single argument: the Button instance.</span>
+</span><span id="Button.addClickEvt-106"><a href="#Button.addClickEvt-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Button.addClickEvt-107"><a href="#Button.addClickEvt-107"><span class="linenos">107</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1461,8 +1461,8 @@ The function should accept a single argument: the Button instance.</li>
 </span><span id="Button.processEvent-171"><a href="#Button.processEvent-171"><span class="linenos">171</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Button.processEvent-172"><a href="#Button.processEvent-172"><span class="linenos">172</span></a>        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
 </span><span id="Button.processEvent-173"><a href="#Button.processEvent-173"><span class="linenos">173</span></a>            <span class="k">if</span> <span class="n">inRect</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getViewRect</span><span class="p">()):</span>
-</span><span id="Button.processEvent-174"><a href="#Button.processEvent-174"><span class="linenos">174</span></a>                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Button.processEvent-175"><a href="#Button.processEvent-175"><span class="linenos">175</span></a>                    <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</span><span id="Button.processEvent-174"><a href="#Button.processEvent-174"><span class="linenos">174</span></a>                <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+</span><span id="Button.processEvent-175"><a href="#Button.processEvent-175"><span class="linenos">175</span></a>                    <span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </span><span id="Button.processEvent-176"><a href="#Button.processEvent-176"><span class="linenos">176</span></a>        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEMOTION</span><span class="p">:</span>
 </span><span id="Button.processEvent-177"><a href="#Button.processEvent-177"><span class="linenos">177</span></a>            <span class="k">if</span> <span class="n">inRect</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">getViewRect</span><span class="p">()):</span>
 </span><span id="Button.processEvent-178"><a href="#Button.processEvent-178"><span class="linenos">178</span></a>                <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
