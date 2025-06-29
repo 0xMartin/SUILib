@@ -91,11 +91,11 @@ class ComboBox(GUIElement, Container):
         """
         self.listpanel.set_visibility(visibility)
         if self.listpanel.is_visible():
-            self.get_view().set_filter_process_only(self)
+            # self.get_view().set_filter_process_only(self)
             self.button.set_text("↑")
         else:
             self.button.set_text("↓")
-            self.get_view().clear_filter()
+            # self.get_view().clear_filter()
 
     def set_values(self, values: list):
         """
@@ -131,7 +131,6 @@ class ComboBox(GUIElement, Container):
         Args:
             item_name (str): The value to select.
         """
-        print(">>>> Setting selected item to", item_name)
         self.selected_item = item_name
         self.set_popup_panel_visibility(False)
         super().trigger_event(SUIEvents.EVENT_ON_CHANGE, item_name)

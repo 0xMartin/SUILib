@@ -199,7 +199,7 @@ class Application:
 
         # call start event for each view
         for view in self.views:
-            view.createEvt_base(self.screen.get_width(), self.screen.get_height())
+            view.create_evt_base(self.screen.get_width(), self.screen.get_height())
 
         if start_view is not None:
             self.show_view(start_view)
@@ -297,7 +297,7 @@ class Application:
                 self.visible_view.hide_evt()
             # show new view
             view.set_visibility(True)
-            view.openEvt_base(self.screen.get_width(),
+            view.open_evt_base(self.screen.get_width(),
                               self.screen.get_height())
             self.visible_view = view
             # change window title
@@ -562,7 +562,7 @@ class View(metaclass=abc.ABCMeta):
         self.reload_style_evt()
 
     @final
-    def createEvt_base(self, width: int, height: int):
+    def create_evt_base(self, width: int, height: int):
         """
         Internal: Called when application starts or view is added, and updates layout.
 
@@ -594,7 +594,7 @@ class View(metaclass=abc.ABCMeta):
         pass
 
     @final
-    def openEvt_base(self, width: int, height: int):
+    def open_evt_base(self, width: int, height: int):
         """
         Internal: Called when this view becomes visible, updates layout, and unselects all elements.
 
