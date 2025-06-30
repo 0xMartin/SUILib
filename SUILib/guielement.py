@@ -13,6 +13,10 @@ import abc
 import inspect
 from .events import SUIEvents
 
+# ************************************************************************************************
+# GUIElement class
+# ************************************************************************************************
+
 class GUIElement(metaclass=abc.ABCMeta):
     """
     Abstract base class for all GUI elements in SUILib.
@@ -59,6 +63,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         self._anchor_x = 0
         self._anchor_y = 0
 
+        self._offset_x = 0
+        self._offset_y = 0
+
         # Default action variables
         self._hovered = False
         self._visible = True
@@ -83,6 +90,10 @@ class GUIElement(metaclass=abc.ABCMeta):
         # Initialize with empty lists for each standard event
         self._event_callbacks: Dict[str, List[Callable]] = {evt: [] for evt in SUIEvents.STANDARD_EVENTS}
 
+    # ************************************************************************************************
+    # State functions
+    # ************************************************************************************************
+
     def set_visibility(self, visible: bool):
         """
         Set visibility of this element.
@@ -91,6 +102,23 @@ class GUIElement(metaclass=abc.ABCMeta):
             visible (bool): True to make element visible, False to hide.
         """
         self._visible = visible
+
+    def set_hover_cursor(self, cursor):
+        """
+        Set the cursor type to use when this element is hovered.
+
+        Args:
+            cursor: Pygame cursor type constant.
+        """
+        self._hover_cursor = cursor
+    
+    def focus(self):
+        """Mark this element as focused."""
+        self._focused = True
+
+    def un_focus(self):
+        """Mark this element as unfocused."""
+        self._focused = False
 
     def is_visible(self) -> bool:
         """
@@ -109,16 +137,7 @@ class GUIElement(metaclass=abc.ABCMeta):
             bool: True if hovered, False otherwise.
         """
         return self._hovered
-
-    def set_hover_cursor(self, cursor):
-        """
-        Set the cursor type to use when this element is hovered.
-
-        Args:
-            cursor: Pygame cursor type constant.
-        """
-        self._hover_cursor = cursor
-
+    
     def get_hover_cursor(self):
         """
         Get the cursor type to use when this element is hovered.
@@ -127,31 +146,100 @@ class GUIElement(metaclass=abc.ABCMeta):
             int: Pygame cursor type constant.
         """
         return self._hover_cursor
-
-    def get_view(self):
+    
+    def is_focused(self) -> bool:
         """
-        Get reference to the parent View.
+        Check if this element is currently focused.
 
         Returns:
-            View: The parent view object.
+            bool: True if focused, False otherwise.
         """
-        return self._view
+        return self._focused
 
-    def get_x(self) -> int:
-        """Get X position of this element."""
-        return self.x
+    # ************************************************************************************************
+    # Style functions
+    # ************************************************************************************************
 
-    def get_y(self) -> int:
-        """Get Y position of this element."""
-        return self.y
+    def get_style(self) -> dict:
+        """Get style dictionary of this element."""
+        return self._style
 
-    def get_width(self) -> int:
-        """Get width of this element."""
-        return self.width
+    def set_style(self, style: dict):
+        """
+        Set the style dictionary for this element.
 
-    def get_height(self) -> int:
-        """Get height of this element."""
-        return self.height
+        Args:
+            style (dict): New style.
+        """
+        self._style = style
+
+    # ************************************************************************************************
+    # Position functions
+    # ************************************************************************************************
+
+    def _parse_anchor(self, anchor, size):
+        """
+        Convert anchor value (int or percent string) to px offset.
+        Examples:
+            - 0      -> 0
+            - 15     -> 15
+            - "50%"  -> 0.5 * size
+            - "100%" -> size
+        """
+        if isinstance(anchor, int):
+            return anchor
+        elif isinstance(anchor, str) and anchor.endswith('%'):
+            try:
+                percent = float(anchor[:-1]) / 100.0
+                return int(size * percent)
+            except ValueError:
+                return 0
+        else:
+            return 0
+        
+    def set_x(self, x: int):
+        """
+        Set the X position of this element.
+
+        Args:
+            x (int): New X position.
+        """
+        self.x = x
+        self.update_view_rect()
+
+    def set_y(self, y: int):
+        """
+        Set the Y position of this element.
+
+        Args:
+            y (int): New Y position.
+        """
+        self.y = y
+        self.update_view_rect()
+
+    def set_position(self, x: int, y: int):
+        """
+        Set both X and Y position of this element.
+
+        Args:
+            x (int): New X position.
+            y (int): New Y position.
+        """
+        self.x = x
+        self.y = y
+        self.update_view_rect()
+
+    def set_offset(self, x: int, y: int):
+        """
+        Set the offset for the label's position.
+
+        Args:
+            x (int): Horizontal offset.
+            y (int): Vertical offset.
+        """
+        self._offset_x = x
+        self._offset_y = y
+        self.update_view_rect()
 
     def set_anchor_x(self, anchor_x: Union[int, str]):
         """
@@ -173,68 +261,6 @@ class GUIElement(metaclass=abc.ABCMeta):
                 (e.g., "50%" for half the height).
         """
         self._anchor_y = anchor_y
-        self.update_view_rect()
-
-    def get_anchor_x(self):
-        """
-        Get the anchor point for the X position.
-
-        Returns:
-            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
-        """
-        return self._anchor_x
-
-    def get_anchor_y(self):
-        """
-        Get the anchor point for the Y position.
-
-        Returns:
-            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
-        """
-        return self._anchor_y
-
-    def _parse_anchor(self, anchor, size):
-        """
-        Convert anchor value (int or percent string) to px offset.
-        Examples:
-            - 0      -> 0
-            - 15     -> 15
-            - "50%"  -> 0.5 * size
-            - "100%" -> size
-        """
-        if isinstance(anchor, int):
-            return anchor
-        elif isinstance(anchor, str) and anchor.endswith('%'):
-            try:
-                percent = float(anchor[:-1]) / 100.0
-                return int(size * percent)
-            except ValueError:
-                return 0
-        else:
-            return 0
-
-    def get_style(self) -> dict:
-        """Get style dictionary of this element."""
-        return self._style
-
-    def set_x(self, x: int):
-        """
-        Set the X position of this element.
-
-        Args:
-            x (int): New X position.
-        """
-        self.x = x
-        self.update_view_rect()
-
-    def set_y(self, y: int):
-        """
-        Set the Y position of this element.
-
-        Args:
-            y (int): New Y position.
-        """
-        self.y = y
         self.update_view_rect()
 
     def set_width(self, width: int):
@@ -259,25 +285,104 @@ class GUIElement(metaclass=abc.ABCMeta):
             self.height = height
             self.update_view_rect()
 
-    def set_style(self, style: dict):
-        """
-        Set the style dictionary for this element.
-
-        Args:
-            style (dict): New style.
-        """
-        self._style = style
-
     def update_view_rect(self):
         """
         Update the pygame.Rect representing this element's area, taking into account anchor points.
         Anchor is subtracted from the (x, y) position.
         """
-        offset_x = self._parse_anchor(self._anchor_x, self.width)
-        offset_y = self._parse_anchor(self._anchor_y, self.height)
-        real_x = self.x - offset_x
-        real_y = self.y - offset_y
+        anchor_offset_x = self._parse_anchor(self._anchor_x, self.width)
+        anchor_offset_y = self._parse_anchor(self._anchor_y, self.height)
+        real_x = self.x - anchor_offset_x + self._offset_x
+        real_y = self.y - anchor_offset_y + self._offset_y
         self._rect = pygame.Rect(real_x, real_y, self.width, self.height)
+
+    def get_view(self):
+        """
+        Get reference to the parent View.
+
+        Returns:
+            View: The parent view object.
+        """
+        return self._view
+
+    def get_x(self) -> int:
+        """Get X position of this element."""
+        return self.x
+
+    def get_y(self) -> int:
+        """Get Y position of this element."""
+        return self.y
+    
+    def get_position(self) -> tuple:
+        """
+        Get the (x, y) position of this element.
+
+        Returns:
+            tuple: (x, y) coordinates.
+        """
+        return self.x, self.y
+
+    def get_width(self) -> int:
+        """Get width of this element."""
+        return self.width
+
+    def get_height(self) -> int:
+        """Get height of this element."""
+        return self.height
+    
+    def get_anchor_x(self):
+        """
+        Get the anchor point for the X position.
+
+        Returns:
+            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
+        """
+        return self._anchor_x
+    
+    def get_anchor_y(self):
+        """
+        Get the anchor point for the Y position.
+
+        Returns:
+            Union[int, str]: The anchor point as an integer pixel offset or a percentage string.
+        """
+        return self._anchor_y
+    
+    def get_anchor(self) -> tuple:
+        """
+        Get the anchor points for both X and Y positions.
+
+        Returns:
+            tuple: (anchor_x, anchor_y) where each can be an int or a percentage string.
+        """
+        return self._anchor_x, self._anchor_y
+        
+    def get_offset_x(self) -> int:
+        """
+        Get the horizontal offset of the label.
+
+        Returns:
+            int: The horizontal offset.
+        """
+        return self._offset_x
+    
+    def get_offset_y(self) -> int:
+        """
+        Get the vertical offset of the label.
+
+        Returns:
+            int: The vertical offset.
+        """
+        return self._offset_y
+    
+    def get_offset(self) -> tuple:  
+        """
+        Get the (offset_x, offset_y) of the label.
+
+        Returns:
+            tuple: (offset_x, offset_y) where each is an int.
+        """
+        return self._offset_x, self._offset_y
 
     def get_view_rect(self) -> pygame.Rect:
         """
@@ -288,22 +393,9 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         return self._rect
 
-    def focus(self):
-        """Mark this element as focused."""
-        self._focused = True
-
-    def un_focus(self):
-        """Mark this element as unfocused."""
-        self._focused = False
-
-    def is_focused(self) -> bool:
-        """
-        Check if this element is currently focused.
-
-        Returns:
-            bool: True if focused, False otherwise.
-        """
-        return self._focused
+    # ************************************************************************************************
+    # Main methods of GUIElement
+    # ************************************************************************************************
 
     def draw(self, view, screen: pygame.Surface):
         """
@@ -384,6 +476,10 @@ class GUIElement(metaclass=abc.ABCMeta):
         """
         pass
 
+    # ************************************************************************************************
+    # Event handling
+    # ************************************************************************************************
+
     def add_event_callback(self, event_name: str, callback: Callable):
         """
         Add a callback for a specific event.
@@ -440,6 +536,10 @@ class GUIElement(metaclass=abc.ABCMeta):
         for callback in self._event_callbacks.get(event_name, []):
             callback(*args, **kwargs)
 
+
+# ************************************************************************************************
+# Container class
+# ************************************************************************************************
 
 class Container(metaclass=abc.ABCMeta):
     """

@@ -3,13 +3,13 @@ RadioButton UI element for SUILib
 """
 
 import pygame
-from SUILib.guielement import GUIElement
+from SUILib.guielement import GUIElement, Container
 from SUILib.events import SUIEvents
 from SUILib.utils import overrides
 from SUILib.colors import color_change
 from SUILib.elements.label import Label
 
-class RadioButton(GUIElement):
+class RadioButton(GUIElement, Container):
     """
     Represents a radio button UI element for SUILib applications.
 
@@ -35,6 +35,10 @@ class RadioButton(GUIElement):
         super().__init__(view, x, y, size, size, style)
         self._label = Label(view, super().get_style()["label"], text, x, y)
         self._label.set_anchor_y("50%")
+        self._label.set_offset(
+            super().get_x() + super().get_width() + 5, 
+            super().get_y() + super().get_height() / 2
+        )
         self._group = group
         self._group.add_radio_button(self)
         self._checked = False
@@ -80,8 +84,7 @@ class RadioButton(GUIElement):
     def draw(self, view, screen):
         # Draw label
         if self._label is not None:
-            self._label.set_x(super().get_x() + super().get_width() + 5)
-            self._label.set_y(super().get_y() + super().get_height() / 2)
+            self._label.set_position(super().get_x(), super().get_y())
             self._label.draw(view, screen)
         # Draw radio button circle
         center = (
@@ -105,6 +108,10 @@ class RadioButton(GUIElement):
             if super().get_view_rect().collidepoint(event.pos):
                 super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self._label.get_text())
                 self._group.check_radio_button(self)
+    
+    @overrides(Container)  
+    def get_childs(self):
+        return [self._label]
 
 
 class RadioButtonGroup:

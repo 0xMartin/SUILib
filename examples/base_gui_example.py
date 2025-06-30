@@ -4,7 +4,7 @@ import os
 
 from SUILib.application import Application, View
 from SUILib.events import SUIEvents
-from SUILib.layout import AbsoluteLayout, RelativeLayout
+from SUILib.layout import AbsoluteLayout, HBoxLayout
 from SUILib.stylemanager import StyleManager
 from SUILib.utils import overrides
 from SUILib.elements import *
@@ -64,8 +64,8 @@ class View1(View):
                                    lambda btn: self.get_app().show_view_with_id(VIEW2_ID))
         layout.add_element(nav_btn, ['25%', '60%', '50%', '40'])
 
-        # Checkboxes using RelativeLayout
-        rel_layout = RelativeLayout(self, True)
+        # Checkboxes using HBoxLayout
+        rel_layout = HBoxLayout(self)
         checkbox1 = CheckBox(self, None, "Check box 1", True, 20)
         rel_layout.add_element(checkbox1, "parent")
         layout.add_element(checkbox1, ['10%', '75%'])

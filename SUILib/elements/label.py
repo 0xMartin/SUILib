@@ -31,6 +31,8 @@ class Label(GUIElement):
         """
         super().__init__(view, x, y, 0, 0, style)
         self._text = text
+        self._offset_x = 0
+        self._offset_y = 0
         self._font = pygame.font.SysFont(
             super().get_style()["font_name"],
             super().get_style()["font_size"],
@@ -59,8 +61,8 @@ class Label(GUIElement):
     def draw(self, view, screen):
         if len(self._text) != 0:
             text_surface = self._font.render(self._text, True, super().get_style()["foreground_color"])
-            x = super().get_x()
-            y = super().get_y()
+            x = super().get_x() + self.get_offset_x()
+            y = super().get_y() + self.get_offset_y()
             # need to adjust position based on anchor here because label has no width/height
             anchor_x = super().get_anchor_x()
             anchor_y = super().get_anchor_y()

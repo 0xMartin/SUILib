@@ -23,6 +23,8 @@ from .utils import *
 from .guielement import GUIElement, Container
 from .stylemanager import StyleManager
 
+os.environ['SDL_HINT_VIDEO_HIGHDPI_DISABLED'] = '0'
+
 # Event konstanty
 REPAINT_EVENT = pygame.USEREVENT + 1
 

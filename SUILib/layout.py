@@ -71,72 +71,149 @@ class AbsoluteLayout(Layout):
                         gui_el.set_height(val)
 
 
-class RelativeLayout(Layout):
+class VBoxLayout(Layout):
     """
-    Layout manager for arranging elements relative to a parent.
+    Layout manager for arranging elements vertically relative to a parent.
 
     Elements are marked as "parent" or "child". The parent remains in its
-    position, while child elements are stacked horizontally or vertically
-    starting from the parent.
+    position, while child elements are stacked vertically starting from the parent.
 
     Example usage:
-        rl = RelativeLayout(self, horizontal=True)
-        rl.add_element(parent_widget, "parent")
-        rl.add_element(child_widget, "child")
+        vb = VBoxLayout(self)
+        vb.add_element(parent_widget, "parent")
+        vb.add_element(child_widget, "child")
 
-    Attributes:
-        horizontal (bool): If True, stack horizontally; else vertically.
     """
 
-    def __init__(self, view, horizontal):
+    def __init__(self, view):
         """
-        Initialize RelativeLayout for a given View.
+        Initialize VBoxLayout for a given View.
 
         Args:
             view (View): View instance for which the layout manager is registered.
-            horizontal (bool): If True, stack children horizontally; else vertically.
         """
         super().__init__(view)
-        self.horizontal = horizontal
 
     @overrides(Layout)
     def update_layout(self, width, height):
         """
-        Update positions of parent/child elements according to stacking direction.
+        Update positions of parent/child elements vertically.
 
         Args:
             width (int): Width of the view/screen.
             height (int): Height of the view/screen.
         """
-        cnt = len(super().get_layout_elements())
+        elements = super().get_layout_elements()
+        cnt = len(elements)
         if cnt == 0:
             return
 
-        parent = next((el for el in super().get_layout_elements()
+        parent = next((el for el in elements
                       if el["propt"] == "parent"), None)
         if parent is None:
             return
         parent = parent["element"]
 
-        if self.horizontal:
-            w_step = (width - parent.get_x()) / (cnt)
-            h_step = height / (cnt)
-        else:
-            w_step = width / (cnt)
-            h_step = (height - parent.get_y()) / (cnt)
+        h_step = (height - parent.get_y()) / cnt if cnt > 0 else 0
 
         i = 1
-        for el in super().get_layout_elements():
-            if el["propt"] is not None:
-                if el["propt"] == "child":
-                    gui_el = el["element"]
-                    if self.horizontal:
-                        gui_el.set_x(parent.get_x() + i * w_step)
-                        if gui_el != parent:
-                            i = i + 1
-                            gui_el.set_y(parent.get_y())
-                    else:
-                        if gui_el != parent:
-                            i = i + 1
-                            gui_el.set_x(parent.get_x())
-                        gui_el.set_y(parent.get_y() + i * h_step)
+        for el in elements:
+            if el["propt"] == "child":
+                gui_el = el["element"]
+                if gui_el != parent:
+                    i += 1
+                    gui_el.set_x(parent.get_x())
+                gui_el.set_y(parent.get_y() + i * h_step)
+
+class HBoxLayout(Layout):
+    """
+    Layout manager for arranging elements horizontally relative to a parent.
+
+    Elements are marked as "parent" or "child". The parent remains in its
+    position, while child elements are stacked horizontally starting from the parent.
+
+    Example usage:
+        hb = HBoxLayout(self)
+        hb.add_element(parent_widget, "parent")
+        hb.add_element(child_widget, "child")
+    """
+
+    def __init__(self, view):
+        """
+        Initialize HBoxLayout for a given View.
+
+        Args:
+            view (View): View instance for which the layout manager is registered.
+        """
+        super().__init__(view)
+
+    @overrides(Layout)
+    def update_layout(self, width, height):
+        """
+        Update positions of parent/child elements horizontally.
+
+        Args:
+            width (int): Width of the view/screen.
+            height (int): Height of the view/screen.
+        """
+        elements = super().get_layout_elements()
+        cnt = len(elements)
+        if cnt == 0:
+            return
+
+        parent = next((el for el in elements
+                      if el["propt"] == "parent"), None)
+        if parent is None:
+            return
+        parent = parent["element"]
+
+        w_step = (width - parent.get_x()) / cnt if cnt > 0 else 0
+
+        i = 1
+        for el in elements:
+            if el["propt"] == "child":
+                gui_el = el["element"]
+                gui_el.set_x(parent.get_x() + i * w_step)
+                if gui_el != parent:
+                    i += 1
+                    gui_el.set_y(parent.get_y())
+
+class GridLayout(Layout):
+    """
+    Layout manager for arranging elements in a grid.
+
+    Elements are added row-wise. Specify the number of columns.
+    Example usage:
+        grid = GridLayout(self, columns=3)
+        grid.add_element(widget1)
+        grid.add_element(widget2)
+        ...
+    """
+
+    def __init__(self, view, columns):
+        """
+        Initialize GridLayout for a given View.
+
+        Args:
+            view (View): View instance for which the layout manager is registered.
+            columns (int): Number of columns in the grid.
+        """
+        super().__init__(view)
+        self.columns = columns
+
+    @overrides(Layout)
+    def update_layout(self, width, height):
+        elements = super().get_layout_elements()
+        cnt = len(elements)
+        if cnt == 0:
+            return
+        rows = (cnt + self.columns - 1) // self.columns
+        cell_w = width / self.columns
+        cell_h = height / rows
+
+        for idx, el in enumerate(elements):
+            gui_el = el["element"]
+            row = idx // self.columns
+            col = idx % self.columns
+            gui_el.set_x(col * cell_w)
+            gui_el.set_y(row * cell_h)
