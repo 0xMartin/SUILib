@@ -273,14 +273,14 @@ class Application:
         """
         self._periodic_repaint_enabled = True
         self._periodic_repaint_fps = fps
-        pygame.time.set_timer(REPAINT_EVENT, int(1000 / fps))
+        pygame.time.set_timer(SUILIB_REPAINT_EVENT, int(1000 / fps))
 
     def disable_periodic_repaint(self):
         """
         Disable periodic repaint. Repaint will only happen on user/event/request.
         """
         self._periodic_repaint_enabled = False
-        pygame.time.set_timer(REPAINT_EVENT, 0)
+        pygame.time.set_timer(SUILIB_REPAINT_EVENT, 0)
 
     def close(self):
         """
