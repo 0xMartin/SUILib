@@ -17,6 +17,7 @@ CUSTOM_BTN_STYLE = {
     "outline_color": (235, 100, 100),
     "foreground_color": (255, 255, 255),
     "background_color": (255, 120, 120),
+    "corner_radius": "30%",
     "font_name": "Verdana",
     "font_size": 32,
     "font_bold": True
@@ -217,7 +218,7 @@ def main():
     # Initialize views and run the application
     view1 = View1()
     view2 = View2()
-    app = Application([view1, view2], dark=False)
+    app = Application([view1, view2], dark=True)
     app.init_application(640, 400, "SUILib Example", "")
     app.run_application(view1)
 

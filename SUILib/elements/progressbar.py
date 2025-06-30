@@ -4,7 +4,7 @@ ProgressBar UI element for SUILib
 
 import pygame
 from SUILib.guielement import GUIElement
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 from SUILib.elements import Label
 
 class ProgressBar(GUIElement):
@@ -144,11 +144,11 @@ class ProgressBar(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
         rect = self.get_view_rect()
-        border_rad = 10  # může být i z self.get_style(), pokud máš v style
         
         # Pozadí
-        pygame.draw.rect(screen, self.get_style()["background_color"], rect, border_radius=border_rad)
+        pygame.draw.rect(screen, self.get_style()["background_color"], rect, border_radius=corner_radius)
         
         # Vyplněná část progressbaru
         percent = self.get_percent() / 100.0
@@ -158,10 +158,10 @@ class ProgressBar(GUIElement):
             screen,
             self.get_style()["foreground_color"],
             fill_rect,
-            border_radius=border_rad
+            border_radius=corner_radius
         )
         # Outline
-        pygame.draw.rect(screen, self.get_style()["outline_color"], rect, 2, border_radius=border_rad)
+        pygame.draw.rect(screen, self.get_style()["outline_color"], rect, 2, border_radius=corner_radius)
         # Label doprostřed
         self._label.draw(view, screen)
 

@@ -6,7 +6,7 @@ import pygame
 import math
 from SUILib.guielement import GUIElement
 from SUILib.events import SUIEvents
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 from SUILib.colors import color_change
 from SUILib.elements import Label
 
@@ -156,9 +156,11 @@ class Slider(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # background
         pygame.draw.rect(screen, super().get_style()[
-                         "background_color"], super().get_view_rect(), border_radius=10)
+                         "background_color"], super().get_view_rect(), border_radius=corner_radius)
         # slider bar
         pygame.draw.rect(
             screen,
@@ -173,7 +175,7 @@ class Slider(GUIElement):
         )
         # outline
         pygame.draw.rect(screen, super().get_style()[
-                         "outline_color"], super().get_view_rect(), 2, border_radius=10)
+                         "outline_color"], super().get_view_rect(), 2, border_radius=corner_radius)
         # slider
         pygame.draw.circle(
             screen,

@@ -37,7 +37,7 @@ class Application:
     handles events, and provides methods for rendering and updating the GUI.
     """
 
-    def __init__(self, views, dark=False):
+    def __init__(self, views, dark=True):
         """
         Initialize the application and load styles/themes.
 

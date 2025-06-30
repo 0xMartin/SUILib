@@ -2,9 +2,10 @@
 Canvas UI element for SUILib
 """
 
+import math
 import pygame
 from SUILib.guielement import GUIElement
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 
 class Canvas(GUIElement):
     """
@@ -107,16 +108,18 @@ class Canvas(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # Draw canvas background
-        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect())
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=corner_radius)
 
         # Create a subsurface for drawing
         surface = screen.subsurface(
             pygame.Rect(
-                super().get_x(),
-                super().get_y(),
-                min(max(super().get_width(), 10), screen.get_width() - super().get_x()),
-                min(max(super().get_height(), 10), screen.get_height() - super().get_y())
+                super().get_x() + corner_radius / 2,
+                super().get_y() + corner_radius / 2,
+                super().get_width() - corner_radius,
+                super().get_height() - corner_radius
             )
         )
         # Call the paint callbacks if set
@@ -124,7 +127,13 @@ class Canvas(GUIElement):
             callback(surface, self._offset)
 
         # Draw canvas outline
-        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2)
+        pygame.draw.rect(
+            screen, 
+            super().get_style()["outline_color"], 
+            super().get_view_rect(), 
+            2,
+            corner_radius
+        )
 
     @overrides(GUIElement)
     def process_event(self, view, event):

@@ -5,7 +5,7 @@ TabPanel UI element for SUILib
 import pygame
 from SUILib.guielement import GUIElement, Container
 from SUILib.application import Layout
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 
 
 class TabPanel(GUIElement, Container):
@@ -122,7 +122,7 @@ class TabPanel(GUIElement, Container):
 
         tab_header_height = 0
         selected_x = [0, 0]
-        x_offset = 5 + super().get_x()
+        x_offset = super().get_x() + super().get_style()["header_offset"]
         # Draw tab headers
         for i, tab in enumerate(self.tabs):
             if len(tab.get_name()) != 0:
@@ -164,33 +164,36 @@ class TabPanel(GUIElement, Container):
                 )
                 x_offset += text.get_width() + 10
 
-        rect = pygame.Rect(
+        tab_rect = pygame.Rect(
             super().get_x(),
             super().get_y() + tab_header_height,
             super().get_width(),
             super().get_height() - tab_header_height
         )
+        corner_radius = parser_udim(super().get_style()["corner_radius"], tab_rect)
 
         # Draw tab content background
         pygame.draw.rect(
             screen,
             super().get_style()["background_color"],
-            rect,
-            border_radius=5
+            tab_rect,
+            border_radius=corner_radius
         )
         pygame.draw.rect(
             screen,
             super().get_style()["outline_color"],
-            rect,
+            tab_rect,
             2,
-            border_radius=5
+            border_radius=corner_radius
         )
+
         # Draw content of selected tab
         if self._selected_tab >= 0 and self._selected_tab < len(self.tabs):
-            tab_screen = screen.subsurface(rect)
+            tab_screen = screen.subsurface(tab_rect)
             content = self.tabs[self._selected_tab].get_content()
             if content is not None:
                 content.draw(view, tab_screen)
+
         # Draw line under selected tab header to blend it with background
         pygame.draw.line(
             screen,
@@ -205,7 +208,7 @@ class TabPanel(GUIElement, Container):
         super().process_event(view, event)
         # Handle tab header clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
-            x_offset = 5 + super().get_x()
+            x_offset = super().get_x() + super().get_style()["header_offset"]
             for i, tab in enumerate(self.tabs):
                 if len(tab.get_name()) != 0:
                     text = self._font.render(

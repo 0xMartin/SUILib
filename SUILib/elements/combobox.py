@@ -5,8 +5,7 @@ ComboBox UI element for SUILib
 import pygame
 from SUILib.guielement import GUIElement, Container
 from SUILib.events import SUIEvents
-from SUILib.utils import overrides
-from SUILib.colors import color_change
+from SUILib.utils import overrides, parser_udim
 from SUILib.elements.button import Button
 from SUILib.elements.listpanel import ListPanel
 
@@ -87,9 +86,9 @@ class ComboBox(GUIElement, Container):
         self._listpanel.set_visibility(visibility)
         if self._listpanel.is_visible():
             # self.get_view().set_filter_process_only(self)
-            self._button.set_text("↑")
-        else:
             self._button.set_text("↓")
+        else:
+            self._button.set_text("↑")
             # self.get_view().clear_filter()
 
     def set_values(self, values: list):
@@ -132,8 +131,16 @@ class ComboBox(GUIElement, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # Draw ComboBox background
-        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=10)
+        pygame.draw.rect(
+            screen, 
+            super().get_style()["background_color"], 
+            super().get_view_rect(), 
+            border_bottom_left_radius=corner_radius,
+            border_top_left_radius=corner_radius
+        )
 
         # Draw selected value text
         if len(self._values[0]) != 0:
@@ -152,7 +159,14 @@ class ComboBox(GUIElement, Container):
             )
             screen.set_clip(None)
         # Draw ComboBox outline
-        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=10)
+        pygame.draw.rect(
+            screen, 
+            super().get_style()["outline_color"], 
+            super().get_view_rect(), 
+            2, 
+            border_bottom_left_radius=corner_radius,
+            border_top_left_radius=corner_radius
+        )
         # Draw dropdown button
         self._button.draw(view, screen)
         # Draw popup panel if visible (on top)

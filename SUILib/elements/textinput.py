@@ -6,7 +6,7 @@ import pygame
 import re
 import string
 from SUILib.guielement import GUIElement
-from SUILib.utils import overrides, generate_signal
+from SUILib.utils import overrides, parser_udim, generate_signal
 from SUILib.colors import color_change
 from SUILib.events import SUIEvents
 
@@ -72,13 +72,24 @@ class TextInput(GUIElement):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # background
         if super().is_focused():
             c = super().get_style()["background_color"]
-            pygame.draw.rect(screen, color_change(
-                c, 0.4 if c[0] > 128 else 0.7), super().get_view_rect(), border_radius=5)
+            pygame.draw.rect(
+                screen, 
+                color_change(c, 0.4 if c[0] > 128 else 0.7), 
+                super().get_view_rect(), 
+                border_radius=corner_radius
+            )
         else:
-            pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
+            pygame.draw.rect(
+                screen, 
+                super().get_style()["background_color"], 
+                super().get_view_rect(), 
+                border_radius=corner_radius
+            )
 
         # create subsurface for text (clipping)
         surface = screen.subsurface(super().get_view_rect())
@@ -108,7 +119,13 @@ class TextInput(GUIElement):
             pygame.draw.line(surface, super().get_style()["foreground_color"], (x, y), (x, surface.get_height() - y), 2)
 
         # outline
-        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
+        pygame.draw.rect(
+            screen, 
+            super().get_style()["outline_color"], 
+            super().get_view_rect(), 
+            2, 
+            border_radius=corner_radius
+        )
 
     @overrides(GUIElement)
     def process_event(self, view, event):

@@ -4,7 +4,7 @@ CheckBox UI element for SUILib
 
 import pygame
 from SUILib.guielement import GUIElement, Container
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 from SUILib.colors import color_change
 from SUILib.elements.label import Label
 
@@ -86,6 +86,8 @@ class CheckBox(GUIElement, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # Position and draw the label
         if self._label is not None:
             self._label.draw(view, screen)
@@ -96,14 +98,14 @@ class CheckBox(GUIElement, Container):
                 screen,
                 color_change(c, -0.2 if c[0] > 128 else 0.6),
                 super().get_view_rect(),
-                border_radius=6
+                border_radius=corner_radius
             )
         else:
             pygame.draw.rect(
                 screen,
                 super().get_style()["background_color"],
                 super().get_view_rect(),
-                border_radius=5
+                border_radius=corner_radius
             )
         # Draw checkbox outline
         pygame.draw.rect(
@@ -111,7 +113,7 @@ class CheckBox(GUIElement, Container):
             super().get_style()["outline_color"],
             super().get_view_rect(),
             2,
-            border_radius=5
+            border_radius=corner_radius
         )
         # Draw checkmark if checked
         if self._checked:

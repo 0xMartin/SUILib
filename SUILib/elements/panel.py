@@ -6,7 +6,7 @@ import pygame
 import copy
 from SUILib.guielement import GUIElement, Container
 from SUILib.application import Layout
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 
 class Panel(GUIElement, Layout, Container):
     """
@@ -46,8 +46,10 @@ class Panel(GUIElement, Layout, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # Draw background
-        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=corner_radius)
 
         # Draw child elements within panel area
         if len(self.get_layout_elements()) != 0:
@@ -63,7 +65,7 @@ class Panel(GUIElement, Layout, Container):
                 el["element"].draw(view, panel_screen)
 
         # Draw outline
-        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=corner_radius)
 
     @overrides(GUIElement)
     def process_event(self, view, event):

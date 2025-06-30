@@ -6,6 +6,7 @@ multi-view game application framework, including geometry, image loading, config
 parsing, async execution, and matplotlib graph rendering for pygame integration.
 """
 
+from email.policy import default
 import pygame
 import os.path
 import json
@@ -130,3 +131,30 @@ def run_task_async(task, *args, **kwargs):
     When the thread finishes, it's automatically deregistered.
     """
     ThreadManager.instance().run_task(task, *args, **kwargs)
+
+def parser_udim(value: str, view_rect: pygame.Rect = None) -> int:
+    """
+    Parse a value from a string, returning the default if parsing fails.
+
+    Args:
+        value (str): The value to parse.
+        size (int): The size to use for parsing.
+
+    Returns:
+        int: The parsed value or the default.
+    """
+    if value.endswith("%"):
+        try:
+            if view_rect is None:
+                size = min(get_display_width(), get_display_height())
+            else:
+                size = min(view_rect.width, view_rect.height)
+            return int(size * (int(value[:-1]) / 100))
+        except ValueError:
+            return 0
+    else:
+        try:
+            return int(value)
+        except ValueError:
+            return 0
+    

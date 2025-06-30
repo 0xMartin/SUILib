@@ -6,7 +6,7 @@ import pygame
 from SUILib.guielement import GUIElement, Container
 from SUILib.events import SUIEvents
 from SUILib.elements.vertical_scrollbar import VerticalScrollbar
-from SUILib.utils import overrides
+from SUILib.utils import overrides, parser_udim
 from SUILib.colors import color_change
 
 
@@ -97,8 +97,10 @@ class ListPanel(GUIElement, Container):
 
     @overrides(GUIElement)
     def draw(self, view, screen):
+        corner_radius = parser_udim(super().get_style()["corner_radius"], super().get_view_rect())
+
         # Draw background
-        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["background_color"], super().get_view_rect(), border_radius=corner_radius)
 
         # Draw list items
         if len(self._data) != 0:
@@ -116,7 +118,7 @@ class ListPanel(GUIElement, Container):
                     # Barva pro zvýraznění řádku při hoveru
                     c = super().get_style()["background_color"]
                     highlight = color_change(c, -0.2 if c[0] > 128 else 0.6)
-                    pygame.draw.rect(screen, highlight, item_rect, border_radius=3)
+                    pygame.draw.rect(screen, highlight, item_rect, border_radius=corner_radius)
                 text = self.font.render(
                     line, 1, super().get_style()["foreground_color"])
                 screen.blit(text, (super().get_x() + 10, offset))
@@ -127,7 +129,7 @@ class ListPanel(GUIElement, Container):
         self._v_scroll.draw(view, screen)
 
         # Draw outline
-        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=5)
+        pygame.draw.rect(screen, super().get_style()["outline_color"], super().get_view_rect(), 2, border_radius=corner_radius)
 
 
     @overrides(GUIElement)
