@@ -110,6 +110,14 @@
         "font_size": 18,
         "font_bold": "False"
     },
+    "TextArea": {
+        "outline_color": "190, 190, 190",
+        "foreground_color": "30, 30, 30",
+        "background_color": "245, 245, 245",
+        "font_name": "Helvetica",
+        "font_size": 18,
+        "font_bold": "False"
+    },
     "VerticalScrollbar": {
         "outline_color": "195, 195, 195",
         "background_color": "220, 220, 220",

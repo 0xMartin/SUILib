@@ -76,7 +76,7 @@
         "background_color": "40, 30, 50",
         "corner_radius": "50%",
         "label": {
-            "foreground_color": "140, 140, 140",
+            "foreground_color": "170, 170, 170",
             "font_name": "Verdena",
             "font_size": 22,
             "font_bold": "False"
@@ -109,6 +109,15 @@
         "foreground_color": "220, 220, 220",
         "background_color": "25, 25, 25",
         "corner_radius": "15%",
+        "font_name": "Helvetica",
+        "font_size": 18,
+        "font_bold": "False"
+    },
+    "TextArea": {
+        "outline_color": "45, 45, 45",
+        "foreground_color": "220, 220, 220",
+        "background_color": "25, 25, 25",
+        "corner_radius": "5%",
         "font_name": "Helvetica",
         "font_size": 18,
         "font_bold": "False"

@@ -3,13 +3,13 @@ CheckBox UI element for SUILib
 """
 
 import pygame
-from SUILib.guielement import GUIElement, Container
+from SUILib.guielement import GUIElement
 from SUILib.utils import overrides, parser_udim
 from SUILib.colors import color_change
 from SUILib.elements.label import Label
 
 
-class CheckBox(GUIElement, Container):
+class CheckBox(GUIElement):
     """
     Represents a checkbox UI element with a label for SUILib applications.
 
@@ -135,7 +135,3 @@ class CheckBox(GUIElement, Container):
         super().process_event(view, event)
         if self.is_focused() and event.type == pygame.MOUSEBUTTONDOWN:
             self._checked = not self._checked
-
-    @overrides(Container)  
-    def get_childs(self):
-        return [self._label]

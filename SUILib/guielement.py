@@ -439,7 +439,7 @@ class GUIElement(metaclass=abc.ABCMeta):
                     self.trigger_event(SUIEvents.EVENT_ON_CLICK, event)
                     # Focus gained if mouse button is pressed over the element
                     if not self.is_focused():
-                        self._focused = True
+                        self.focus()
                         self.trigger_event(SUIEvents.EVENT_ON_FOCUS, event)
                 elif event.button == 3:
                     # Trigger right click event if right mouse button is pressed
@@ -447,7 +447,7 @@ class GUIElement(metaclass=abc.ABCMeta):
             else:
                 # Focus lost if mouse button is pressed outside the element
                 if self.is_focused():
-                    self._focused = False
+                    self.un_focus()
                     self.trigger_event(SUIEvents.EVENT_ON_BLUR, event)
 
         elif event.type == pygame.MOUSEBUTTONUP:

@@ -172,7 +172,11 @@ class View2(View):
         self.progress_bar = ProgressBar(self, None, 0, 0, 100)
         self.progress_bar.set_label_format("@ (#%)")
         self.progress_bar.set_anchor("50%", "50%")
-        panel3.add_element(self.progress_bar, ['50%', '50%', '50%', '10%'])
+        panel3.add_element(self.progress_bar, ['50%', '10%', '50%', '10%'])
+
+        text_area = TextArea(self, None, "This is a text area.\nYou can type multiple lines here.\nIt supports scrolling and text input.")
+        text_area.set_anchor("50%", "0")
+        panel3.add_element(text_area, ['50%', '20%', '70%', '80%'])
 
         # --------------------------------------------------------------------
         # Tab panel

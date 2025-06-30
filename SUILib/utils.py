@@ -129,8 +129,16 @@ def run_task_async(task, *args, **kwargs):
     """
     Run a function asynchronously in a new thread and register it in the ThreadManager.
     When the thread finishes, it's automatically deregistered.
+
+    Args:
+        task (callable): The function to run in the thread.
+        args (tuple): Positional arguments to pass to the task function.
+        kwargs (dict): Keyword arguments to pass to the task function.
+
+    Returns:
+        ManagedThread: The thread that was created to run the task.
     """
-    ThreadManager.instance().run_task(task, *args, **kwargs)
+    return ThreadManager.instance().run_task(task, *args, **kwargs)
 
 def parser_udim(value: str, view_rect: pygame.Rect = None) -> int:
     """

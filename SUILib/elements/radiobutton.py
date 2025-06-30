@@ -3,13 +3,13 @@ RadioButton UI element for SUILib
 """
 
 import pygame
-from SUILib.guielement import GUIElement, Container
+from SUILib.guielement import GUIElement
 from SUILib.events import SUIEvents
 from SUILib.utils import overrides
 from SUILib.colors import color_change
 from SUILib.elements.label import Label
 
-class RadioButton(GUIElement, Container):
+class RadioButton(GUIElement):
     """
     Represents a radio button UI element for SUILib applications.
 
@@ -113,10 +113,6 @@ class RadioButton(GUIElement, Container):
             if super().get_view_rect().collidepoint(event.pos):
                 super().trigger_event(SUIEvents.EVENT_ON_CHANGE, self._label.get_text())
                 self._group.check_radio_button(self)
-    
-    @overrides(Container)  
-    def get_childs(self):
-        return [self._label]
 
 
 class RadioButtonGroup:

@@ -46,6 +46,7 @@ from SUILib.elements.table import Table
 from SUILib.elements.textinput import TextInput
 from SUILib.elements.togglebutton import ToggleButton
 from SUILib.elements.progressbar import ProgressBar
+from SUILib.elements.textarea import TextArea
 
 __all__ = [
     "Button",
@@ -67,5 +68,6 @@ __all__ = [
     "Table",
     "TextInput",
     "ToggleButton",
-    "ProgressBar"
+    "ProgressBar",
+    "TextArea"
 ]
