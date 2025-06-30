@@ -66,12 +66,26 @@ class Label(GUIElement):
             # need to adjust position based on anchor here because label has no width/height
             anchor_x = super().get_anchor_x()
             anchor_y = super().get_anchor_y()
-            if isinstance(anchor_x, str):
-                x -= text_surface.get_width() // 2
-            elif isinstance(anchor_x, int):
-                x -= int(anchor_x * super().get_width())
-            if isinstance(anchor_y, str):
-                y -= text_surface.get_height() // 2
-            elif isinstance(anchor_y, int):
-                y -= int(anchor_y * super().get_height())
+            x -= self._parse_anchor(anchor_x, text_surface.get_width())
+            y -= self._parse_anchor(anchor_y, text_surface.get_height())
             screen.blit(text_surface, (x, y))
+
+    def _parse_anchor(self, anchor, size):
+        """
+        Convert anchor value (int or percent string) to px offset.
+        Examples:
+            - 0      -> 0
+            - 15     -> 15
+            - "50%"  -> 0.5 * size
+            - "100%" -> size
+        """
+        if isinstance(anchor, int):
+            return anchor
+        elif isinstance(anchor, str) and anchor.endswith('%'):
+            try:
+                percent = float(anchor[:-1]) / 100.0
+                return int(size * percent)
+            except ValueError:
+                return 0
+        else:
+            return 0

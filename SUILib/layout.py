@@ -6,9 +6,9 @@ It includes AbsoluteLayout for pixel/percentage-based positioning and sizing,
 and RelativeLayout for stacking elements relative to a parent in horizontal or vertical fashion.
 """
 
-from .utils import *
-from .colors import *
-from .application import Layout   
+from SUILib.utils import *
+from SUILib.colors import *
+from SUILib.application import Layout   
 
 
 class AbsoluteLayout(Layout):

@@ -11,7 +11,7 @@ import pygame
 from typing import Callable, Dict, List, Optional, Union
 import abc
 import inspect
-from .events import SUIEvents
+from SUILib.events import SUIEvents
 
 # ************************************************************************************************
 # GUIElement class
@@ -260,6 +260,18 @@ class GUIElement(metaclass=abc.ABCMeta):
             anchor_y (int or str): Anchor point as an integer pixel offset or a percentage string
                 (e.g., "50%" for half the height).
         """
+        self._anchor_y = anchor_y
+        self.update_view_rect()
+
+    def set_anchor(self, anchor_x: Union[int, str], anchor_y: Union[int, str]):
+        """
+        Set both anchor points for X and Y positions.
+
+        Args:
+            anchor_x (int or str): Anchor point for X position.
+            anchor_y (int or str): Anchor point for Y position.
+        """
+        self._anchor_x = anchor_x
         self._anchor_y = anchor_y
         self.update_view_rect()
 

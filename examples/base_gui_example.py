@@ -6,7 +6,7 @@ from SUILib.application import Application, View
 from SUILib.events import SUIEvents
 from SUILib.layout import AbsoluteLayout, HBoxLayout
 from SUILib.stylemanager import StyleManager
-from SUILib.utils import overrides
+from SUILib.utils import overrides, run_task_async
 from SUILib.elements import *
 
 VIEW1_ID = 1
@@ -33,6 +33,7 @@ class View1(View):
 
         # Header label
         label = Label(self, None, "VIEW 1", True)
+        label.set_anchor("50%", 0)
         layout.add_element(label, ['50%', '5%'])
 
         # Theme toggle button
@@ -53,7 +54,7 @@ class View1(View):
                 ["A2", "B2", "C2", "D2"],
                 ["A3", "B3", "C3", "D3"],
                 ["A4", "B4", "C4", "D4"],
-            ] * 3  # Repeat rows for demonstration
+            ] * 10  # Repeat rows for demonstration
         }
         table = Table(self, None, table_data)
         layout.add_element(table, ['52%', '15%', '45%', '40%'])
@@ -146,6 +147,7 @@ class View2(View):
         ))
         panel1.add_element(graph, ['50%', '8%', '45%', '90%'])
 
+        # --------------------------------------------------------------------
         # Tab 2 Panel
         panel2 = Panel(self, None)
         panel2.set_layout_manager(AbsoluteLayout(self))
@@ -158,14 +160,26 @@ class View2(View):
         txt.set_filter_pattern(r"^([A-Z][0-9]+)+$")
         panel2.add_element(txt, ['25%', '5%', '50%', '40'])
 
-        box = ComboBox(self, None, ["Option 1", "Option 2", "Option 3"])
-        panel2.add_element(box, ['25%', '45%', '50%', '40'])
+        box = ComboBox(self, None, ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5", "Option 6"])
+        panel2.add_element(box, ['25%', '25%', '50%', '40'])
 
+        # --------------------------------------------------------------------
+        # Tab 3 Panel
+        panel3 = Panel(self, None)
+        panel3.set_layout_manager(AbsoluteLayout(self))
+
+        self.progress_bar = ProgressBar(self, None, 0, 0, 100)
+        self.progress_bar.set_label_format("@ (#%)")
+        self.progress_bar.set_anchor("50%", "50%")
+        panel3.add_element(self.progress_bar, ['50%', '50%', '50%', '10%'])
+
+        # --------------------------------------------------------------------
         # Tab panel
         tab_panel = TabPanel(self, None, [
             Tab("Tab 1", panel1),
             Tab("Tab 2", panel2),
-            Tab("Empty Tab", None)
+            Tab("Tab 3", panel3),
+            Tab("Empty tab", None)  
         ])
 
         layout = AbsoluteLayout(self)
@@ -176,7 +190,8 @@ class View2(View):
     def close_evt(self): pass
 
     @overrides(View)
-    def open_evt(self): pass
+    def open_evt(self):
+        run_task_async(self.progress_bar_animation)
 
     @overrides(View)
     def hide_evt(self): pass
@@ -184,14 +199,27 @@ class View2(View):
     @overrides(View)
     def reload_style_evt(self): pass
 
+    def progress_bar_animation(self, stop_event):
+        value = self.progress_bar.get_min()
+        for _ in range(self.progress_bar.get_max() + 1):
+            if stop_event.is_set():
+                break
+            self.progress_bar.set_value(value)
+            value += 1
+            if self.progress_bar.is_visible():
+                self.request_repaint()
+            pygame.time.delay(50)
+        self.request_repaint()
+        print("Progress bar animation finished.")
+
 
 def main():
     # Initialize views and run the application
     view1 = View1()
     view2 = View2()
     app = Application([view1, view2], dark=False)
-    app.init(640, 400, "SUILib Example", "")
-    app.run(view1)
+    app.init_application(640, 400, "SUILib Example", "")
+    app.run_application(view1)
 
 
 if __name__ == "__main__":

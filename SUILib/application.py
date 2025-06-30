@@ -18,15 +18,17 @@ import abc
 from typing import final
 import os
 
-from .colors import *
-from .utils import *
-from .guielement import GUIElement, Container
-from .stylemanager import StyleManager
+from SUILib.colors import *
+from SUILib.utils import *
+from SUILib.guielement import GUIElement, Container
+from SUILib.threadmanager import ThreadManager
+from SUILib.stylemanager import StyleManager
 
+os.environ['SDL_VIDEO_HIGHDPI'] = '1'
 os.environ['SDL_HINT_VIDEO_HIGHDPI_DISABLED'] = '0'
 
 # Event konstanty
-REPAINT_EVENT = pygame.USEREVENT + 1
+SUILIB_REPAINT_EVENT = pygame.USEREVENT + 1
 
 class Application:
     """
@@ -146,8 +148,17 @@ class Application:
             pygame.Surface: The application window surface.
         """
         return self.screen
+    
+    def get_visible_view(self):
+        """
+        Get the currently visible view in the application.
 
-    def init(self, width: int, height: int, name: str, icon: str):
+        Returns:
+            View: The currently active view, or None if no view is visible.
+        """
+        return self._visible_view
+
+    def init_application(self, width: int, height: int, name: str, icon: str):
         """
         Initialize the application window and resources.
 
@@ -179,7 +190,7 @@ class Application:
             vsync=1)
         self._inited = True
 
-    def run(self, start_view=None) -> bool:
+    def run_application(self, start_view=None) -> bool:
         """
         Start the main event loop and rendering.
 
@@ -203,14 +214,28 @@ class Application:
 
         # Enable periodic repaint if requested
         if self._periodic_repaint_enabled:
-            pygame.time.set_timer(REPAINT_EVENT, int(1000 / self._periodic_repaint_fps))
+            pygame.time.set_timer(SUILIB_REPAINT_EVENT, int(1000 / self._periodic_repaint_fps))
 
         while self._running:
             event = pygame.event.wait()
 
             if event.type == pygame.QUIT:
                 self._running = False
-            elif event.type == REPAINT_EVENT:
+            elif event.type == SUILIB_REPAINT_EVENT:
+                self._needs_repaint = True
+            elif event.type == pygame.VIDEORESIZE:
+                # Nové rozměry
+                self.width, self.height = event.w, event.h
+                # Změň rozměr okna
+                self.screen = pygame.display.set_mode(
+                    (self.width, self.height),
+                    pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.SRCALPHA | pygame.RESIZABLE,
+                    vsync=1
+                )
+                # Aktualizuj layout pro všechny layout managery viditelného view
+                if self._visible_view is not None:
+                    for lm in self._visible_view.layout_manager_list:
+                        lm.update_layout(self.width, self.height)
                 self._needs_repaint = True
             else:
                 if self._visible_view is not None:
@@ -218,16 +243,18 @@ class Application:
                     self._visible_view.update()
                 self._needs_repaint = True  # repaint after every event
 
-            if self._needs_repaint and self._visible_view is not None:
-                if self._visible_view.get_fill_color() is None:
-                    self.screen.fill(self.fill_color)
-                else:
-                    self.screen.fill(self._visible_view.get_fill_color())
-                self._visible_view.render(self.screen)
-                pygame.display.flip()
-                self._needs_repaint = False  # repaint done
+            # Process draw queue
+            if self._visible_view is not None:
+                if self._needs_repaint or event.type == SUILIB_REPAINT_EVENT:
+                    if self._visible_view.get_fill_color() is None:
+                        self.screen.fill(self.fill_color)
+                    else:
+                        self.screen.fill(self._visible_view.get_fill_color())
+                    self._visible_view.render(self.screen)
+                    pygame.display.flip()
+                    self._needs_repaint = False  # repaint done
 
-        pygame.quit()
+        self.close()
         return True
     
     def request_repaint(self):
@@ -235,14 +262,7 @@ class Application:
         Request an immediate repaint of the active view.
         """
         self._needs_repaint = True
-        if self._visible_view is not None:
-            if self._visible_view.get_fill_color() is None:
-                self.screen.fill(self.fill_color)
-            else:
-                self.screen.fill(self._visible_view.get_fill_color())
-            self._visible_view.render(self.screen)
-            pygame.display.flip()
-            self._needs_repaint = False
+        pygame.event.post(pygame.event.Event(SUILIB_REPAINT_EVENT))
 
     def enable_periodic_repaint(self, fps=60):
         """
@@ -270,9 +290,13 @@ class Application:
             Calls close_evt on all views and clears the views list.
         """
         self._running = False
+
         for view in self._views:
             view.close_evt()
         self._views = []
+
+        ThreadManager.instance().stop_all()
+        pygame.quit()
 
     def show_view(self, view) -> bool:
         """
@@ -420,8 +444,7 @@ class View(metaclass=abc.ABCMeta):
         Request a repaint of this view (only if it is currently visible/active).
         Triggers the repaint mechanism in the parent application.
         """
-        if hasattr(self, "app") and self.app is not None and self.app.visible_view == self:
-            self.app._needs_repaint = True
+        if hasattr(self, "app") and self.app is not None and self.app.get_visible_view() == self:
             self.app.request_repaint()
 
     @final

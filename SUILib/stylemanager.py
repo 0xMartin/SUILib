@@ -9,7 +9,7 @@ styling across the entire framework.
 """
 
 import os
-from .utils import *
+from SUILib.utils import *
 
 class StyleManager:
     """

@@ -66,14 +66,16 @@ class ComboBox(GUIElement, Container):
     def update_view_rect(self):
         super().update_view_rect()
         if self._button is not None:
-            self._button.set_width(super().get_height())
-            self._button.set_height(super().get_height())
-            self._button.set_x(super().get_x() + super().get_width() - self._button.get_width())
-            self._button.set_y(super().get_y())
+            self._button.width =  super().get_height()
+            self._button.height = super().get_height()
+            self._button.x = super().get_x() + super().get_width() - self._button.width
+            self._button.y = super().get_y()
+            self._button.update_view_rect()
         if self._listpanel is not None:
-            self._listpanel.set_width(super().get_width())
-            self._listpanel.set_x(super().get_x())
-            self._listpanel.set_y(super().get_y() + super().get_height())
+            self._listpanel.width = super().get_width()
+            self._listpanel.x = super().get_x()
+            self._listpanel.y = super().get_y() + super().get_height()
+            self._listpanel.update_view_rect()
 
     def set_popup_panel_visibility(self, visibility):
         """

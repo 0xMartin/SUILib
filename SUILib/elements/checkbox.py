@@ -32,13 +32,10 @@ class CheckBox(GUIElement, Container):
             x (int, optional): X coordinate of the checkbox. Defaults to 0.
             y (int, optional): Y coordinate of the checkbox. Defaults to 0.
         """
+        self._label = None
         super().__init__(view, x, y, size, size, style)
         self._label = Label(view, super().get_style()["label"], text, x, y)
         self._label.set_anchor_y("50%")
-        self._label.set_offset(
-            super().get_x() + super().get_width() + 5, 
-            super().get_y() + super().get_height() / 2
-        )
         self._checked = checked
 
     def set_text(self, text: str):
@@ -79,11 +76,18 @@ class CheckBox(GUIElement, Container):
         return self._checked
 
     @overrides(GUIElement)
+    def update_view_rect(self):
+        super().update_view_rect()
+        if self._label is not None:
+            self._label.set_position(
+                super().get_x() + super().get_width() + 5, 
+                super().get_y() + super().get_height() / 2
+            )
+
+    @overrides(GUIElement)
     def draw(self, view, screen):
         # Position and draw the label
         if self._label is not None:
-            self._label.set_position(super().get_x(), super().get_y())
-            self.update_view_rect()
             self._label.draw(view, screen)
         # Draw checkbox background
         if super().is_hovered():
@@ -116,7 +120,7 @@ class CheckBox(GUIElement, Container):
                 (super().get_x() + super().get_width() * 0.4, super().get_y() + super().get_width() * 0.75),
                 (super().get_x() + super().get_width() * 0.8, super().get_y() + super().get_width() * 0.2)
             ]
-            pygame.draw.aalines(
+            pygame.draw.lines(
                 screen,
                 super().get_style()["foreground_color"],
                 False,

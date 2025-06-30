@@ -9,11 +9,11 @@ parsing, async execution, and matplotlib graph rendering for pygame integration.
 import pygame
 import os.path
 import json
-import threading
 from time import time
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
+from SUILib.threadmanager import ThreadManager
 
 def overrides(interface_class):
     """
@@ -124,12 +124,9 @@ def get_display_height() -> int:
     """
     return pygame.display.get_surface().get_size().get_height()
 
-def run_task_async(task):
+def run_task_async(task, *args, **kwargs):
     """
-    Run a function asynchronously in a new thread.
-
-    Args:
-        task (function): Function to be run in a separate thread, expected to accept a single argument.
+    Run a function asynchronously in a new thread and register it in the ThreadManager.
+    When the thread finishes, it's automatically deregistered.
     """
-    task = threading.Thread(target=task, args=(1,))
-    task.start()
+    ThreadManager.instance().run_task(task, *args, **kwargs)

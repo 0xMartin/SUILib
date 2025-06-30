@@ -69,6 +69,17 @@
             "font_bold": "False"
         }
     },
+    "ProgressBar": {
+        "outline_color": "45, 45, 45",
+        "foreground_color": "102, 75, 134",
+        "background_color": "40, 30, 50",
+        "label": {
+            "foreground_color": "140, 140, 140",
+            "font_name": "Verdena",
+            "font_size": 22,
+            "font_bold": "False"
+        }
+    },
     "Table": {
         "header": {
             "foreground_color": "190, 190, 190",

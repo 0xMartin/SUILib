@@ -33,13 +33,10 @@ class ToggleButton(GUIElement, Container):
             x (int, optional): X coordinate of the toggle. Defaults to 0.
             y (int, optional): Y coordinate of the toggle. Defaults to 0.
         """
+        self._label = None
         super().__init__(view, x, y, width, height, style)
         self._label = Label(view, super().get_style()["label"], text)
         self._label.set_anchor_y("50%")
-        self._label.set_offset(
-            super().get_x() + super().get_width() + 5, 
-            super().get_y() + super().get_height() / 2
-        )
         self._status = status
 
     def set_text(self, text: str):
@@ -69,6 +66,15 @@ class ToggleButton(GUIElement, Container):
             Label: The label instance.
         """
         return self._label
+
+    @overrides(GUIElement)
+    def update_view_rect(self):
+        super().update_view_rect()
+        if self._label is not None:
+            self._label.set_position(
+                super().get_x() + super().get_width() + 5, 
+                super().get_y() + super().get_height() / 2
+            )
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -108,7 +114,6 @@ class ToggleButton(GUIElement, Container):
             )
         # Label
         if self._label is not None:
-            self._label.set_position(super().get_x(), super().get_y())
             self._label.draw(view, screen)
 
     @overrides(GUIElement)
