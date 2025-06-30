@@ -193,14 +193,16 @@ class TextArea(GUIElement):
         Returns:
             tuple: A tuple containing the line index and column index of the character closest to the mouse position.
         """
+        padding_x = self.get_style()["padding-x"]
+        padding_y = self.get_style()["padding-y"]
         rect = self.get_view_rect()
         visible_lines, line_height = self.get_visible_lines()
-        y = mouse_y - rect.y
+        y = mouse_y - rect.y - padding_y
         idx = int(y // line_height)
         idx = min(max(idx, 0), len(visible_lines) - 1)
         line_index = self._scroll + idx
         line = self._lines[line_index]
-        rel_x = mouse_x - rect.x - 5  # 5px padding
+        rel_x = mouse_x - rect.x - padding_x
         min_dist = float('inf')
         col = 0
         for i in range(len(line) + 1):
@@ -223,8 +225,6 @@ class TextArea(GUIElement):
         dx = rect.x - orig_rect.x
         dy = rect.y - orig_rect.y
 
-        corner_radius = parser_udim(self.get_style()["corner_radius"], orig_rect)
-
         # background
         if self.is_focused():
             c = self.get_style()["background_color"]
@@ -232,14 +232,12 @@ class TextArea(GUIElement):
                 surface,
                 color_change(c, 0.4 if c[0] > 128 else 0.7),
                 pygame.Rect(dx, dy, orig_rect.width, orig_rect.height),
-                border_radius=corner_radius
             )
         else:
             pygame.draw.rect(
                 surface,
                 self.get_style()["background_color"],
                 pygame.Rect(dx, dy, orig_rect.width, orig_rect.height),
-                border_radius=corner_radius
             )
 
         # text clipping region
@@ -248,16 +246,18 @@ class TextArea(GUIElement):
         caret_x = caret_y = None
 
         # selection highlight
+        padding_x = self.get_style()["padding-x"]
+        padding_y = self.get_style()["padding-y"]
         if self._has_selection():
             (r1, c1), (r2, c2) = self._get_selection_range()
             for idx, line in enumerate(visible_lines):
                 line_index = self._scroll + idx
-                y = y_offset + dy
+                y = y_offset + dy + padding_y
                 if r1 <= line_index <= r2:
                     start_col = c1 if line_index == r1 else 0
                     end_col = c2 if line_index == r2 else len(self._lines[line_index])
-                    x1 = 5 + dx + self._font.size(self._lines[line_index][:start_col])[0]
-                    x2 = 5 + dx + self._font.size(self._lines[line_index][:end_col])[0]
+                    x1 = padding_x + dx + self._font.size(self._lines[line_index][:start_col])[0]
+                    x2 = padding_x + dx + self._font.size(self._lines[line_index][:end_col])[0]
                     pygame.draw.rect(
                         surface,
                         self.get_style().get("selection_color", (40, 120, 200, 120)),
@@ -269,10 +269,10 @@ class TextArea(GUIElement):
         # text and caret
         for idx, line in enumerate(visible_lines):
             text_surface = self._font.render(line, 1, self.get_style()["foreground_color"])
-            surface.blit(text_surface, (5 + dx, y_offset + dy))
+            surface.blit(text_surface, (padding_x + dx, y_offset + dy + padding_y))
             if self.is_focused() and (self._caret_row - self._scroll) == idx:
-                caret_x = 5 + dx + self._font.size(line[:self._caret_col])[0]
-                caret_y = y_offset + dy
+                caret_x = dx + self._font.size(line[:self._caret_col])[0] + padding_x
+                caret_y = y_offset + dy + padding_y
             y_offset += line_height
 
         # caret
@@ -290,8 +290,7 @@ class TextArea(GUIElement):
             surface,
             self.get_style()["outline_color"],
             pygame.Rect(dx, dy, orig_rect.width, orig_rect.height),
-            2,
-            border_radius=corner_radius
+            2
         )
 
     @overrides(GUIElement)

@@ -117,10 +117,11 @@
         "outline_color": "45, 45, 45",
         "foreground_color": "220, 220, 220",
         "background_color": "25, 25, 25",
-        "corner_radius": "5%",
         "font_name": "Helvetica",
         "font_size": 18,
-        "font_bold": "False"
+        "font_bold": "False",
+        "padding-x": 10,
+        "padding-y": 10
     },
     "VerticalScrollbar": {
         "outline_color": "45, 45, 45",
