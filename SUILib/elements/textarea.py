@@ -7,10 +7,12 @@ import re
 import string
 import time
 from SUILib.guielement import GUIElement
-from SUILib.utils import overrides, parser_udim, generate_signal
+from SUILib.utils import overrides, generate_signal
 from SUILib.colors import color_change
 from SUILib.events import SUIEvents
 from SUILib.threadmanager import ThreadManager
+from SUILib.elements.vertical_scrollbar import VerticalScrollbar
+from SUILib.elements.horizontal_scrollbar import HorizontalScrollbar
 
 class TextArea(GUIElement):
     """
@@ -34,19 +36,29 @@ class TextArea(GUIElement):
             y (int): Y position of the TextArea. Defaults to 0.
         """
         super().__init__(view, x, y, width, height, style, pygame.SYSTEM_CURSOR_IBEAM)
+
         self._filter_pattern = None
         self._lines = text.split('\n')
         self._caret_row = len(self._lines) - 1
         self._caret_col = len(self._lines[-1]) if self._lines else 0
+
         self._font = pygame.font.SysFont(
             self.get_style()["font_name"],
             self.get_style()["font_size"],
             bold=self.get_style()["font_bold"]
         )
+
         self._scroll = 0
         self._caret_blink_thread = None
         self._selection_anchor = None  # (row, col) or None
         self._mouse_selecting = False
+
+        self._v_scroll = VerticalScrollbar(view, self.get_style()["scrollbar"], self.get_style()["scrollbar_width"])
+        self._v_scroll.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self._scrollbar_vertical_changed)
+        self._h_scroll = HorizontalScrollbar(view, self.get_style()["scrollbar"], self.get_style()["scrollbar_width"])
+        self._h_scroll.add_event_callback(SUIEvents.EVENT_ON_CHANGE, self._scrollbar_horizontal_changed)
+        self._scroll_x = 0.0  
+        self._scroll_y = 0.0
 
     def set_text(self, text: str):
         """
@@ -92,19 +104,6 @@ class TextArea(GUIElement):
         max_lines = max(rect.height // line_height, 1)
         return self._lines[self._scroll:self._scroll+max_lines], line_height
 
-    def _caret_blink_loop(self, stop_event):
-        """
-        A loop that blinks the caret by requesting a repaint of the TextArea
-        at regular intervals while the TextArea is focused.
-
-        Args:
-            stop_event (Event): An event that signals when to stop the caret blink loop.
-        """
-        while not stop_event.is_set():
-            if self.is_focused():
-                super().get_view().request_repaint()
-            time.sleep(0.4)
-
     @overrides(GUIElement)
     def focus(self):
         super().focus()
@@ -129,89 +128,6 @@ class TextArea(GUIElement):
 
         # Trigger an event to notify that the text has changed
         self.trigger_event(SUIEvents.EVENT_ON_CHANGE, self.get_text())
-
-    def _has_selection(self):
-        """
-        Checks if there is a text selection in the TextArea.
-
-        Returns:
-            bool: True if there is a selection, False otherwise.
-        """
-        return self._selection_anchor is not None and (self._selection_anchor != (self._caret_row, self._caret_col))
-
-    def _get_selection_range(self):
-        """
-        Returns the range of the current text selection as a tuple of tuples.
-
-        Returns:
-            tuple: A tuple containing the start and end positions of the selection as ((row1, col1), (row2, col2)).
-                   Returns None if there is no selection.
-        """
-        if not self._has_selection():
-            return None
-        (row1, col1) = self._selection_anchor
-        (row2, col2) = (self._caret_row, self._caret_col)
-        if (row1, col1) <= (row2, col2):
-            return (row1, col1), (row2, col2)
-        else:
-            return (row2, col2), (row1, col1)
-
-    def _clear_selection(self):
-        """
-        Clears the current text selection in the TextArea.
-        Resets the selection anchor and caret position.
-        """
-        self._selection_anchor = None
-
-    def _delete_selection(self):
-        """
-        Deletes the currently selected text in the TextArea.
-        If there is a selection, it removes the selected text and updates the caret position.
-        If the selection spans multiple lines, it merges the lines into one.
-        """
-        sel = self._get_selection_range()
-        if sel:
-            (r1, c1), (r2, c2) = sel
-            if r1 == r2:
-                self._lines[r1] = self._lines[r1][:c1] + self._lines[r1][c2:]
-                self._caret_row, self._caret_col = r1, c1
-            else:
-                first = self._lines[r1][:c1]
-                last = self._lines[r2][c2:]
-                self._lines[r1:r2+1] = [first + last]
-                self._caret_row, self._caret_col = r1, c1
-            self._clear_selection()
-
-    def _get_char_pos_from_mouse(self, mouse_x, mouse_y):
-        """
-        Calculate the character position in the text area based on mouse coordinates.
-        
-        Args:
-            mouse_x (int): The x-coordinate of the mouse position.
-            mouse_y (int): The y-coordinate of the mouse position.  
-            
-        Returns:
-            tuple: A tuple containing the line index and column index of the character closest to the mouse position.
-        """
-        padding_x = self.get_style()["padding-x"]
-        padding_y = self.get_style()["padding-y"]
-        rect = self.get_view_rect()
-        visible_lines, line_height = self.get_visible_lines()
-        y = mouse_y - rect.y - padding_y
-        idx = int(y // line_height)
-        idx = min(max(idx, 0), len(visible_lines) - 1)
-        line_index = self._scroll + idx
-        line = self._lines[line_index]
-        rel_x = mouse_x - rect.x - padding_x
-        min_dist = float('inf')
-        col = 0
-        for i in range(len(line) + 1):
-            char_x = self._font.size(line[:i])[0]
-            dist = abs(char_x - rel_x)
-            if dist < min_dist:
-                min_dist = dist
-                col = i
-        return (line_index, col)
 
     @overrides(GUIElement)
     def draw(self, view, screen):
@@ -284,6 +200,11 @@ class TextArea(GUIElement):
                 (caret_x, caret_y + line_height - 3),
                 2
             )
+
+        # draw v_scrollbar
+        self._v_scroll.draw(view, screen)
+        # draw h_scrollbar
+        self._h_scroll.draw(view, screen)
 
         # outline
         pygame.draw.rect(
@@ -449,3 +370,130 @@ class TextArea(GUIElement):
                         self._lines[self._caret_row] = line[:self._caret_col] + event.unicode + line[self._caret_col:]
                         self._caret_col += 1
                         self._clear_selection()
+
+    def _caret_blink_loop(self, stop_event):
+        """
+        A loop that blinks the caret by requesting a repaint of the TextArea
+        at regular intervals while the TextArea is focused.
+
+        Args:
+            stop_event (Event): An event that signals when to stop the caret blink loop.
+        """
+        while not stop_event.is_set():
+            if self.is_focused():
+                super().get_view().request_repaint()
+            time.sleep(0.4)
+
+    def _has_selection(self):
+        """
+        Checks if there is a text selection in the TextArea.
+
+        Returns:
+            bool: True if there is a selection, False otherwise.
+        """
+        return self._selection_anchor is not None and (self._selection_anchor != (self._caret_row, self._caret_col))
+
+    def _get_selection_range(self):
+        """
+        Returns the range of the current text selection as a tuple of tuples.
+
+        Returns:
+            tuple: A tuple containing the start and end positions of the selection as ((row1, col1), (row2, col2)).
+                   Returns None if there is no selection.
+        """
+        if not self._has_selection():
+            return None
+        (row1, col1) = self._selection_anchor
+        (row2, col2) = (self._caret_row, self._caret_col)
+        if (row1, col1) <= (row2, col2):
+            return (row1, col1), (row2, col2)
+        else:
+            return (row2, col2), (row1, col1)
+
+    def _clear_selection(self):
+        """
+        Clears the current text selection in the TextArea.
+        Resets the selection anchor and caret position.
+        """
+        self._selection_anchor = None
+
+    def _delete_selection(self):
+        """
+        Deletes the currently selected text in the TextArea.
+        If there is a selection, it removes the selected text and updates the caret position.
+        If the selection spans multiple lines, it merges the lines into one.
+        """
+        sel = self._get_selection_range()
+        if sel:
+            (r1, c1), (r2, c2) = sel
+            if r1 == r2:
+                self._lines[r1] = self._lines[r1][:c1] + self._lines[r1][c2:]
+                self._caret_row, self._caret_col = r1, c1
+            else:
+                first = self._lines[r1][:c1]
+                last = self._lines[r2][c2:]
+                self._lines[r1:r2+1] = [first + last]
+                self._caret_row, self._caret_col = r1, c1
+            self._clear_selection()
+
+    def _get_char_pos_from_mouse(self, mouse_x, mouse_y):
+        """
+        Calculate the character position in the text area based on mouse coordinates.
+        
+        Args:
+            mouse_x (int): The x-coordinate of the mouse position.
+            mouse_y (int): The y-coordinate of the mouse position.  
+            
+        Returns:
+            tuple: A tuple containing the line index and column index of the character closest to the mouse position.
+        """
+        padding_x = self.get_style()["padding-x"]
+        padding_y = self.get_style()["padding-y"]
+        rect = self.get_view_rect()
+        visible_lines, line_height = self.get_visible_lines()
+        y = mouse_y - rect.y - padding_y
+        idx = int(y // line_height)
+        idx = min(max(idx, 0), len(visible_lines) - 1)
+        line_index = self._scroll + idx
+        line = self._lines[line_index]
+        rel_x = mouse_x - rect.x - padding_x
+        min_dist = float('inf')
+        col = 0
+        for i in range(len(line) + 1):
+            char_x = self._font.size(line[:i])[0]
+            dist = abs(char_x - rel_x)
+            if dist < min_dist:
+                min_dist = dist
+                col = i
+        return (line_index, col)
+    
+    def _scrollbar_vertical_changed(self, pos: float):
+        """
+        Handles the vertical scrollbar change event to update the scroll position.
+
+        Args:
+            pos (float): The new position of the vertical scrollbar, normalized between 0 and 1.
+        """
+        max_scroll = max(0, len(self._lines) - self._max_visible_lines())
+        self._scroll = int(round(pos * max_scroll))
+        self._scroll_y = pos
+
+    def _scrollbar_horizontal_changed(self, pos: float):
+        """
+        Handles the horizontal scrollbar change event to update the horizontal scroll position.
+
+        Args:
+            pos (float): The new position of the horizontal scrollbar, normalized between 0 and 1.
+        """
+        self._scroll_x = pos
+
+    def _max_visible_lines(self):
+        """
+        Calculates the maximum number of visible lines in the text area.
+
+        Returns:
+            int: The maximum number of visible lines based on the height of the TextArea and the
+        """
+        rect = self.get_view_rect()
+        line_height = self._font.get_linesize()
+        return max(rect.height // line_height, 1)

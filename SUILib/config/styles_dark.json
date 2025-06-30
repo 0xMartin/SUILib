@@ -121,7 +121,13 @@
         "font_size": 18,
         "font_bold": "False",
         "padding-x": 10,
-        "padding-y": 10
+        "padding-y": 10,
+        "scrollbar_width": 16,
+        "scrollbar": {
+            "outline_color": "45, 45, 45",
+            "background_color": "55, 55, 55",
+            "foreground_color": "75, 75, 75"
+        }
     },
     "VerticalScrollbar": {
         "outline_color": "45, 45, 45",
